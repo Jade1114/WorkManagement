@@ -3,8 +3,10 @@ package org.example.backend.vo;
 import lombok.Data;
 
 @Data
-public class UserVO {
-    private Long id;
+public class LoginResponse {
+    private String token;
+    private Long userId;
     private String username;
     private String role;
 }
+

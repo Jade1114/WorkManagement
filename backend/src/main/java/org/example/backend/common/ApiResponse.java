@@ -45,7 +45,7 @@ public class ApiResponse<T> {
         return resp;
     }
 
-    // 错误
+    // 错误(自定义消息+ 错误代码)
     public static <T> ApiResponse<T> error(Integer code, String message) {
         ApiResponse<T> resp = new ApiResponse<>();
         resp.setCode(code);

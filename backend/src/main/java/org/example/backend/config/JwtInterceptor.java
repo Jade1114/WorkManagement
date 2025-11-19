@@ -1,5 +1,7 @@
 package org.example.backend.config;
 
+import jakarta.annotation.Resource;
+import org.example.backend.common.exception.TokenInvalidException;
 import org.example.backend.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,38 +11,25 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class JwtInterceptor implements HandlerInterceptor {
 
-    private final JwtUtil jwtUtil;
-
-    public JwtInterceptor(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
+    @Resource
+    private JwtUtil jwtUtil;
 
     @Override
     public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object handler)
             throws Exception {
 
-        String uri = req.getRequestURI();
-
-        // 放行 Auth 接口（登录、注册、刷新等）
-        if (uri.startsWith("/api/auth")) {
-            return true;
-        }
-
-        // 获取 Authorization Bearer token
+        // 获取 Authorization 头
         String authHeader = req.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            resp.setStatus(401);
-            return false;
+            throw new TokenInvalidException("未携带 token 或格式错误");
         }
 
-        String token = authHeader.substring(7).trim();
+        // 提取 token
+        String token = authHeader.substring(7);
 
-        // 校验 token（是否过期/伪造）
-        if (jwtUtil.verifyToken(token) == null) {
-            resp.setStatus(401);
-            return false;
-        }
+        // 校验 token 是否有效（过期、无效都会解析失败）
+        jwtUtil.verifyToken(token);
 
         return true;
     }

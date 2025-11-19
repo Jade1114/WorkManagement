@@ -1,42 +1,27 @@
 package org.example.backend.service.impl;
 
-import org.example.backend.common.exception.TokenInvalidException;
+import jakarta.annotation.Resource;
 import org.example.backend.dto.LoginRequest;
 import org.example.backend.dto.RegisterRequest;
 import org.example.backend.entity.User;
 import org.example.backend.repository.UserRepository;
 import org.example.backend.service.AuthService;
 import org.example.backend.util.JwtUtil;
-import org.example.backend.vo.UserVO;
+import org.example.backend.vo.LoginResponse;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
+
+    @Resource
+    private UserRepository userRepository;
+
+    @Resource
+    private JwtUtil jwtUtil;
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
-    public AuthServiceImpl(UserRepository userRepository, JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
-    }
-
-    @Override
-    public String login(LoginRequest req) {
-
-        User user = userRepository.findByUsername(req.getUsername())
-                .orElseThrow(() -> new RuntimeException("用户不存在"));
-
-        if (!encoder.matches(req.getPassword(), user.getPassword())) {
-            throw new RuntimeException("密码错误");
-        }
-
-        // 直接生成并返回 token（不再加入白名单）
-        return jwtUtil.createToken(user.getId(), user.getRole());
-    }
 
     @Override
     public void register(RegisterRequest req) {
@@ -45,31 +30,47 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("用户名已存在");
         }
 
+
         User user = new User();
         user.setUsername(req.getUsername());
         user.setPassword(encoder.encode(req.getPassword()));  // BCrypt 加密
         user.setRole("student");  // 注册的用户固定是学生
 
-        userRepository.save(user);
+        try {
+            userRepository.save(user);
+        } catch (Exception e) {
+            throw e; // 由全局异常捕捉转为500 服务器内部错误
+        }
     }
 
     @Override
-    public Object getCurrentUser(String token) {
+    public LoginResponse login(LoginRequest req) {
 
-        Long userId = jwtUtil.getUserId(token);
+        String username = req.getUsername();
+        String password = req.getPassword();
 
-        if (userId == null) {
-            throw new TokenInvalidException("token无效或已过期");
+        // 1. 查询用户是否存在
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("用户名或密码错误");
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("用户不存在"));
+        // 2. 校验密码
+        if (!encoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("用户名或密码错误");
+        }
 
-        UserVO vo = new UserVO();
-        vo.setId(user.getId());
-        vo.setUsername(user.getUsername());
-        vo.setRole(user.getRole());
+        // 3. 生成 token
+        String token = jwtUtil.createToken(user.getId(), user.getRole());
 
-        return vo;
+        // 4. 返回 LoginResponse
+
+        LoginResponse res = new LoginResponse();
+        res.setToken(token);
+        res.setUserId(user.getId());
+        res.setUsername(user.getUsername());
+        res.setRole(user.getRole());
+
+        return res;
     }
 }

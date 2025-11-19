@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.example.backend.common.exception.TokenInvalidException;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -31,7 +32,7 @@ public class JwtUtil {
         try {
             return JWT.require(algorithm).build().verify(token);
         } catch (JWTVerificationException e) {
-            return null;
+            throw new TokenInvalidException("token 无效或已过期");
         }
     }
 

@@ -65,8 +65,6 @@ Authorization: Bearer <token>
 }
 ```
 
-> 注：也可以用 `/api/auth/me`，两者任选其一即可。
-
 ---
 
 # 2. **修改密码**

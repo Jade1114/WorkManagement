@@ -84,16 +84,6 @@
 }
 ```
 
-密码为空：
-
-```json
-{
-  "code": 400,
-  "message": "密码不能为空",
-  "data": null
-}
-```
-
 ---
 
 # 2. **登录接口**
@@ -140,37 +130,27 @@
 
 ### 响应（失败示例）
 
-用户名不存在：
+用户名/密码错误：
 
 ```json
 {
   "code": 400,
-  "message": "用户不存在",
+  "message": "用户名或密码错误",
   "data": null
 }
 ```
 
-密码错误：
-
-```json
-{
-  "code": 400,
-  "message": "密码错误",
-  "data": null
-}
-```
 
 ---
 
-# 3. **退出接口（使用黑名单机制）**
+# 3. **退出接口**
 
 ## **POST /api/auth/logout**
 
 ### 描述
 
 * 前端请求退出登录
-* 后端将当前 token 加入黑名单
-* 前端自行清除 token
+* 后端直接退出
 
 ---
 
@@ -188,53 +168,6 @@ Authorization: Bearer <token>
 {
   "code": 200,
   "message": "退出成功",
-  "data": null
-}
-```
-
----
-
-# 4. **获取当前登录用户信息**
-
-## **GET /api/auth/me**
-
-### 描述
-
-* 获取登录用户自己的信息
-* 必须携带 token
-
----
-
-### 请求头
-
-```
-Authorization: Bearer <token>
-```
-
----
-
-### 响应（成功）
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {
-    "id": 1,
-    "username": "20240123",
-    "role": "student"
-  }
-}
-```
-
----
-
-### 响应（未登录 / token 无效）
-
-```json
-{
-  "code": 401,
-  "message": "token无效或已过期",
   "data": null
 }
 ```
@@ -264,13 +197,11 @@ Authorization: Bearer <token>
 ### Auth 模块使用的安全机制：
 
 | 功能              | 是否包含 | 实现方式                |
-| --------------- | ---- | ------------------- |
+| --------------- | ---- |---------------------|
 | JWT 登录认证        | ✔    | jjwt / auth0 jwt    |
 | Token 过期        | ✔    | exp 属性              |
-| Token 黑名单       | ✔    | ConcurrentHashMap   |
-| 退出机制            | ✔    | 黑名单 +清理 token       |
+| 退出机制            | ✔    | 直接退出                |
 | 权限注解            | ✔    | @RequiresRole + AOP |
-| Spring Security | ✖    | 不使用                 |
 | 全局异常处理          | ✔    | @ControllerAdvice   |
 
 ---
