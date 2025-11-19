@@ -79,7 +79,8 @@ Authorization: Bearer <token>
   "code": 200,
   "message": "课程创建成功",
   "data": {
-    "id": 1
+    "id": 1,
+    "title": "Java 程序设计"
   }
 }
 ```
