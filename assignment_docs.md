@@ -76,7 +76,11 @@ Authorization: Bearer <token>
   "code": 200,
   "message": "作业创建成功",
   "data": {
-    "id": 10
+    "id": 10,
+    "courseId": 1,
+    "title": "第1次作业",
+    "content": "完成 Java 基础练习题",
+    "deadline": "2024-12-31 23:59:59"
   }
 }
 ```
