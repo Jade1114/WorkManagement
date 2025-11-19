@@ -30,7 +30,6 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("用户名已存在");
         }
 
-
         User user = new User();
         user.setUsername(req.getUsername());
         user.setPassword(encoder.encode(req.getPassword()));  // BCrypt 加密
@@ -64,13 +63,6 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtUtil.createToken(user.getId(), user.getRole());
 
         // 4. 返回 LoginResponse
-
-        LoginResponse res = new LoginResponse();
-        res.setToken(token);
-        res.setUserId(user.getId());
-        res.setUsername(user.getUsername());
-        res.setRole(user.getRole());
-
-        return res;
+        return new LoginResponse(token, user.getId(), user.getUsername(), user.getRole());
     }
 }

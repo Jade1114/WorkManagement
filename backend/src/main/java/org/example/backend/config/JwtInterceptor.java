@@ -18,17 +18,14 @@ public class JwtInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object handler)
             throws Exception {
 
-        // 获取 Authorization 头
-        String authHeader = req.getHeader("Authorization");
+        String header = req.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (header == null || !header.startsWith("Bearer ")) {
             throw new TokenInvalidException("未携带 token 或格式错误");
         }
 
-        // 提取 token
-        String token = authHeader.substring(7);
+        String token = header.substring(7).trim();
 
-        // 校验 token 是否有效（过期、无效都会解析失败）
         jwtUtil.verifyToken(token);
 
         return true;

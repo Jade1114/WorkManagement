@@ -2,7 +2,9 @@ package org.example.backend.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.AlgorithmMismatchException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.example.backend.common.exception.TokenInvalidException;
 import org.springframework.stereotype.Component;
@@ -29,10 +31,23 @@ public class JwtUtil {
 
     // 校验 token（过期/伪造）
     public DecodedJWT verifyToken(String token) {
+        if (token == null) {
+            throw new TokenInvalidException("未提供 token");
+        }
+
         try {
-            return JWT.require(algorithm).build().verify(token);
+            return JWT.require(algorithm)
+                    .build()
+                    .verify(token);
+        } catch (TokenExpiredException e) {
+            // 建议这里打一下日志
+            // log.warn("token 已过期: {}", e.getMessage());
+            throw new TokenInvalidException("token 已过期");
+        } catch (AlgorithmMismatchException e) {
+            throw new TokenInvalidException("token 算法不匹配");
         } catch (JWTVerificationException e) {
-            throw new TokenInvalidException("token 无效或已过期");
+            // 其他校验失败，比如签名不对、格式不对
+            throw new TokenInvalidException("token 无效");
         }
     }
 
