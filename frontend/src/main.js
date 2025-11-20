@@ -1,20 +1,17 @@
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
 import App from './App.vue'
-import router from './router'
+import { createPinia } from 'pinia'
+
+import 'element-plus/dist/index.css'
 import './style.css'
+import axios from "axios";
+import router from './router'
 
 const app = createApp(App)
+const pinia = createPinia()
 
-// 注册 Pinia
-app.use(createPinia())
+axios.defaults.baseURL = 'http://localhost:8080'
 
-// 注册 Router
 app.use(router)
-
-// 注册 Element Plus
-app.use(ElementPlus)
-
+app.use(pinia)
 app.mount('#app')
