@@ -26,6 +26,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void register(RegisterRequest req) {
 
+        if (req.getUsername() == null || req.getUsername().isBlank()) {
+            throw new RuntimeException("用户名不能为空");
+        }
+        if (req.getPassword() == null || req.getPassword().isBlank()) {
+            throw new RuntimeException("密码不能为空");
+        }
+
         if (userRepository.existsByUsername(req.getUsername())) {
             throw new RuntimeException("用户名已存在");
         }
@@ -47,6 +54,10 @@ public class AuthServiceImpl implements AuthService {
 
         String username = req.getUsername();
         String password = req.getPassword();
+
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            throw new RuntimeException("用户名或密码错误");
+        }
 
         // 1. 查询用户是否存在
         User user = userRepository.findByUsername(username);

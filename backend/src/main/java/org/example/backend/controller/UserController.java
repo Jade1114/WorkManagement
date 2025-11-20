@@ -24,28 +24,25 @@ public class UserController {
 
     @GetMapping("/me")
     public ApiResponse<UserResponse> me(HttpServletRequest request) {
-        String token = request.getHeader("Authorization").substring(7);
-        Long userId = jwtUtil.getUserId(token);
+        Long userId = jwtUtil.getUserId(request);
         return ApiResponse.success(userService.getCurrentUser(userId));
     }
 
 
     @PutMapping("/changePassword")
-    public ApiResponse<String> changePassword(
-            HttpServletRequest request,
-            @RequestBody ChangePasswordRequest req
-    ) {
-
-        String token = request.getHeader("Authorization").substring(7);
-        Long userId = jwtUtil.getUserId(token);
-
+    public ApiResponse<String> changePassword(HttpServletRequest request,
+                                              @RequestBody ChangePasswordRequest req) {
+        Long userId = jwtUtil.getUserId(request);
         return ApiResponse.success(
                 userService.changePassword(userId, req.getOldPassword(), req.getNewPassword())
         );
     }
 
     @GetMapping("/students")
-    public ApiResponse<List<UserResponse>> getAllStudents() {
+    public ApiResponse<List<UserResponse>> getAllStudents(HttpServletRequest request) {
+        if (!"teacher".equals(jwtUtil.getRole(request))) {
+            throw new RuntimeException("权限不足");
+        }
         return ApiResponse.success(userService.getAllUsers());
     }
 }

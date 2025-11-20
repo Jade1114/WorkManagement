@@ -1,9 +1,11 @@
 package org.example.backend.controller;
 
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.backend.common.ApiResponse;
 import org.example.backend.dto.AssignmentCreateRequest;
 import org.example.backend.service.AssignmentService;
+import org.example.backend.util.JwtUtil;
 import org.example.backend.vo.AssignmentResponse;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +18,16 @@ public class AssignmentController {
     @Resource
     private AssignmentService assignmentService;
 
+    @Resource
+    private JwtUtil jwtUtil;
+
     // 创建作业
     @PostMapping("/create")
-    public ApiResponse<AssignmentResponse> create(@RequestBody AssignmentCreateRequest req) {
+    public ApiResponse<AssignmentResponse> create(HttpServletRequest request,
+                                                  @RequestBody AssignmentCreateRequest req) {
+        if (!"teacher".equals(jwtUtil.getRole(request))) {
+            throw new RuntimeException("权限不足");
+        }
         return ApiResponse.success(assignmentService.createAssignment(req));
     }
 

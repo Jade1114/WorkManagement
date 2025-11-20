@@ -23,35 +23,42 @@ public class SubmissionController {
     @PostMapping("/submit")
     public ApiResponse<?> submit(HttpServletRequest request,
                                  @RequestBody SubmissionCreateRequest req) {
-        Long studentId = getUserIdFromToken(request);
+        if (!"student".equals(jwtUtil.getRole(request))) {
+            throw new RuntimeException("权限不足");
+        }
+        Long studentId = jwtUtil.getUserId(request);
         return ApiResponse.success(submissionService.submit(studentId, req));
     }
 
     @GetMapping("/my")
     public ApiResponse<?> mySubmission(HttpServletRequest request,
                                        @RequestParam Long assignmentId) {
-        Long studentId = getUserIdFromToken(request);
+        if (!"student".equals(jwtUtil.getRole(request))) {
+            throw new RuntimeException("权限不足");
+        }
+        Long studentId = jwtUtil.getUserId(request);
         return ApiResponse.success(submissionService.getSubmissionByStudent(studentId, assignmentId));
     }
 
     @GetMapping("/list")
-    public ApiResponse<?> listByAssignment(@RequestParam Long assignmentId) {
+    public ApiResponse<?> listByAssignment(HttpServletRequest request,
+                                           @RequestParam Long assignmentId) {
+        if (!"teacher".equals(jwtUtil.getRole(request))) {
+            throw new RuntimeException("权限不足");
+        }
         return ApiResponse.success(submissionService.listByAssignment(assignmentId));
     }
 
     @PostMapping("/grade")
     public ApiResponse<?> grade(
+            HttpServletRequest request,
             @RequestBody SubmissionGradeRequest req
     ) {
+        if (!"teacher".equals(jwtUtil.getRole(request))) {
+            throw new RuntimeException("权限不足");
+        }
         submissionService.grade(req);
         return ApiResponse.success("批改成功");
-    }
-
-
-
-    private Long getUserIdFromToken(HttpServletRequest request) {
-        String token = request.getHeader("Authorization").substring(7);
-        return jwtUtil.getUserId(token);
     }
 }
 

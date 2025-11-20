@@ -4,7 +4,6 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.backend.common.ApiResponse;
 import org.example.backend.dto.CreateCoursesRequest;
-import org.example.backend.repository.CoursesRepository;
 import org.example.backend.service.CoursesService;
 import org.example.backend.util.JwtUtil;
 import org.example.backend.vo.CoursesResponse;
@@ -22,8 +21,11 @@ public class CoursesController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/create")
-    public ApiResponse<CoursesResponse> create(@RequestBody CreateCoursesRequest dto) {
-
+    public ApiResponse<CoursesResponse> create(HttpServletRequest request,
+                                               @RequestBody CreateCoursesRequest dto) {
+        if (!"teacher".equals(jwtUtil.getRole(request))) {
+            throw new RuntimeException("权限不足");
+        }
         return ApiResponse.success(coursesService.createCourses(dto.getTitle()));
     }
 

@@ -6,6 +6,7 @@ import com.auth0.jwt.exceptions.AlgorithmMismatchException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.backend.common.exception.TokenInvalidException;
 import org.springframework.stereotype.Component;
 
@@ -57,9 +58,19 @@ public class JwtUtil {
         return jwt != null ? jwt.getClaim("userId").asLong() : null;
     }
 
+    public Long getUserId(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7);
+        return getUserId(token);
+    }
+
     // 获取 role
     public String getRole(String token) {
         DecodedJWT jwt = verifyToken(token);
         return jwt != null ? jwt.getClaim("role").asString() : null;
+    }
+
+    public String getRole(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").substring(7);
+        return getRole(token);
     }
 }
