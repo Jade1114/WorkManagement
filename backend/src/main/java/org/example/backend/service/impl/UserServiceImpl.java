@@ -6,12 +6,10 @@ import org.example.backend.repository.UserRepository;
 import org.example.backend.service.UserService;
 import org.example.backend.vo.UserResponse;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 
 @Service
 public class UserServiceImpl implements UserService {
