@@ -65,7 +65,13 @@ Authorization: Bearer <token>
   "code": 200,
   "message": "提交成功",
   "data": {
-    "id": 100
+    "id": 100,
+    "assignmentId": 10,
+    "studentId": 3,
+    "content": "这是我的作业内容",
+    "score": null,
+    "comment": null,
+    "graded": false
   }
 }
 ```
