@@ -1,30 +1,57 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div id="app" class="app-container">
+    <!-- 登录/注册页面 -->
+    <template v-if="!authStore.isAuthenticated">
+      <RouterView />
+    </template>
+
+    <!-- 已登录 - 显示布局 -->
+    <template v-else>
+      <el-container class="layout-container">
+        <NavBar />
+        <el-container class="main-container">
+          <Sidebar />
+          <el-main class="main-content">
+            <RouterView />
+          </el-main>
+        </el-container>
+      </el-container>
+    </template>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
+<script setup>
+import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
+import NavBar from '@/components/common/NavBar.vue'
+import Sidebar from '@/components/common/Sidebar.vue'
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+onMounted(() => {
+  // 页面加载时恢复登录状态
+  authStore.restoreAuth()
+})
+</script>
+
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.app-container {
+  width: 100%;
+  height: 100vh;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.layout-container {
+  height: 100%;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.main-container {
+  height: calc(100% - 60px);
+}
+
+.main-content {
+  padding: 20px;
+  background-color: #f5f7fa;
 }
 </style>
