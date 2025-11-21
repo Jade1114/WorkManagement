@@ -1,5 +1,7 @@
 <template>
   <div class="page">
+    <TeacherNav />
+
     <section class="card header-card">
       <div>
         <h2>管理员主页</h2>
@@ -18,9 +20,9 @@
     <section class="card quick-actions">
       <h3>快捷入口</h3>
       <div class="actions">
-        <el-button type="primary" @click="$router.push('/admin/assignments')">作业列表</el-button>
-        <el-button @click="$router.push('/admin/students')">学生列表</el-button>
-        <el-button @click="$router.push('/admin/subjects')">学科列表</el-button>
+        <el-button type="primary" @click="$router.push('/teacher/assignments')">作业列表</el-button>
+        <el-button @click="$router.push('/teacher/students')">学生列表</el-button>
+        <el-button @click="$router.push('/teacher/subjects')">学科列表</el-button>
         <el-button @click="$router.push('/login')">返回登录</el-button>
       </div>
     </section>
@@ -28,6 +30,7 @@
 </template>
 
 <script setup>
+import TeacherNav from '@/components/TeacherNav.vue'
 const stats = [
   { label: '待评分', value: 12 },
   { label: '已发布作业', value: 28 },

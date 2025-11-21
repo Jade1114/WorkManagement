@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import TeacherAssignmentTable from '@/components/TeacherAssignmentTable.vue'
 import Pagination from '@/components/Pagination.vue'
+import TeacherNav from '@/components/TeacherNav.vue'
 
 const assignments = ref([
   { id: 1, title: '数据结构链表', subject: '数据结构', student: 'Alice', submitTime: '2024-12-01', status: '已评分', score: 90 },
@@ -18,6 +19,8 @@ const total = computed(() => assignments.value.length)
 
 <template>
   <div class="page">
+    <TeacherNav />
+
     <section class="card header-card">
       <div>
         <h2>管理员 · 作业列表</h2>

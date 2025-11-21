@@ -19,7 +19,7 @@ const handleLogin = () => {
   formRef.value?.validate()
 }
 
-const goAdmin = () => router.push('/admin/home')
+const goTeacher = () => router.push('/teacher/home')
 const goStudent = () => router.push('/student/home')
 </script>
 
@@ -31,12 +31,16 @@ const goStudent = () => router.push('/student/home')
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="auth-form">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username" placeholder="请输入用户名">
-            <template #prefix><el-icon><User /></el-icon></template>
+            <template #prefix><el-icon>
+                <User />
+              </el-icon></template>
           </el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input v-model="form.password" type="password" placeholder="请输入密码">
-            <template #prefix><el-icon><Lock /></el-icon></template>
+            <template #prefix><el-icon>
+                <Lock />
+              </el-icon></template>
           </el-input>
         </el-form-item>
         <el-form-item>
@@ -45,7 +49,7 @@ const goStudent = () => router.push('/student/home')
       </el-form>
 
       <div class="quick-nav">
-        <el-button type="success" plain @click="goAdmin">直接进入管理员主页</el-button>
+        <el-button type="success" plain @click="goTeacher">直接进入教师主页</el-button>
         <el-button type="info" plain @click="goStudent">直接进入学生主页</el-button>
       </div>
 

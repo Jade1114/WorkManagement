@@ -1,4 +1,6 @@
 <script setup>
+import TeacherNav from '@/components/TeacherNav.vue'
+
 const students = [
   { id: 301, name: 'Alice', major: '计算机科学', email: 'alice@example.com', progress: '优' },
   { id: 302, name: 'Bob', major: '软件工程', email: 'bob@example.com', progress: '良' },
@@ -8,6 +10,8 @@ const students = [
 
 <template>
   <div class="page">
+    <TeacherNav />
+
     <section class="card header-card">
       <div>
         <h2>管理员 · 学生列表</h2>

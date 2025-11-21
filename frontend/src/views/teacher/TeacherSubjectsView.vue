@@ -1,4 +1,6 @@
 <script setup>
+import TeacherNav from '@/components/TeacherNav.vue'
+
 const subjects = [
   { id: 501, name: '数据结构', teacher: 'Alex Teacher', courseCount: 8 },
   { id: 502, name: '操作系统', teacher: 'Alex Teacher', courseCount: 6 },
@@ -8,6 +10,8 @@ const subjects = [
 
 <template>
   <div class="page">
+    <TeacherNav />
+
     <section class="card header-card">
       <div>
         <h2>管理员 · 学科列表</h2>

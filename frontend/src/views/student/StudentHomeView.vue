@@ -1,5 +1,7 @@
 <template>
   <div class="page">
+    <StudentNav />
+
     <section class="card header-card">
       <div>
         <h2>学生主页</h2>
@@ -34,6 +36,8 @@
 </template>
 
 <script setup>
+import StudentNav from '@/components/StudentNav.vue'
+
 const assignments = [
   { id: 1, title: 'Java 基础', subject: 'Java', deadline: '2024-12-10', submitted: true },
   { id: 2, title: '数据库设计', subject: '数据库', deadline: '2024-12-12', submitted: false },

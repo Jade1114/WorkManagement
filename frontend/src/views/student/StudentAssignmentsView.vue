@@ -1,5 +1,6 @@
 <script setup>
 import StudentAssignmentTable from '@/components/StudentAssignmentTable.vue'
+import StudentNav from '@/components/StudentNav.vue'
 
 const assignments = [
   {
@@ -34,6 +35,8 @@ const assignments = [
 
 <template>
   <div class="page">
+    <StudentNav />
+
     <section class="card header-card">
       <div>
         <h2>学生视角 · 作业列表</h2>
