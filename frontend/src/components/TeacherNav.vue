@@ -1,25 +1,30 @@
 <template>
   <section class="card nav-card">
-    <div class="logo">WM</div>
     <div class="nav-content">
       <div>
-        <h2>教师端导航</h2>
-        <p class="muted">管理作业、学生和学科</p>
+        <h2>欢迎, {{ username }}</h2>
       </div>
       <el-menu mode="horizontal" :default-active="activePath" router class="nav">
         <el-menu-item v-for="item in teacherNav" :key="item.path" :index="item.path">
           {{ item.label }}
         </el-menu-item>
       </el-menu>
+      <el-button type="danger" @click="handleLogout">
+        退出登录
+      </el-button>
     </div>
   </section>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore'
+import http from '@/net/index.js'
 
 const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
 
 const teacherNav = [
   { label: '主页', path: '/teacher/home' },
@@ -29,6 +34,18 @@ const teacherNav = [
 ]
 
 const activePath = computed(() => route.path)
+const username = computed(() => userStore.username)
+
+const handleLogout = async () => {
+  try {
+    await http.post('/auth/logout')
+  } catch (e) {
+    // 忽略退出接口错误，继续本地清理
+  } finally {
+    userStore.logout()
+    router.push('/login')
+  }
+}
 </script>
 
 <style scoped>
@@ -39,6 +56,7 @@ const activePath = computed(() => route.path)
   padding: var(--spacing-l);
 }
 
+/* logo 固定宽度 */
 .logo {
   width: 44px;
   height: 44px;
@@ -50,22 +68,28 @@ const activePath = computed(() => route.path)
   place-items: center;
 }
 
+/* 调整内容布局：左边内容不挤压右边菜单 */
 .nav-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-m);
   flex: 1;
-  flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-m);
+  white-space: nowrap;
+  /* 禁止换行 */
 }
 
+/* 标题区不允许压缩，固定为内容宽度 */
+.nav-content>div:first-child {
+  flex-shrink: 0;
+}
+
+/* 菜单允许扩展，占据剩余空间 */
 .nav {
+  flex: 1;
+  min-width: 400px;
+  /* 防止溢出用的关键值，可根据屏幕调 */
   border-bottom: none;
   background: transparent;
-}
-
-.muted {
-  color: var(--color-text-tertiary);
-  margin: 4px 0 0;
 }
 </style>

@@ -4,6 +4,8 @@ import org.example.backend.dto.SubmissionCreateRequest;
 import org.example.backend.dto.SubmissionGradeRequest;
 import org.example.backend.vo.SubmissionListItemResponse;
 import org.example.backend.vo.SubmissionResponse;
+import org.example.backend.vo.StudentSubmissionResponse;
+import org.example.backend.vo.TeacherSubmissionItemResponse;
 
 import java.util.List;
 
@@ -12,6 +14,7 @@ public interface SubmissionService {
     SubmissionResponse getSubmissionByStudent(Long studentId, Long assignmentId);
     List<SubmissionListItemResponse> listByAssignment(Long assignmentId);
     void grade(SubmissionGradeRequest req);
+    List<StudentSubmissionResponse> listByStudent(Long studentId);
+    List<TeacherSubmissionItemResponse> listAllSubmissionsForTeacher();
 
 }
-

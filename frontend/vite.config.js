@@ -3,22 +3,32 @@ import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import path from 'path' // ✅ 需要导入 path 模块
+import path from 'path'
 
-// https://vite.dev/config/
 export default defineConfig({
-    plugins: [
-        vue(),
-        AutoImport({
-            resolvers: [ElementPlusResolver()],
-        }),
-        Components({
-            resolvers: [ElementPlusResolver()],
-        }),
-    ],
-    resolve: {
-        alias: {
-            '@': path.resolve(__dirname, './src'), // ✅ 配置路径别名
-        },
+  plugins: [
+    vue(),
+    AutoImport({
+      resolvers: [ElementPlusResolver()],
+    }),
+    Components({
+      resolvers: [ElementPlusResolver()],
+    }),
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
     },
+  },
+
+  // ⭐⭐ 加上这个 ⭐⭐
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        // 注意：不要 rewrite
+      }
+    }
+  }
 })

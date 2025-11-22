@@ -1,36 +1,36 @@
 <script setup>
+import { onMounted, ref } from 'vue'
 import StudentAssignmentTable from '@/components/StudentAssignmentTable.vue'
 import StudentNav from '@/components/StudentNav.vue'
+import http from '@/net/index.js'
+import { ElMessage } from 'element-plus'
 
-const assignments = [
-  {
-    id: 1,
-    title: 'Java 基础',
-    subject: 'Java',
-    content: '完成基础语法练习与输出',
-    deadline: '2024-12-10',
-    submitted: true,
-    graded: true,
-  },
-  {
-    id: 2,
-    title: '数据库设计',
-    subject: '数据库',
-    content: '设计ER图并撰写说明',
-    deadline: '2024-12-12',
-    submitted: true,
-    graded: false,
-  },
-  {
-    id: 3,
-    title: '网络分层',
-    subject: '计算机网络',
-    content: '总结五层模型与协议作用',
-    deadline: '2024-12-15',
-    submitted: false,
-    graded: false,
-  },
-]
+const assignments = ref([])
+const loading = ref(false)
+
+const loadMySubmissions = async () => {
+  loading.value = true
+  try {
+    const data = await http.get('/submissions/my/list')
+    assignments.value = data.map(item => ({
+      submissionId: item.submissionId,
+      title: item.assignmentTitle,
+      subject: item.courseTitle || (item.courseId ? `课程 #${item.courseId}` : '未关联课程'),
+      submitContent: item.submitContent,
+      comment: item.comment,
+      graded: item.graded,
+      score: item.score,
+    }))
+  } catch (e) {
+    ElMessage.error('获取提交记录失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadMySubmissions()
+})
 </script>
 
 <template>
@@ -39,13 +39,12 @@ const assignments = [
 
     <section class="card header-card">
       <div>
-        <h2>学生视角 · 作业列表</h2>
-        <p class="muted">表头包含标题、所属学科、作业内容、到期时间、状态、操作；可过滤提交/评分状态。</p>
+        <h2>已提交作业列表</h2>
       </div>
     </section>
 
     <section class="card">
-      <StudentAssignmentTable :assignments="assignments" />
+      <StudentAssignmentTable :assignments="assignments" v-loading="loading" />
     </section>
   </div>
 </template>

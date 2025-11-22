@@ -3,15 +3,23 @@ package org.example.backend.service.impl;
 import jakarta.annotation.Resource;
 import org.example.backend.dto.SubmissionCreateRequest;
 import org.example.backend.dto.SubmissionGradeRequest;
+import org.example.backend.entity.Assignment;
+import org.example.backend.entity.Courses;
 import org.example.backend.entity.Submission;
 import org.example.backend.entity.User;
+import org.example.backend.repository.AssignmentRepository;
+import org.example.backend.repository.CoursesRepository;
 import org.example.backend.repository.SubmissionRepository;
 import org.example.backend.repository.UserRepository;
 import org.example.backend.service.SubmissionService;
 import org.example.backend.vo.SubmissionListItemResponse;
 import org.example.backend.vo.SubmissionResponse;
+import org.example.backend.vo.StudentSubmissionResponse;
+import org.example.backend.vo.TeacherSubmissionItemResponse;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +31,12 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     @Resource
     private UserRepository userRepository;
+
+    @Resource
+    private AssignmentRepository assignmentRepository;
+
+    @Resource
+    private CoursesRepository coursesRepository;
 
     @Override
     public SubmissionResponse submit(Long studentId, SubmissionCreateRequest req) {
@@ -127,6 +141,105 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<StudentSubmissionResponse> listByStudent(Long studentId) {
+        if (studentId == null) {
+            throw new RuntimeException("studentId 不能为空");
+        }
+
+        List<Submission> submissions = submissionRepository.findByStudentId(studentId);
+        if (submissions.isEmpty()) {
+            return List.of();
+        }
+
+        // 批量查询作业
+        Set<Long> assignmentIds = submissions.stream()
+                .map(Submission::getAssignmentId)
+                .collect(Collectors.toSet());
+        Map<Long, Assignment> assignmentMap = assignmentRepository.findAllById(assignmentIds).stream()
+                .collect(Collectors.toMap(Assignment::getId, a -> a));
+
+        // 批量查询课程
+        Set<Long> courseIds = assignmentMap.values().stream()
+                .map(Assignment::getCourseId)
+                .collect(Collectors.toSet());
+        Map<Long, String> courseTitleMap = coursesRepository.findAllById(courseIds).stream()
+                .collect(Collectors.toMap(Courses::getId, Courses::getTitle));
+
+        return submissions.stream()
+                .map(s -> {
+                    Assignment a = assignmentMap.get(s.getAssignmentId());
+                    String courseTitle = a != null ? courseTitleMap.getOrDefault(a.getCourseId(), "未关联课程") : "未知课程";
+                    String assignmentTitle = a != null ? a.getTitle() : "未知作业";
+                    return new StudentSubmissionResponse(
+                            s.getId(),
+                            s.getAssignmentId(),
+                            assignmentTitle,
+                            a != null ? a.getCourseId() : null,
+                            courseTitle,
+                            s.getContent(),
+                            s.getComment(),
+                            s.getGraded(),
+                            s.getScore()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TeacherSubmissionItemResponse> listAllSubmissionsForTeacher() {
+        List<Submission> submissions = submissionRepository.findAll();
+        if (submissions.isEmpty()) {
+            return List.of();
+        }
+
+        // 批量查询作业
+        Set<Long> assignmentIds = submissions.stream()
+                .map(Submission::getAssignmentId)
+                .collect(Collectors.toSet());
+        Map<Long, Assignment> assignmentMap = assignmentRepository.findAllById(assignmentIds).stream()
+                .collect(Collectors.toMap(Assignment::getId, a -> a));
+
+        // 批量查询课程
+        Set<Long> courseIds = assignmentMap.values().stream()
+                .map(Assignment::getCourseId)
+                .collect(Collectors.toSet());
+        Map<Long, String> courseTitleMap = coursesRepository.findAllById(courseIds).stream()
+                .collect(Collectors.toMap(Courses::getId, Courses::getTitle));
+
+        // 批量查询学生
+        Set<Long> studentIds = submissions.stream()
+                .map(Submission::getStudentId)
+                .collect(Collectors.toSet());
+        Map<Long, String> studentNameMap = userRepository.findAllById(studentIds).stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername));
+
+        return submissions.stream()
+                .map(s -> {
+                    Assignment a = assignmentMap.get(s.getAssignmentId());
+                    String courseTitle = a != null ? courseTitleMap.getOrDefault(a.getCourseId(), "未关联课程") : "未知课程";
+                    String assignmentTitle = a != null ? a.getTitle() : "未知作业";
+                    String assignmentContent = a != null ? a.getContent() : null;
+                    String studentName = studentNameMap.getOrDefault(s.getStudentId(), "未知学生");
+                    return new TeacherSubmissionItemResponse(
+                            s.getId(),
+                            s.getAssignmentId(),
+                            assignmentTitle,
+                            a != null ? a.getCourseId() : null,
+                            courseTitle,
+                            s.getStudentId(),
+                            studentName,
+                            assignmentContent,
+                            s.getContent(),
+                            null, // 暂未记录提交时间字段，数据库未存储
+                            s.getGraded(),
+                            s.getScore(),
+                            s.getComment()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public void grade(SubmissionGradeRequest req) {
@@ -152,4 +265,3 @@ public class SubmissionServiceImpl implements SubmissionService {
         submissionRepository.save(s);
     }
 }
-

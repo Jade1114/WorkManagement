@@ -1,11 +1,49 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import TeacherNav from '@/components/TeacherNav.vue'
+import http from '@/net/index.js'
+import { ElMessage } from 'element-plus'
 
-const subjects = [
-  { id: 501, name: '数据结构', teacher: 'Alex Teacher', courseCount: 8 },
-  { id: 502, name: '操作系统', teacher: 'Alex Teacher', courseCount: 6 },
-  { id: 503, name: '前端开发', teacher: 'Alex Teacher', courseCount: 5 },
-]
+const subjects = ref([])
+const loading = ref(false)
+const createVisible = ref(false)
+const createForm = ref({ title: '' })
+
+const loadSubjects = async () => {
+  loading.value = true
+  try {
+    const data = await http.get('/courses/withCount')
+    subjects.value = data.map(c => ({
+      id: c.id,
+      name: c.title,
+      assignmentCount: c.assignmentCount
+    }))
+  } catch (e) {
+    ElMessage.error('获取学科失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+const openCreate = () => {
+  createForm.value = { title: '' }
+  createVisible.value = true
+}
+
+const submitCreate = async () => {
+  try {
+    await http.post('/courses/create', { title: createForm.value.title })
+    ElMessage.success('创建成功')
+    createVisible.value = false
+    await loadSubjects()
+  } catch (e) {
+    ElMessage.error('创建失败')
+  }
+}
+
+onMounted(() => {
+  loadSubjects()
+})
 </script>
 
 <template>
@@ -14,26 +52,29 @@ const subjects = [
 
     <section class="card header-card">
       <div>
-        <h2>管理员 · 学科列表</h2>
-        <p class="muted">管理学科与课程数量（静态数据示例）。</p>
+        <h2>学科列表</h2>
       </div>
-      <el-button type="primary">新建学科</el-button>
+      <el-button type="primary" @click="openCreate">新建学科</el-button>
     </section>
 
     <section class="card table-card">
-      <el-table :data="subjects" stripe border style="width: 100%">
-        <el-table-column prop="id" label="学科ID" width="100" />
-        <el-table-column prop="name" label="学科名称" min-width="160" />
-        <el-table-column prop="teacher" label="负责人" width="140" />
-        <el-table-column prop="courseCount" label="课程数量" width="120" />
-        <el-table-column label="操作" width="180">
-          <template #default>
-            <el-button size="small" type="primary" text>编辑</el-button>
-            <el-button size="small" type="danger" text>删除</el-button>
-          </template>
-        </el-table-column>
+      <el-table :data="subjects" stripe border style="width: 100%" v-loading="loading">
+        <el-table-column prop="name" label="学科名称" min-width="100" />
+        <el-table-column prop="assignmentCount" label="已发布作业数量" min-width="160" />
       </el-table>
     </section>
+
+    <el-dialog v-model="createVisible" title="新建学科" width="400px">
+      <el-form :model="createForm" label-position="top">
+        <el-form-item label="学科名称">
+          <el-input v-model="createForm.title" placeholder="请输入学科名称" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="createVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitCreate">确认</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 

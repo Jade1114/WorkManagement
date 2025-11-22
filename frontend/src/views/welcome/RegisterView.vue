@@ -32,22 +32,28 @@ const handleRegister = () => {
 <template>
   <div class="auth-page">
     <div class="auth-card card">
-      <h2>注册</h2>
+      <h2 style="text-align: center;">注册</h2>
       <p class="muted">静态页面，无真实提交。</p>
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="auth-form">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username" placeholder="请输入用户名">
-            <template #prefix><el-icon><User /></el-icon></template>
+            <template #prefix><el-icon>
+                <User />
+              </el-icon></template>
           </el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input v-model="form.password" type="password" placeholder="请输入密码">
-            <template #prefix><el-icon><Lock /></el-icon></template>
+            <template #prefix><el-icon>
+                <Lock />
+              </el-icon></template>
           </el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="confirm">
           <el-input v-model="form.confirm" type="password" placeholder="请再次输入密码">
-            <template #prefix><el-icon><Lock /></el-icon></template>
+            <template #prefix><el-icon>
+                <Lock />
+              </el-icon></template>
           </el-input>
         </el-form-item>
         <el-form-item>

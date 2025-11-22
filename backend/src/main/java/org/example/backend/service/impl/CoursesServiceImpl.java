@@ -2,8 +2,10 @@ package org.example.backend.service.impl;
 
 import jakarta.annotation.Resource;
 import org.example.backend.entity.Courses;
+import org.example.backend.repository.AssignmentRepository;
 import org.example.backend.repository.CoursesRepository;
 import org.example.backend.service.CoursesService;
+import org.example.backend.vo.CourseWithCountResponse;
 import org.example.backend.vo.CoursesResponse;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,9 @@ public class CoursesServiceImpl implements CoursesService {
 
     @Resource
     private CoursesRepository coursesRepository;
+
+    @Resource
+    private AssignmentRepository assignmentRepository;
 
     @Override
     public CoursesResponse createCourses(String title) {
@@ -40,5 +45,16 @@ public class CoursesServiceImpl implements CoursesService {
                 .map(c -> new CoursesResponse(c.getId(), c.getTitle()))
                 .collect(Collectors.toList());
     }
-}
 
+    @Override
+    public List<CourseWithCountResponse> getCoursesWithAssignmentCount() {
+        List<Courses> list = coursesRepository.findAll();
+        return list.stream()
+                .map(c -> new CourseWithCountResponse(
+                        c.getId(),
+                        c.getTitle(),
+                        assignmentRepository.countByCourseId(c.getId())
+                ))
+                .collect(Collectors.toList());
+    }
+}

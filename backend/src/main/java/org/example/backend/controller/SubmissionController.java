@@ -7,7 +7,11 @@ import org.example.backend.dto.SubmissionCreateRequest;
 import org.example.backend.dto.SubmissionGradeRequest;
 import org.example.backend.service.SubmissionService;
 import org.example.backend.util.JwtUtil;
+import org.example.backend.vo.StudentSubmissionResponse;
+import org.example.backend.vo.TeacherSubmissionItemResponse;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/submissions")
@@ -49,6 +53,26 @@ public class SubmissionController {
         return ApiResponse.success(submissionService.listByAssignment(assignmentId));
     }
 
+    // 老师查看所有学生提交列表
+    @GetMapping("/all")
+    public ApiResponse<?> listAll(HttpServletRequest request) {
+        if (!"teacher".equals(jwtUtil.getRole(request))) {
+            throw new RuntimeException("权限不足");
+        }
+        List<TeacherSubmissionItemResponse> list = submissionService.listAllSubmissionsForTeacher();
+        return ApiResponse.success(list);
+    }
+
+    // 学生查看自己的提交列表
+    @GetMapping("/my/list")
+    public ApiResponse<?> listByStudent(HttpServletRequest request) {
+        if (!"student".equals(jwtUtil.getRole(request))) {
+            throw new RuntimeException("权限不足");
+        }
+        Long studentId = jwtUtil.getUserId(request);
+        return ApiResponse.success(submissionService.listByStudent(studentId));
+    }
+
     @PostMapping("/grade")
     public ApiResponse<?> grade(
             HttpServletRequest request,
@@ -61,4 +85,3 @@ public class SubmissionController {
         return ApiResponse.success("批改成功");
     }
 }
-

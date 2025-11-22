@@ -2,9 +2,14 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { User, Lock } from '@element-plus/icons-vue'
+import http from '@/net/index.js'
+import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()
 const formRef = ref()
+const userStore = useUserStore()
+
 const form = reactive({
   username: '',
   password: '',
@@ -15,19 +20,34 @@ const rules = {
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
 }
 
-const handleLogin = () => {
-  formRef.value?.validate()
-}
+async function handleLogin() {
+  try {
+    const data = await http.post('/auth/login', {
+      username: form.username,
+      password: form.password,
+    })
 
-const goTeacher = () => router.push('/teacher/home')
-const goStudent = () => router.push('/student/home')
+    userStore.setLoginInfo(data)
+
+    ElMessage.success('登录成功！')
+
+    const role = data.role
+    if (role === 'teacher') {
+      router.push('/teacher/home')
+    } else {
+      router.push('/student/home')
+    }
+
+  } catch (err) {
+    console.error('登录出错：', err)
+  }
+}
 </script>
 
 <template>
   <div class="auth-page">
     <div class="auth-card card">
-      <h2>登录</h2>
-      <p class="muted">此处仅展示 UI，未接入接口。</p>
+      <h2 style="text-align: center;">登录</h2>
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="auth-form">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username" placeholder="请输入用户名">
@@ -47,12 +67,6 @@ const goStudent = () => router.push('/student/home')
           <el-button type="primary" style="width: 100%" @click="handleLogin">登录</el-button>
         </el-form-item>
       </el-form>
-
-      <div class="quick-nav">
-        <el-button type="success" plain @click="goTeacher">直接进入教师主页</el-button>
-        <el-button type="info" plain @click="goStudent">直接进入学生主页</el-button>
-      </div>
-
       <div class="links">
         <router-link to="/register">还没有账号？去注册</router-link>
       </div>
