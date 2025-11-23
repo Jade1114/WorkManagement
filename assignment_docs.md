@@ -2,110 +2,70 @@
 
 ## 基础说明
 
-### 接口前缀
-
-```
-/api/assignments
-```
-
-### 统一响应格式
-
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {}
-}
-```
-
-### 权限说明
-
-| 角色      | 权限          |
-| ------- | ----------- |
-| teacher | 创建作业、查看作业列表 |
-| student | 查看作业列表      |
+- 接口前缀：`/api/assignments`
+- 统一响应：`{ code: 200, message: "success", data: ... }`（业务异常 400，权限异常 401）
+- 所有接口需携带 `Authorization: Bearer <token>`，除非特别说明
+- 角色权限：老师可创建/查看所有作业，学生可查看课程作业及自己的未提交列表
 
 ---
 
-# 1. **老师创建作业**
+# 1. 老师创建作业
 
-## **POST /api/assignments/create**
+**POST /api/assignments/create**  
+权限：`teacher`
 
-### 描述
-
-老师为指定课程创建作业。
-
-### 权限
-
-```
-@RequiresRole("teacher")
-```
-
-### 请求头
-
-```
-Authorization: Bearer <token>
-```
-
-### 请求体（JSON）
-
+请求体：
 ```json
 {
   "courseId": 1,
   "title": "第1次作业",
   "content": "完成 Java 基础练习题",
-  "deadline": "2024-12-31 23:59:59"
+  "deadline": "2024-12-31T23:59:59"
 }
 ```
 
-字段说明：
-
-| 字段       | 必填 | 说明         |
-| -------- | -- | ---------- |
-| courseId | 是  | 所属课程 ID    |
-| title    | 是  | 作业标题       |
-| content  | 否  | 作业内容（可为空）  |
-| deadline | 否  | 截止时间（推荐保留） |
-
----
-
-### 成功响应示例
-
+成功响应：
 ```json
 {
   "code": 200,
-  "message": "作业创建成功",
+  "message": "success",
   "data": {
     "id": 10,
     "courseId": 1,
     "title": "第1次作业",
     "content": "完成 Java 基础练习题",
-    "deadline": "2024-12-31 23:59:59"
+    "deadline": "2024-12-31T23:59:59"
   }
 }
 ```
 
 ---
 
-# 2. **获取某课程的全部作业（含作业详情）**
+# 2. 获取某课程的全部作业
 
-## **GET /api/assignments/list?courseId=1**
+**GET /api/assignments/list?courseId=1**  
+权限：已登录（teacher/student）
 
-### 描述
-
-返回指定课程下的所有作业，包含作业详情字段。
-（因为你不需要单独的作业详情接口）
-
-### 权限
-
-```
-登录即可（teacher 或 student）
+返回示例：
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    { "id": 10, "courseId": 1, "title": "第1次作业", "content": "完成 Java 基础练习题", "deadline": "2024-12-31T23:59:59" },
+    { "id": 11, "courseId": 1, "title": "第2次作业", "content": "阅读 Java 异常机制章节", "deadline": "2024-11-20T23:59:59" }
+  ]
+}
 ```
 
 ---
 
-### 成功响应示例
+# 3. 老师获取全部作业列表
 
+**GET /api/assignments/all**  
+权限：`teacher`
+
+返回字段包含课程名称：
 ```json
 {
   "code": 200,
@@ -114,16 +74,10 @@ Authorization: Bearer <token>
     {
       "id": 10,
       "courseId": 1,
+      "courseTitle": "Java 程序设计",
       "title": "第1次作业",
       "content": "完成 Java 基础练习题",
-      "deadline": "2024-12-31 23:59:59"
-    },
-    {
-      "id": 11,
-      "courseId": 1,
-      "title": "第2次作业",
-      "content": "阅读 Java 异常机制章节",
-      "deadline": "2024-11-20 23:59:59"
+      "deadline": "2024-12-31T23:59:59"
     }
   ]
 }
@@ -131,7 +85,53 @@ Authorization: Bearer <token>
 
 ---
 
-# 📂 Assignment 表结构（最终）
+# 4. 学生获取未提交的作业
+
+**GET /api/assignments/pending**  
+权限：`student`（自动按当前登录学生过滤）
+
+返回示例：
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "id": 12,
+      "courseId": 1,
+      "courseTitle": "Java 程序设计",
+      "title": "第2次作业",
+      "content": "阅读 Java 异常机制章节",
+      "deadline": "2024-11-20T23:59:59"
+    }
+  ]
+}
+```
+
+---
+
+# 5. 老师首页统计数据
+
+**GET /api/teacher/stats**  
+权限：`teacher`
+
+返回示例：
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "pendingSubmissions": 3,
+    "assignments": 8,
+    "students": 26,
+    "courses": 4
+  }
+}
+```
+
+---
+
+# 📂 Assignment 表结构
 
 ```sql
 CREATE TABLE assignment (
@@ -145,9 +145,12 @@ CREATE TABLE assignment (
 
 ---
 
-# 🎯 Assignment 模块功能总结
+# 🎯 Assignment 模块功能一览
 
-| 功能            | URL                     | 方法   | 权限              |
-| ------------- | ----------------------- | ---- | --------------- |
-| 创建作业          | /api/assignments/create | POST | teacher         |
-| 获取课程作业列表（含详情） | /api/assignments/list   | GET  | teacher/student |
+| 功能               | URL                      | 方法 | 权限              |
+| ---------------- | ------------------------ | ---- | ----------------- |
+| 创建作业           | /api/assignments/create  | POST | teacher           |
+| 获取课程作业列表     | /api/assignments/list    | GET  | teacher/student   |
+| 老师查看全部作业     | /api/assignments/all     | GET  | teacher           |
+| 学生查看未提交作业列表 | /api/assignments/pending | GET  | student           |
+| 老师统计数据        | /api/teacher/stats       | GET  | teacher           |

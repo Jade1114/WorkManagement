@@ -104,8 +104,8 @@ Authorization: Bearer <token>
 ```json
 {
   "code": 200,
-  "message": "密码修改成功",
-  "data": null
+  "message": "success",
+  "data": "密码修改成功"
 }
 ```
 
@@ -158,13 +158,15 @@ Authorization: Bearer <token>
       "role": "student"
     },
     {
-      "id": 3,
-      "username": "20240124",
-      "role": "student"
+      "id": 1,
+      "username": "teacher001",
+      "role": "teacher"
     }
   ]
 }
 ```
+
+> 当前实现直接返回系统内所有用户，前端会自行筛选出学生。
 
 # 🎯 User 模块 API 文档总结
 

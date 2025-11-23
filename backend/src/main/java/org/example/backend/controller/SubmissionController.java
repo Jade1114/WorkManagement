@@ -7,7 +7,6 @@ import org.example.backend.dto.SubmissionCreateRequest;
 import org.example.backend.dto.SubmissionGradeRequest;
 import org.example.backend.service.SubmissionService;
 import org.example.backend.util.JwtUtil;
-import org.example.backend.vo.StudentSubmissionResponse;
 import org.example.backend.vo.TeacherSubmissionItemResponse;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +25,7 @@ public class SubmissionController {
     // 学生提交作业
     @PostMapping("/submit")
     public ApiResponse<?> submit(HttpServletRequest request,
-                                 @RequestBody SubmissionCreateRequest req) {
+                @RequestBody SubmissionCreateRequest req) {
         if (!"student".equals(jwtUtil.getRole(request))) {
             throw new RuntimeException("权限不足");
         }
@@ -34,9 +33,10 @@ public class SubmissionController {
         return ApiResponse.success(submissionService.submit(studentId, req));
     }
 
+    // 学生获取自己对某个作业的提交记录
     @GetMapping("/my")
     public ApiResponse<?> mySubmission(HttpServletRequest request,
-                                       @RequestParam Long assignmentId) {
+                @RequestParam Long assignmentId) {
         if (!"student".equals(jwtUtil.getRole(request))) {
             throw new RuntimeException("权限不足");
         }
@@ -44,16 +44,17 @@ public class SubmissionController {
         return ApiResponse.success(submissionService.getSubmissionByStudent(studentId, assignmentId));
     }
 
+    // 老师获取某个作业的所有提交
     @GetMapping("/list")
     public ApiResponse<?> listByAssignment(HttpServletRequest request,
-                                           @RequestParam Long assignmentId) {
+                @RequestParam Long assignmentId) {
         if (!"teacher".equals(jwtUtil.getRole(request))) {
             throw new RuntimeException("权限不足");
         }
         return ApiResponse.success(submissionService.listByAssignment(assignmentId));
     }
 
-    // 老师查看所有学生提交列表
+    // 老师查看所有提交列表
     @GetMapping("/all")
     public ApiResponse<?> listAll(HttpServletRequest request) {
         if (!"teacher".equals(jwtUtil.getRole(request))) {
@@ -63,7 +64,7 @@ public class SubmissionController {
         return ApiResponse.success(list);
     }
 
-    // 学生查看自己的提交列表
+    // 学生查看自己所有课程的提交记录
     @GetMapping("/my/list")
     public ApiResponse<?> listByStudent(HttpServletRequest request) {
         if (!"student".equals(jwtUtil.getRole(request))) {
@@ -73,11 +74,10 @@ public class SubmissionController {
         return ApiResponse.success(submissionService.listByStudent(studentId));
     }
 
+    // 老师给提交的作业进行批改
     @PostMapping("/grade")
-    public ApiResponse<?> grade(
-            HttpServletRequest request,
-            @RequestBody SubmissionGradeRequest req
-    ) {
+    public ApiResponse<?> grade(HttpServletRequest request,
+                @RequestBody SubmissionGradeRequest req) {
         if (!"teacher".equals(jwtUtil.getRole(request))) {
             throw new RuntimeException("权限不足");
         }

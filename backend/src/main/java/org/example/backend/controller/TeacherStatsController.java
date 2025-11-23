@@ -32,6 +32,7 @@ public class TeacherStatsController {
     @Resource
     private JwtUtil jwtUtil;
 
+    // 获取老师管理界面的所有统计数据
     @GetMapping("/stats")
     public ApiResponse<TeacherStatsResponse> stats(HttpServletRequest request) {
         if (!"teacher".equals(jwtUtil.getRole(request))) {

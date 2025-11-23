@@ -15,6 +15,7 @@
         <el-option v-for="student in students" :key="student.id" :label="student.username" :value="student.id.toString()" />
       </el-select>
       <el-button type="primary" @click="handleSearchClick">搜索</el-button>
+      <el-button :icon="Refresh" @click="emit('refresh')">刷新</el-button>
     </div>
 
     <div class="table-container">
@@ -57,7 +58,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { Search } from '@element-plus/icons-vue'
+import { Refresh, Search } from '@element-plus/icons-vue'
 
 const props = defineProps({
   assignments: { type: Array, default: () => [] },
@@ -70,7 +71,7 @@ const props = defineProps({
   pageSize: { type: Number, default: 10 },
 })
 
-const emit = defineEmits(['search', 'grade', 'delete'])
+const emit = defineEmits(['search', 'grade', 'delete', 'refresh'])
 
 const localSearch = ref(props.searchQuery)
 const localType = ref(props.selectedType)

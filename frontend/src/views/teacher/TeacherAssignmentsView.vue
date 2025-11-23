@@ -5,6 +5,7 @@ import Pagination from '@/components/Pagination.vue'
 import TeacherNav from '@/components/TeacherNav.vue'
 import http from '@/net/index.js'
 import { ElMessage } from 'element-plus'
+import { Refresh } from '@element-plus/icons-vue'
 
 const activeTab = ref('submissions') // submissions | published
 const submissions = ref([])
@@ -157,6 +158,7 @@ onMounted(() => {
         <h2>作业列表</h2>
       </div>
       <el-space>
+        <el-button :icon="Refresh" :loading="loading" @click="loadData">刷新</el-button>
         <el-button type="primary" @click="openCreate">新建作业</el-button>
         <el-radio-group v-model="activeTab" size="large" @change="onTabChange">
           <el-radio-button label="submissions">待批改提交</el-radio-button>

@@ -63,7 +63,7 @@ Authorization: Bearer <token>
 ```json
 {
   "code": 200,
-  "message": "提交成功",
+  "message": "success",
   "data": {
     "id": 100,
     "assignmentId": 10,
@@ -203,6 +203,88 @@ Authorization: Bearer <token>
 
 ---
 
+# 5. **老师查看所有提交列表（用于首页统计/列表）**
+
+## **GET /api/submissions/all**
+
+### 描述
+
+老师查看系统内全部提交，包含课程/作业/学生的基础信息。
+
+### 权限
+
+```
+@RequiresRole("teacher")
+```
+
+### 返回示例
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "submissionId": 100,
+      "assignmentId": 10,
+      "assignmentTitle": "第1次作业",
+      "courseId": 1,
+      "courseTitle": "Java 程序设计",
+      "studentId": 3,
+      "studentName": "20240123",
+      "assignmentContent": "完成 Java 基础练习题",
+      "submitContent": "这是我的作业内容",
+      "submitTime": null,
+      "graded": false,
+      "score": null,
+      "comment": null
+    }
+  ]
+}
+```
+
+> 目前未记录提交时间字段，`submitTime` 恒为 null。
+
+---
+
+# 6. **学生查看自己所有作业提交记录**
+
+## **GET /api/submissions/my/list**
+
+### 描述
+
+学生查看自己在所有课程下的提交列表。
+
+### 权限
+
+```
+@RequiresRole("student")
+```
+
+### 返回示例
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "submissionId": 100,
+      "assignmentId": 10,
+      "assignmentTitle": "第1次作业",
+      "courseId": 1,
+      "courseTitle": "Java 程序设计",
+      "submitContent": "作业内容",
+      "comment": "完成得很好！",
+      "graded": true,
+      "score": 95
+    }
+  ]
+}
+```
+
+---
+
 # 📂 Submission 表结构（最终版）
 
 ```sql
@@ -232,5 +314,7 @@ CREATE TABLE submission (
 | 学生查看提交     | /api/submissions/my     | GET  | student |
 | 老师查看作业提交列表 | /api/submissions/list   | GET  | teacher |
 | 老师批改作业提交   | /api/submissions/grade  | POST | teacher |
+| 老师查看全部提交   | /api/submissions/all   | GET  | teacher |
+| 学生查看所有提交列表 | /api/submissions/my/list | GET | student |
 
 ---

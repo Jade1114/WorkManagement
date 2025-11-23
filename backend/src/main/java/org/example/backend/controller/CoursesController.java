@@ -21,6 +21,7 @@ public class CoursesController {
     @Resource
     private JwtUtil jwtUtil;
 
+    // 教师创建课程
     @PostMapping("/create")
     public ApiResponse<CoursesResponse> create(HttpServletRequest request,
                                                @RequestBody CreateCoursesRequest dto) {
@@ -30,6 +31,7 @@ public class CoursesController {
         return ApiResponse.success(coursesService.createCourses(dto.getTitle()));
     }
 
+    // 获取所有课程
     @GetMapping("/get")
     public ApiResponse<List<CoursesResponse>> get() {
         return ApiResponse.success(coursesService.getAllCourses());

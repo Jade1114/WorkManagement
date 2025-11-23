@@ -12,14 +12,14 @@ public class Submission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long assignmentId;   // 所属作业 ID
-    private Long studentId;      // 提交人 ID
+    private Long assignmentId;
+    private Long studentId;
 
     @Column(columnDefinition = "TEXT")
-    private String content;      // 学生提交内容
+    private String content;
 
-    private Integer score;       // 老师评分（可为空）
-    private String comment;      // 老师评语（可为空）
+    private Integer score;
+    private String comment;
 
-    private Boolean graded;      // 是否已批改（true/false）
+    private Boolean graded;
 }

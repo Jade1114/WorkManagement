@@ -5,9 +5,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-/**
- * 未提交作业列表数据（学生视角）
- */
 @AllArgsConstructor
 @Data
 public class PendingAssignmentResponse {

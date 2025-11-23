@@ -40,12 +40,12 @@ public class AuthServiceImpl implements AuthService {
         User user = new User();
         user.setUsername(req.getUsername());
         user.setPassword(encoder.encode(req.getPassword()));  // BCrypt 加密
-        user.setRole("student");  // 注册的用户固定是学生
+        user.setRole("student");  
 
         try {
             userRepository.save(user);
         } catch (Exception e) {
-            throw e; // 由全局异常捕捉转为500 服务器内部错误
+            throw e; 
         }
     }
 

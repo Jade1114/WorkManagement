@@ -3,10 +3,10 @@ server:
 
 spring:
   datasource:
-    username: remoteUser
-    password: 20041114Liuyu!
+    username: app
+    password: app_pass
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://8.137.146.104/WorkManagement
+    url: jdbc:mysql://db:3306/WorkManagement?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
 
   jpa:
     properties:

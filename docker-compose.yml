@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: workmanagement-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: WorkManagement
+      MYSQL_USER: app
+      MYSQL_PASSWORD: app_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  backend:
+    build:
+      context: ./backend
+    container_name: workmanagement-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: mysql
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/WorkManagement
+      SPRING_DATASOURCE_USERNAME: app
+      SPRING_DATASOURCE_PASSWORD: app_pass
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: workmanagement-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:

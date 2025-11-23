@@ -23,7 +23,7 @@ public class AssignmentController {
     @Resource
     private JwtUtil jwtUtil;
 
-    // 创建作业
+    // 教师创建作业
     @PostMapping("/create")
     public ApiResponse<AssignmentResponse> create(HttpServletRequest request,
             @RequestBody AssignmentCreateRequest req) {

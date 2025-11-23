@@ -77,7 +77,7 @@ Authorization: Bearer <token>
 ```json
 {
   "code": 200,
-  "message": "课程创建成功",
+  "message": "success",
   "data": {
     "id": 1,
     "title": "Java 程序设计"
@@ -127,6 +127,35 @@ Authorization: Bearer <token>
 
 ---
 
+# 3. **老师查看课程及作业数量**
+
+## **GET /api/courses/withCount**
+
+### 描述
+
+返回所有课程及其已发布作业数量。
+
+### 权限
+
+```
+@RequiresRole("teacher")
+```
+
+### 响应示例
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    { "id": 1, "title": "Java 程序设计", "assignmentCount": 4 },
+    { "id": 2, "title": "数据库基础", "assignmentCount": 1 }
+  ]
+}
+```
+
+---
+
 # 📂 数据库结构（课程表）
 
 ```sql
@@ -144,5 +173,6 @@ CREATE TABLE course (
 | ------ | ------------------- | ---- | ------- |
 | 创建课程   | /api/courses/create | POST | teacher |
 | 获取所有课程 | /api/courses/get    | GET  | 登录      |
+| 课程+作业数量 | /api/courses/withCount | GET  | teacher   |
 
 ---

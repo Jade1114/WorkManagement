@@ -28,19 +28,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String changePassword(Long userId, String oldPassword, String newPassword) {
-        // 1. 查询用户
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
 
-        // 2. 校验旧密码
         if (!encoder.matches(oldPassword, user.getPassword())) {
             throw new RuntimeException("旧密码错误");
         }
 
-        // 3. 修改为新密码（必须加密后保存）
         user.setPassword(encoder.encode(newPassword));
 
-        // 4. 保存到数据库
         userRepository.save(user);
 
         return "密码修改成功";

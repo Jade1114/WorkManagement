@@ -4,6 +4,7 @@ import StudentAssignmentTable from '@/components/StudentAssignmentTable.vue'
 import StudentNav from '@/components/StudentNav.vue'
 import http from '@/net/index.js'
 import { ElMessage } from 'element-plus'
+import { Refresh } from '@element-plus/icons-vue'
 
 const assignments = ref([])
 const loading = ref(false)
@@ -41,6 +42,7 @@ onMounted(() => {
       <div>
         <h2>已提交作业列表</h2>
       </div>
+      <el-button :icon="Refresh" :loading="loading" @click="loadMySubmissions">刷新</el-button>
     </section>
 
     <section class="card">

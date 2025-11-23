@@ -98,16 +98,13 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new RuntimeException("studentId 不能为空");
         }
 
-        // 查出该学生已提交的 assignmentId
         List<Submission> submissions = submissionRepository.findByStudentId(studentId);
         Set<Long> submittedIds = submissions.stream()
                 .map(Submission::getAssignmentId)
                 .collect(Collectors.toSet());
 
-        // 找出所有作业中未提交的部分
         List<Assignment> allAssignments = assignmentRepository.findAll();
 
-        // 减少 N+1：提前批量查出课程标题
         Set<Long> courseIds = allAssignments.stream()
                 .map(Assignment::getCourseId)
                 .collect(Collectors.toSet());

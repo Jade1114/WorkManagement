@@ -12,8 +12,8 @@
 
 ```json
 {
-  "code": 0,            // 0 表示成功，其他为错误码
-  "message": "success", // 成功或错误信息
+  "code": 200,          // 成功固定返回 200
+  "message": "success", // 失败时为具体错误信息
   "data": {} | null     // 返回数据
 }
 ```
@@ -39,6 +39,7 @@
 * 学生自行注册账号
 * 注册成功后需要手动登录
 * role 固定为 `"student"`
+* 密码后端使用 BCrypt 加密存储
 
 ---
 
@@ -117,14 +118,14 @@
   "message": "success",
   "data": {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "user": {
-      "id": 1,
-      "username": "20240123",
-      "role": "student"
-    }
+    "userId": 1,
+    "username": "20240123",
+    "role": "student"
   }
 }
 ```
+
+- token 过期时间：1 小时
 
 ---
 

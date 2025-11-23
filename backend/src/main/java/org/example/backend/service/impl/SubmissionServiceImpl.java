@@ -41,7 +41,6 @@ public class SubmissionServiceImpl implements SubmissionService {
     @Override
     public SubmissionResponse submit(Long studentId, SubmissionCreateRequest req) {
 
-        // 1. 参数校验
         if (req.getAssignmentId() == null) {
             throw new RuntimeException("assignmentId 不能为空");
         }
@@ -49,7 +48,6 @@ public class SubmissionServiceImpl implements SubmissionService {
             throw new RuntimeException("提交内容不能为空");
         }
 
-        // 2. 检查学生是否已经提交过该作业
         Submission existed = submissionRepository
                 .findByAssignmentIdAndStudentId(req.getAssignmentId(), studentId);
 
@@ -57,20 +55,17 @@ public class SubmissionServiceImpl implements SubmissionService {
             throw new RuntimeException("你已经提交过该作业");
         }
 
-        // 3. 创建新的提交记录
         Submission s = new Submission();
         s.setAssignmentId(req.getAssignmentId());
         s.setStudentId(studentId);
         s.setContent(req.getContent());
 
-        // 初始：未批改
         s.setScore(null);
         s.setComment(null);
         s.setGraded(false);
 
         Submission saved = submissionRepository.save(s);
 
-        // 4. 转换成 Response 返回
         return new SubmissionResponse(
                 saved.getId(),
                 saved.getAssignmentId(),

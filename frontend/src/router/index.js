@@ -55,6 +55,12 @@ const routes = [
     component: () => import('@/views/student/StudentAssignmentsView.vue'),
     meta: { requiresAuth: true, role: 'student' },
   },
+  {
+    path: '/error',
+    name: 'error',
+    component: () => import('@/views/ErrorView.vue'),
+    meta: { guestOnly: true },
+  },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 

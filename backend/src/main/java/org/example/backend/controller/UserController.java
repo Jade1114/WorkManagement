@@ -22,13 +22,14 @@ public class UserController {
     @Resource
     private JwtUtil jwtUtil;
 
+    // 用户获取自己的信息
     @GetMapping("/me")
     public ApiResponse<UserResponse> me(HttpServletRequest request) {
         Long userId = jwtUtil.getUserId(request);
         return ApiResponse.success(userService.getCurrentUser(userId));
     }
 
-
+    // 用户更改密码
     @PutMapping("/changePassword")
     public ApiResponse<String> changePassword(HttpServletRequest request,
                                               @RequestBody ChangePasswordRequest req) {
@@ -38,6 +39,8 @@ public class UserController {
         );
     }
 
+
+    // 老师获取所有学生列表
     @GetMapping("/students")
     public ApiResponse<List<UserResponse>> getAllStudents(HttpServletRequest request) {
         if (!"teacher".equals(jwtUtil.getRole(request))) {

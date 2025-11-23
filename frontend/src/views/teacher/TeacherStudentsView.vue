@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import TeacherNav from '@/components/TeacherNav.vue'
 import http from '@/net/index.js'
+import { Refresh } from '@element-plus/icons-vue'
 
 const students = ref([])
 const loading = ref(false)
@@ -37,6 +38,7 @@ onMounted(() => {
       <div>
         <h2>学生列表</h2>
       </div>
+      <el-button :icon="Refresh" :loading="loading" @click="loadStudents">刷新</el-button>
     </section>
 
     <section class="card table-card">

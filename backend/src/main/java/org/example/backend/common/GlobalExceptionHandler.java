@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 处理 RuntimeException （最常见）
+    // 处理 RuntimeException
     @ExceptionHandler(RuntimeException.class)
     public ApiResponse<?> handleRuntimeException(RuntimeException e) {
         return ApiResponse.error(400, e.getMessage());
@@ -20,14 +20,14 @@ public class GlobalExceptionHandler {
         return ApiResponse.error(401, e.getMessage());
     }
 
-    // 处理参数校验异常（如果你未来使用 @Valid）
+    // 处理参数校验异常
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResponse<?> handleValidException(MethodArgumentNotValidException e) {
         String msg = e.getBindingResult().getFieldError().getDefaultMessage();
         return ApiResponse.error(400, msg);
     }
 
-    // 未知异常（兜底）
+    // 未知异常
     @ExceptionHandler(Exception.class)
     public ApiResponse<?> handleException(Exception e) {
         e.printStackTrace(); // 控制台打印方便调试
