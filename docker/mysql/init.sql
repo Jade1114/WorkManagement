@@ -4,6 +4,13 @@
 --  student001 / 123456
 --  student002 / 123456
 
+SET NAMES utf8mb4;
+-- 可选：更明确一点
+SET character_set_client = utf8mb4;
+SET character_set_connection = utf8mb4;
+SET character_set_results = utf8mb4;
+
+
 USE WorkManagement;
 
 CREATE TABLE IF NOT EXISTS `user` (
@@ -41,10 +48,13 @@ CREATE TABLE IF NOT EXISTS `submission` (
 
 -- 示例用户（密码均为 123456 的 BCrypt）
 INSERT INTO `user` (username, password, role) VALUES
-('teacher001', '$2a$10$3CAZ7SyaLHgQ5ZWqjEibVuZUdWvI/UqUTTBWT6I6auL2ptmVGRJJS', 'teacher'),
-('student001', '$2a$10$qXLER9g0JjlRxJmUF/23YOhqRXRLVjCD9Ufk.lXao6HtbT9zUHuPa', 'student'),
-('student002', '$2a$10$cjUx56jg8pX9uAUUfMVXJeyABCqJwD9V9Jr1txkC0kYIKSYmb8xxa', 'student')
-ON DUPLICATE KEY UPDATE username = VALUES(username);
+('teacher001', '$2a$10$RQxpVuZGgnfe5lgXnkc/1ODooBk6I5avnhRqRrnE5mVaRqGBIwXtu', 'teacher'),
+('student001', '$2a$10$TXbPiA6ESkp2YZhyWF1lbej5oCV6eRBNZmPXK8BxvGoH0xx733X7O', 'student'),
+('student002', '$2a$10$PyvK2LJJFijeFcIOtgIC2.t.sMLGGHYn4dwqkDzAin.pbPV0gl4.S', 'student')
+ON DUPLICATE KEY UPDATE
+  username = VALUES(username),
+  password = VALUES(password),
+  role     = VALUES(role);
 
 -- 示例课程
 INSERT INTO `course` (id, title) VALUES

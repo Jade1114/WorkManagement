@@ -1,7 +1,11 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { User, Lock } from '@element-plus/icons-vue'
+import http from '@/net/index.js'
+import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const formRef = ref()
 const form = reactive({
   username: '',
@@ -24,8 +28,20 @@ const rules = {
   ],
 }
 
-const handleRegister = () => {
-  formRef.value?.validate()
+async function handleRegister() {
+  try {
+    formRef.value?.validate()
+    const data = await http.post('/auth/register', {
+      username: form.username,
+      password: form.password,
+    })
+
+    ElMessage.success('注册成功!')
+
+    router.push('/index')
+  } catch (err) {
+    console.error('注册出错:', err)
+  }
 }
 </script>
 
@@ -33,7 +49,6 @@ const handleRegister = () => {
   <div class="auth-page">
     <div class="auth-card card">
       <h2 style="text-align: center;">注册</h2>
-      <p class="muted">静态页面，无真实提交。</p>
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="auth-form">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username" placeholder="请输入用户名">
