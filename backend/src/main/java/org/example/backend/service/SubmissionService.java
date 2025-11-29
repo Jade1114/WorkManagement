@@ -2,6 +2,7 @@ package org.example.backend.service;
 
 import org.example.backend.dto.SubmissionCreateRequest;
 import org.example.backend.dto.SubmissionGradeRequest;
+import org.example.backend.vo.RecentSubmissionResponse;
 import org.example.backend.vo.SubmissionListItemResponse;
 import org.example.backend.vo.SubmissionResponse;
 import org.example.backend.vo.StudentSubmissionResponse;
@@ -16,5 +17,7 @@ public interface SubmissionService {
     void grade(SubmissionGradeRequest req);
     List<StudentSubmissionResponse> listByStudent(Long studentId);
     List<TeacherSubmissionItemResponse> listAllSubmissionsForTeacher();
+
+    List<RecentSubmissionResponse> listRecentSubmissions();
 
 }

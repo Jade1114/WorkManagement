@@ -1,96 +1,126 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
-import pinia from '@/stores'
+import { createRouter, createWebHistory } from "vue-router";
+import { useUserStore } from "@/stores/userStore";
+import pinia from "@/stores";
+
+const layoutChildren = [
+  {
+    path: "dashboard",
+    name: "dashboard",
+    component: () => import("@/views/admin/DashboardView.vue"),
+    meta: { requiresAuth: true, roles: ["admin", "teacher"] },
+  },
+  {
+    path: "admin/users",
+    name: "admin-users",
+    component: () => import("@/views/admin/UserManageView.vue"),
+    meta: { requiresAuth: true, roles: ["admin"] },
+  },
+  {
+    path: "courses",
+    name: "courses",
+    component: () => import("@/views/admin/CourseManageView.vue"),
+    meta: { requiresAuth: true, roles: ["admin", "teacher"] },
+  },
+  {
+    path: "assignments/manage",
+    name: "assignments-manage",
+    component: () => import("@/views/teacher/TeacherAssignmentsView.vue"),
+    meta: { requiresAuth: true, roles: ["admin", "teacher"] },
+  },
+  {
+    path: "teacher/home",
+    name: "teacher-home",
+    component: () => import("@/views/teacher/TeacherHomeView.vue"),
+    meta: { requiresAuth: true, roles: ["admin", "teacher"] },
+  },
+  {
+    path: "teacher/students",
+    name: "teacher-students",
+    component: () => import("@/views/teacher/TeacherStudentsView.vue"),
+    meta: { requiresAuth: true, roles: ["admin", "teacher"] },
+  },
+  {
+    path: "student/home",
+    name: "student-home",
+    component: () => import("@/views/student/StudentHomeView.vue"),
+    meta: { requiresAuth: true, roles: ["student"] },
+  },
+  {
+    path: "student/assignments",
+    name: "student-assignments",
+    component: () => import("@/views/student/StudentAssignmentsView.vue"),
+    meta: { requiresAuth: true, roles: ["student"] },
+  },
+];
 
 const routes = [
   {
-    path: '/',
-    redirect: '/login',
+    path: "/",
+    redirect: "/login",
   },
   {
-    path: '/login',
-    name: 'login',
-    component: () => import('@/views/welcome/LoginView.vue'),
+    path: "/login",
+    name: "login",
+    component: () => import("@/views/welcome/LoginView.vue"),
     meta: { guestOnly: true },
   },
   {
-    path: '/register',
-    name: 'register',
-    component: () => import('@/views/welcome/RegisterView.vue'),
+    path: "/register",
+    name: "register",
+    component: () => import("@/views/welcome/RegisterView.vue"),
     meta: { guestOnly: true },
   },
   {
-    path: '/teacher/home',
-    name: 'teacher-home',
-    component: () => import('@/views/teacher/TeacherHomeView.vue'),
-    meta: { requiresAuth: true, role: 'teacher' },
+    path: "/",
+    component: () => import("@/layouts/AdminLayout.vue"),
+    children: layoutChildren,
   },
   {
-    path: '/teacher/assignments',
-    name: 'teacher-assignments',
-    component: () => import('@/views/teacher/TeacherAssignmentsView.vue'),
-    meta: { requiresAuth: true, role: 'teacher' },
-  },
-  {
-    path: '/teacher/students',
-    name: 'teacher-students',
-    component: () => import('@/views/teacher/TeacherStudentsView.vue'),
-    meta: { requiresAuth: true, role: 'teacher' },
-  },
-  {
-    path: '/teacher/subjects',
-    name: 'teacher-subjects',
-    component: () => import('@/views/teacher/TeacherSubjectsView.vue'),
-    meta: { requiresAuth: true, role: 'teacher' },
-  },
-  {
-    path: '/student/home',
-    name: 'student-home',
-    component: () => import('@/views/student/StudentHomeView.vue'),
-    meta: { requiresAuth: true, role: 'student' },
-  },
-  {
-    path: '/student/assignments',
-    name: 'student-assignments',
-    component: () => import('@/views/student/StudentAssignmentsView.vue'),
-    meta: { requiresAuth: true, role: 'student' },
-  },
-  {
-    path: '/error',
-    name: 'error',
-    component: () => import('@/views/ErrorView.vue'),
+    path: "/error",
+    name: "error",
+    component: () => import("@/views/ErrorView.vue"),
     meta: { guestOnly: true },
   },
-  { path: '/:pathMatch(.*)*', redirect: '/' },
-]
+  { path: "/:pathMatch(.*)*", redirect: "/" },
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-})
+});
+
+const resolveHomeByRole = (role) => {
+  if (role === "admin") return "/dashboard";
+  if (role === "teacher") return "/dashboard";
+  if (role === "student") return "/student/home";
+  return "/login";
+};
 
 router.beforeEach((to, from, next) => {
-  const userStore = useUserStore(pinia)
-  const isLoggedIn = !!userStore.token
-  const isGuestOnly = to.meta.guestOnly
+  const userStore = useUserStore(pinia);
+  const isLoggedIn = !!userStore.token;
+  const isGuestOnly = to.meta.guestOnly;
 
   if (isGuestOnly && isLoggedIn) {
-    const targetHome = userStore.role === 'teacher' ? '/teacher/home' : '/student/home'
-    next(targetHome)
-    return
+    next(resolveHomeByRole(userStore.role));
+    return;
   }
 
   if (to.meta.requiresAuth && !isLoggedIn) {
-    next('/login')
-    return
+    next("/login");
+    return;
   }
 
-  if (to.meta.role && userStore.role && to.meta.role !== userStore.role) {
-    next('/login')
-    return
+  if (
+    to.meta.roles &&
+    userStore.role &&
+    !to.meta.roles.includes(userStore.role)
+  ) {
+    next("/error");
+    return;
   }
 
-  next()
-})
+  next();
+});
 
-export default router
+export default router;

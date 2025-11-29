@@ -32,10 +32,12 @@ async function handleLogin() {
     ElMessage.success('登录成功！')
 
     const role = data.role
-    if (role === 'teacher') {
-      router.push('/teacher/home')
-    } else {
+    if (role === 'admin' || role === 'teacher') {
+      router.push('/dashboard')
+    } else if (role === 'student') {
       router.push('/student/home')
+    } else {
+      router.push('/error')
     }
 
   } catch (err) {

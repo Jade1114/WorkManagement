@@ -4,6 +4,8 @@ import jakarta.annotation.Resource;
 import org.example.backend.entity.User;
 import org.example.backend.repository.UserRepository;
 import org.example.backend.service.UserService;
+import org.example.backend.dto.AdminUpdateUserRequest;
+import org.example.backend.vo.AdminUserResponse;
 import org.example.backend.vo.UserResponse;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,5 +51,37 @@ public class UserServiceImpl implements UserService {
         return list.stream()
                 .map(user -> new UserResponse(user.getId(), user.getUsername(), user.getRole()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AdminUserResponse> getAllForAdmin() {
+        List<User> list = userRepository.findAll();
+        return list.stream()
+                .map(user -> new AdminUserResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getRole(),
+                        user.getActive()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateUser(AdminUpdateUserRequest req) {
+        if (req.getUserId() == null) {
+            throw new RuntimeException("userId 不能为空");
+        }
+
+        User user = userRepository.findById(req.getUserId())
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+
+        if (req.getRole() != null && !req.getRole().isBlank()) {
+            user.setRole(req.getRole());
+        }
+        if (req.getActive() != null) {
+            user.setActive(req.getActive());
+        }
+
+        userRepository.save(user);
     }
 }

@@ -2,7 +2,6 @@
 import { onMounted, ref, computed } from 'vue'
 import TeacherAssignmentTable from '@/components/TeacherAssignmentTable.vue'
 import Pagination from '@/components/Pagination.vue'
-import TeacherNav from '@/components/TeacherNav.vue'
 import http from '@/net/index.js'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
@@ -12,7 +11,7 @@ const submissions = ref([])
 const published = ref([])
 const loading = ref(false)
 const currentPage = ref(1)
-const pageSize = ref(5)
+const pageSize = ref(10)
 const createVisible = ref(false)
 const gradeVisible = ref(false)
 
@@ -151,8 +150,6 @@ onMounted(() => {
 
 <template>
   <div class="page">
-    <TeacherNav />
-
     <section class="card header-card">
       <div>
         <h2>作业列表</h2>

@@ -70,6 +70,10 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("用户名或密码错误");
         }
 
+        if (Boolean.FALSE.equals(user.getActive())) {
+            throw new RuntimeException("账号已禁用");
+        }
+
         // 3. 生成 token
         String token = jwtUtil.createToken(user.getId(), user.getRole());
 

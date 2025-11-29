@@ -20,4 +20,14 @@ public class User {
 
     @Column(nullable = false)
     private String role;
+
+    @Column(nullable = false)
+    private Boolean active;
+
+    @PrePersist
+    public void prePersist() {
+        if (active == null) {
+            active = true;
+        }
+    }
 }

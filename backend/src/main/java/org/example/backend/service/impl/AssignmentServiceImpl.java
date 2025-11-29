@@ -11,6 +11,7 @@ import org.example.backend.repository.CoursesRepository;
 import org.example.backend.service.AssignmentService;
 import org.example.backend.vo.AssignmentResponse;
 import org.example.backend.vo.PendingAssignmentResponse;
+import org.example.backend.vo.RecentAssignmentResponse;
 import org.example.backend.vo.TeacherAssignmentResponse;
 import org.springframework.stereotype.Service;
 
@@ -77,7 +78,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         Set<Long> courseIds = assignments.stream()
                 .map(Assignment::getCourseId)
                 .collect(Collectors.toSet());
-        Map<Long, String> courseTitleMap = coursesRepository.findAllById(courseIds).stream()
+        Map<Long, String> courseTitleMap = coursesRepository.findByIdInAndDeletedFalse(courseIds).stream()
                 .collect(Collectors.toMap(Courses::getId, Courses::getTitle));
 
         return assignments.stream()
@@ -120,6 +121,31 @@ public class AssignmentServiceImpl implements AssignmentService {
                         a.getTitle(),
                         a.getContent(),
                         a.getDeadline()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RecentAssignmentResponse> getRecentAssignments() {
+        List<Assignment> assignments = assignmentRepository.findTop2ByOrderByCreatedAtDesc();
+        if (assignments.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Long> courseIds = assignments.stream()
+                .map(Assignment::getCourseId)
+                .collect(Collectors.toSet());
+        Map<Long, String> courseTitleMap = coursesRepository.findAllById(courseIds).stream()
+                .collect(Collectors.toMap(Courses::getId, Courses::getTitle));
+
+        return assignments.stream()
+                .map(a -> new RecentAssignmentResponse(
+                        a.getId(),
+                        a.getCourseId(),
+                        courseTitleMap.getOrDefault(a.getCourseId(), "未关联课程"),
+                        a.getTitle(),
+                        a.getDeadline(),
+                        a.getCreatedAt()
                 ))
                 .collect(Collectors.toList());
     }

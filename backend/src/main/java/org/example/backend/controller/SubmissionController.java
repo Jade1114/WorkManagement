@@ -48,7 +48,8 @@ public class SubmissionController {
     @GetMapping("/list")
     public ApiResponse<?> listByAssignment(HttpServletRequest request,
                 @RequestParam Long assignmentId) {
-        if (!"teacher".equals(jwtUtil.getRole(request))) {
+        String role = jwtUtil.getRole(request);
+        if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
         return ApiResponse.success(submissionService.listByAssignment(assignmentId));
@@ -57,7 +58,8 @@ public class SubmissionController {
     // 老师查看所有提交列表
     @GetMapping("/all")
     public ApiResponse<?> listAll(HttpServletRequest request) {
-        if (!"teacher".equals(jwtUtil.getRole(request))) {
+        String role = jwtUtil.getRole(request);
+        if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
         List<TeacherSubmissionItemResponse> list = submissionService.listAllSubmissionsForTeacher();
@@ -78,7 +80,8 @@ public class SubmissionController {
     @PostMapping("/grade")
     public ApiResponse<?> grade(HttpServletRequest request,
                 @RequestBody SubmissionGradeRequest req) {
-        if (!"teacher".equals(jwtUtil.getRole(request))) {
+        String role = jwtUtil.getRole(request);
+        if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
         submissionService.grade(req);

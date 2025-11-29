@@ -28,9 +28,9 @@ const userStore = useUserStore()
 
 const teacherNav = [
   { label: '主页', path: '/teacher/home' },
-  { label: '作业列表', path: '/teacher/assignments' },
+  { label: '作业列表', path: '/assignments/manage' },
   { label: '学生列表', path: '/teacher/students' },
-  { label: '学科列表', path: '/teacher/subjects' },
+  { label: '学科列表', path: '/courses' },
 ]
 
 const activePath = computed(() => route.path)

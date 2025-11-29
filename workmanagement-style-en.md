@@ -1,926 +1,324 @@
-# Work Management System Style Development Guide
+# Harmony & Flow: Advanced Work Management Design System
 
-## 1. Overview
+## 1\. Overview
 
-This style guide defines the complete frontend design specifications for the work management system, including design principles, spacing system, color system, typography system, border radius and shadows, component styles, interactive animations, and responsive layouts. The system is built using **Vue 3** and **Element Plus**, aiming to provide a clean, modern, unified, and easily maintainable user interface.
+This is an evolution of the previous Work Management System. While the previous system prioritized utility, this system prioritizes **visual harmony, depth, and fluid interaction**. It utilizes **Vue 3** and **Element Plus** but heavily overrides default styles to achieve a bespoke, premium look.
 
-**Intended for**: Frontend developers, UI designers, backend developers (understanding frontend constraints)
+**Core Upgrade Goals:**
 
----
-
-## 2. Design Principles
-
-- **Clean and Modern**: Adopt a minimalist style, emphasize functionality, reduce visual burden
-- **Consistency**: Colors, spacing, fonts, and animations remain consistent to ensure visual coherence
-- **Intuitive and Easy to Use**: Clear information hierarchy, explicit visual feedback, reduce learning curve
-- **Responsive First**: Mobile-first approach, progressively adapted to tablets and desktops
-- **Accessibility**: Consider colorblindness, keyboard navigation, screen readers, and other accessibility needs
-- **Maintainability**: Use design systems rather than hardcoded values for easier maintenance and upgrades
+- **From Flat to Depth:** Utilizing subtle layers, blurs, and inner borders rather than heavy drop shadows.
+- **From Grey to Slate:** Replacing neutral greys with cool-toned slates to reduce visual fatigue.
+- **From Static to Kinetic:** Implementing physics-based transitions (springs) rather than linear eases.
 
 ---
 
-## 3. Design System Foundations
+## 2\. Advanced Design Principles
 
-### 3.1 Base Spacing System (8px Grid)
+- **Optical Balance:** Spacing and alignment are based on optical weight, not just mathematical grids.
+- **Micro-Depth:** Use borders (`1px`) and subtle background shifts to define hierarchy, reserving shadows only for floating elements.
+- **Semantic Color:** Colors are defined by their intent (`--bg-surface-primary`) rather than their hex value (`--white`), enabling seamless theming.
+- **Glass & Blur:** Use backdrop filters contextually to maintain context without clutter.
 
-Adopts **8px base unit** to establish a unified spacing system. All margin and padding values must be multiples of 4px or 8px.
+---
 
-| Level | Pixel Value | CSS Variable | Use Case |
-|-------|-------------|--------------|----------|
-| XS | 4px | `--spacing-xs` | Compact element spacing (tags, badges) |
-| S | 8px | `--spacing-s` | Component internal spacing, form item spacing |
-| M | 16px | `--spacing-m` | Card internal padding, group spacing |
-| L | 24px | `--spacing-l` | Large container padding, main area spacing |
-| XL | 32px | `--spacing-xl` | Section spacing, main content area padding |
-| 2XL | 40px | `--spacing-2xl` | Top-level page spacing |
+## 3\. The "Harmonic" Spacing System
+
+Building on the 8px grid, we introduce **Fluid Spacing** for responsive elegance.
+
+| Token       | Value | Concept   | Use Case                       |
+| ----------- | ----- | --------- | ------------------------------ |
+| `space-2xs` | 4px   | Tight     | Badges, icon separation        |
+| `space-xs`  | 8px   | Related   | Form labels to inputs          |
+| `space-s`   | 12px  | Flow      | List items, vertical rhythm    |
+| `space-m`   | 20px  | Component | Card padding, grouped controls |
+| `space-l`   | 32px  | Section   | Major content blocks           |
+| `space-xl`  | 48px  | Breath    | Page headers, dashboard gaps   |
+| `space-2xl` | 64px  | Structure | Outer page margins             |
 
 ```css
 :root {
-  --spacing-xs: 4px;
-  --spacing-s: 8px;
-  --spacing-m: 16px;
-  --spacing-l: 24px;
-  --spacing-xl: 32px;
-  --spacing-2xl: 40px;
-}
-
-/* Usage example */
-.card {
-  padding: var(--spacing-l);
-  margin-bottom: var(--spacing-xl);
-}
-
-.form-item {
-  margin-bottom: var(--spacing-m);
+  --space-2xs: 0.25rem; /* 4px */
+  --space-xs: 0.5rem; /* 8px */
+  --space-s: 0.75rem; /* 12px - NEW Standard */
+  --space-m: 1.25rem; /* 20px */
+  --space-l: 2rem; /* 32px */
+  --space-xl: 3rem; /* 48px */
 }
 ```
 
 ---
 
-## 4. Color Scheme
+## 4\. "Slate" Color System (Harmonious Palette)
 
-### 4.1 Core Colors
+Instead of the standard Element Plus Blue and neutral Grey, we use a **Violet-Indigo primary** and a **Slate (Blue-Grey) neutral**. This creates a cooler, more professional, and modern look.
 
-| Color Name | Hex | CSS Variable | Purpose |
-|------------|-----|--------------|---------|
-| Page Background | `#f5f7fa` | `--color-bg-page` | Main page background |
-| Card Background | `#ffffff` | `--color-bg-card` | Cards, modals, menus |
-| Border Color | `#dcdfe6` | `--color-border` | Borders, dividers |
-| Text - Primary | `#303133` | `--color-text-primary` | Titles, body text |
-| Text - Secondary | `#606266` | `--color-text-secondary` | Description text, legends |
-| Text - Tertiary | `#909399` | `--color-text-tertiary` | Disabled text, placeholders, hints |
-| Text - Disabled | `#c0c4cc` | `--color-text-disabled` | Completely disabled text |
+### 4.1 The Slate Neutrals (Backgrounds & Text)
 
-### 4.2 Functional Colors
+_Replacing generic grays allows the interface to feel cohesive and "premium."_
 
-| Function | Hex | CSS Variable | Purpose |
-|----------|-----|--------------|---------|
-| Primary | `#409eff` | `--color-primary` | Primary buttons, links, title highlights |
-| Success | `#67c23a` | `--color-success` | Success messages, confirmation actions |
-| Warning | `#e6a23c` | `--color-warning` | Warning messages, cautious actions |
-| Error | `#f56c6c` | `--color-error` | Error messages, delete actions |
-| Info | `#909399` | `--color-info` | Neutral messages, explanatory information |
+| Token         | Hex       | Role                                   |
+| ------------- | --------- | -------------------------------------- |
+| `--slate-50`  | `#f8fafc` | Page Background (Cooler than \#f5f7fa) |
+| `--slate-100` | `#f1f5f9` | Secondary Background / Hover           |
+| `--slate-200` | `#e2e8f0` | Borders                                |
+| `--slate-400` | `#94a3b8` | Icons / Disabled Text                  |
+| `--slate-600` | `#475569` | Body Text                              |
+| `--slate-900` | `#0f172a` | Headings / Emphasized Text             |
 
-### 4.3 Color Application Rules
+### 4.2 The Vivid Primary (Indigo)
+
+_A shift from standard blue to a vibrant, digital indigo._
+
+| Token           | Hex       | Role                        |
+| --------------- | --------- | --------------------------- |
+| `--primary-50`  | `#eef2ff` | Active Backgrounds (Subtle) |
+| `--primary-100` | `#e0e7ff` | Hover Backgrounds           |
+| `--primary-500` | `#6366f1` | **Main Brand Color**        |
+| `--primary-600` | `#4f46e5` | Hover State                 |
+
+### 4.3 Semantic Variables (Usage)
 
 ```css
 :root {
-  --color-bg-page: #f5f7fa;
-  --color-bg-card: #ffffff;
-  --color-border: #dcdfe6;
-  --color-text-primary: #303133;
-  --color-text-secondary: #606266;
-  --color-text-tertiary: #909399;
-  --color-text-disabled: #c0c4cc;
-  --color-primary: #409eff;
-  --color-success: #67c23a;
-  --color-warning: #e6a23c;
-  --color-error: #f56c6c;
-  --color-info: #909399;
-}
+  /* Surfaces */
+  --bg-app: var(--slate-50);
+  --bg-surface: #ffffff;
+  --bg-surface-glass: rgba(255, 255, 255, 0.7); /* For Glassmorphism */
 
-/* Link colors */
-a {
-  color: var(--color-primary);
-  text-decoration: none;
-}
+  /* Borders */
+  --border-subtle: var(--slate-200);
+  --border-focus: var(--primary-500);
 
-a:hover {
-  color: #66b1ff;
-}
-
-a:visited {
-  color: #836eff;
-}
-
-a:disabled {
-  color: var(--color-text-disabled);
-  cursor: not-allowed;
+  /* Typography */
+  --text-main: var(--slate-900);
+  --text-muted: var(--slate-600);
+  --text-faint: var(--slate-400);
 }
 ```
 
 ---
 
-## 5. Typography System
+## 5\. Modern Typography
 
-### 5.1 Font Size System (6-Level System)
+We move from the system font stack to **Inter** (or a similar geometric sans) with tighter tracking for headings to increase readability and distinctiveness.
 
-| Level | Size | Line Height | Weight | Use Case |
-|-------|------|-------------|--------|----------|
-| H1 | 28px | 1.5 | 600 | Page titles |
-| H2 | 24px | 1.5 | 600 | Primary section titles |
-| H3 | 20px | 1.5 | 600 | Secondary section titles |
-| H4 | 16px | 1.5 | 600 | Tertiary section titles |
-| Body | 14px | 1.6 | 400 | Body text, card content |
-| Small | 12px | 1.5 | 400 | Description text, tables, legends |
+**Font Family:** `'Inter', -apple-system, BlinkMacSystemFont, sans-serif`
 
-### 5.2 Font Stack
+| Level   | Size | Weight | Tracking | Line Height |
+| ------- | ---- | ------ | -------- | ----------- |
+| Display | 32px | 700    | -0.02em  | 1.2         |
+| H1      | 24px | 600    | -0.01em  | 1.3         |
+| H2      | 20px | 600    | -0.01em  | 1.4         |
+| Body    | 14px | 400    | 0        | 1.5         |
+| Small   | 13px | 500    | 0.01em   | 1.4         |
+| Tiny    | 11px | 600    | 0.05em   | 1.2         |
 
 ```css
-:root {
-  --font-family-base: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", 
-                      Roboto, "PingFang SC", sans-serif;
-  --font-family-mono: "Courier New", "Monaco", monospace;
-}
-
 body {
-  font-family: var(--font-family-base);
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--color-text-primary);
+  font-family: "Inter", sans-serif;
+  color: var(--text-muted); /* Softer than pure black */
+  -webkit-font-smoothing: antialiased; /* Critical for premium feel */
 }
 
-h1 {
-  font-size: 28px;
-  line-height: 1.5;
-  font-weight: 600;
-  margin: var(--spacing-xl) 0 var(--spacing-l) 0;
-}
-
-h2 {
-  font-size: 24px;
-  line-height: 1.5;
-  font-weight: 600;
-  margin: var(--spacing-l) 0 var(--spacing-m) 0;
-}
-
+h1,
+h2,
 h3 {
-  font-size: 20px;
-  line-height: 1.5;
-  font-weight: 600;
-  margin: var(--spacing-m) 0 var(--spacing-s) 0;
-}
-
-h4 {
-  font-size: 16px;
-  line-height: 1.5;
-  font-weight: 600;
-  margin: var(--spacing-m) 0 var(--spacing-s) 0;
-}
-
-p {
-  font-size: 14px;
-  line-height: 1.6;
-  margin: 0 0 var(--spacing-m) 0;
-}
-
-small {
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--color-text-tertiary);
-}
-
-code, pre {
-  font-family: var(--font-family-mono);
+  color: var(--text-main);
+  letter-spacing: -0.02em; /* Tightens titles for a modern look */
 }
 ```
 
 ---
 
-## 6. Border Radius System
+## 6\. Depth & Glassmorphism
 
-Adopts **4-level border radius specification**, selecting appropriate radius values based on component characteristics.
+Instead of the standard 4-level shadow system, we use a combination of **Shadows, Blurs, and Inner Borders**.
 
-| Level | Pixel Value | CSS Variable | Use Case |
-|-------|-------------|--------------|----------|
-| None | 0px | `--radius-none` | Square components |
-| Compact | 4px | `--radius-compact` | Tags, badges, small buttons |
-| Standard | 8px | `--radius-standard` | Cards, buttons, input fields |
-| Loose | 16px | `--radius-loose` | Large cards, modals |
+### 6.1 The "Clean" Shadow Stack
+
+Premium UIs often use a double-shadow technique: a tight, dark ambient shadow + a large, soft diffuse shadow.
 
 ```css
 :root {
-  --radius-none: 0px;
-  --radius-compact: 4px;
-  --radius-standard: 8px;
-  --radius-loose: 16px;
-}
+  /* Subtle border ring for definition without heaviness */
+  --shadow-ring: 0 0 0 1px rgba(15, 23, 42, 0.05);
 
-.card {
-  border-radius: var(--radius-standard);
-}
+  /* Elevation 1: Cards */
+  --shadow-sm: var(--shadow-ring), 0 1px 2px 0 rgba(15, 23, 42, 0.05);
 
-.el-button {
-  border-radius: var(--radius-standard);
-}
+  /* Elevation 2: Dropdowns/Hover */
+  --shadow-md: var(--shadow-ring), 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px
+      4px -1px rgba(15, 23, 42, 0.06);
 
-.el-input__inner {
-  border-radius: var(--radius-compact);
-}
+  /* Elevation 3: Modals */
+  --shadow-xl: var(--shadow-ring), 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0
+      10px 10px -5px rgba(15, 23, 42, 0.04);
 
-.el-tag {
-  border-radius: var(--radius-compact);
+  /* The Glow: Colored shadow for primary actions */
+  --shadow-glow: 0 0 0 1px #6366f1, 0 0 0 4px rgba(99, 102, 241, 0.2);
 }
+```
 
-.el-dialog {
-  border-radius: var(--radius-loose);
+### 6.2 Glassmorphism Utility
+
+Used for sticky headers or overlay modals.
+
+```css
+.glass-panel {
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 ```
 
 ---
 
-## 7. Shadow System
+## 7\. Component Styling (Refined)
 
-Adopts **4-level shadow system** to express different depths and layer relationships.
+### 7.1 Soft Inputs
 
-| Level | Shadow Definition | CSS Variable | Use Case |
-|-------|------------------|--------------|----------|
-| Subtle | `0 1px 2px rgba(0,0,0,0.05)` | `--shadow-subtle` | Hover states |
-| Standard | `0 2px 4px rgba(0,0,0,0.1)` | `--shadow-standard` | Cards, buttons |
-| Deep | `0 4px 8px rgba(0,0,0,0.15)` | `--shadow-deep` | Overlays, menus |
-| Focus | `0 0 0 2px #fff, 0 0 0 4px #409eff` | `--shadow-focus` | Focus states |
-
-```css
-:root {
-  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-standard: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-deep: 0 4px 8px rgba(0, 0, 0, 0.15);
-  --shadow-focus: 0 0 0 2px #ffffff, 0 0 0 4px #409eff;
-}
-
-.card {
-  box-shadow: var(--shadow-standard);
-}
-
-.card:hover {
-  box-shadow: var(--shadow-deep);
-}
-
-.el-dropdown-menu,
-.el-dialog {
-  box-shadow: var(--shadow-deep);
-}
-
-.el-button:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
-}
-```
-
----
-
-## 8. Form Component Styles
-
-### 8.1 Input Fields
+Moving away from the standard bordered inputs to **filled inputs** that gain structure on focus. This reduces visual noise in complex forms.
 
 ```css
 .el-input__inner {
-  height: 36px;
-  padding: 0 var(--spacing-m);
-  font-size: 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-compact);
-  transition: all 0.3s ease;
-  background-color: var(--color-bg-card);
-  color: var(--color-text-primary);
-}
-
-.el-input__inner::placeholder {
-  color: var(--color-text-tertiary);
+  background-color: var(--slate-100); /* Light grey fill */
+  border: 1px solid transparent; /* No border initially */
+  box-shadow: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-main);
 }
 
 .el-input__inner:hover {
-  border-color: #b3d8ff;
+  background-color: white;
+  border-color: var(--slate-200);
+  box-shadow: var(--shadow-sm);
 }
 
 .el-input__inner:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
-  outline: none;
-}
-
-.el-input__inner:disabled {
-  background-color: #f5f7fa;
-  color: var(--color-text-disabled);
-  cursor: not-allowed;
-}
-
-.el-form-item.is-error .el-input__inner {
-  border-color: var(--color-error);
-}
-
-.el-form-item.is-error .el-input__inner:focus {
-  box-shadow: 0 0 0 2px rgba(245, 108, 108, 0.2);
+  background-color: white;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); /* Soft ring */
 }
 ```
 
-### 8.2 Form Items
+### 7.2 Tactile Buttons
 
-```css
-.el-form-item {
-  margin-bottom: var(--spacing-m);
-}
-
-.el-form-item__label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-s);
-  line-height: 1.5;
-}
-
-.el-form-item__label.is-required::before {
-  content: "*";
-  color: var(--color-error);
-  margin-right: 4px;
-}
-
-.el-form-item__error {
-  font-size: 12px;
-  color: var(--color-error);
-  line-height: 1;
-  margin-top: 4px;
-}
-```
-
-### 8.3 Radio Buttons and Checkboxes
-
-```css
-.el-radio,
-.el-checkbox {
-  margin-right: var(--spacing-l);
-}
-
-.el-radio__inner,
-.el-checkbox__inner {
-  border: 2px solid var(--color-border);
-  background-color: var(--color-bg-card);
-  transition: all 0.3s ease;
-}
-
-.el-radio__inner {
-  border-radius: 50%;
-}
-
-.el-checkbox__inner {
-  border-radius: var(--radius-compact);
-}
-
-.el-radio__input.is-checked .el-radio__inner,
-.el-checkbox__input.is-checked .el-checkbox__inner {
-  border-color: var(--color-primary);
-  background-color: var(--color-primary);
-}
-
-.el-radio:hover .el-radio__inner,
-.el-checkbox:hover .el-checkbox__inner {
-  border-color: #b3d8ff;
-}
-
-.el-radio.is-disabled .el-radio__inner,
-.el-checkbox.is-disabled .el-checkbox__inner {
-  background-color: #f5f7fa;
-  border-color: var(--color-border);
-  cursor: not-allowed;
-}
-```
-
----
-
-## 9. Button Styles
+Buttons should feel clickable. We increase the radius slightly and add a subtle transform.
 
 ```css
 .el-button {
-  height: 36px;
-  padding: 0 var(--spacing-l);
-  font-size: 14px;
   font-weight: 500;
-  border-radius: var(--radius-standard);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border: none;
+  border-radius: 8px; /* Slightly rounder than standard */
+  height: 40px; /* Taller hit area */
+  letter-spacing: 0.01em;
+  transition: transform 0.1s, box-shadow 0.2s;
 }
 
-/* Primary button */
 .el-button--primary {
-  background-color: var(--color-primary);
-  color: white;
-  box-shadow: var(--shadow-standard);
+  background: var(--primary-500);
+  border: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2); /* Inner highlight */
 }
 
 .el-button--primary:hover {
-  background-color: #66b1ff;
-  box-shadow: var(--shadow-deep);
+  background: var(--primary-600);
+  transform: translateY(-1px);
 }
 
 .el-button--primary:active {
-  background-color: #3a8ee6;
+  transform: translateY(0px);
+}
+```
+
+### 7.3 The "Modern Card"
+
+Cards use a subtle border instead of a heavy shadow for a cleaner dashboard look.
+
+```css
+.card-modern {
+  background: var(--bg-surface);
+  border: 1px solid var(--slate-200);
+  border-radius: 12px; /* Smooth corners */
+  box-shadow: var(--shadow-sm);
 }
 
-/* Success button */
-.el-button--success {
-  background-color: var(--color-success);
-  color: white;
-}
-
-.el-button--success:hover {
-  background-color: #85ce61;
-}
-
-/* Warning button */
-.el-button--warning {
-  background-color: var(--color-warning);
-  color: white;
-}
-
-.el-button--warning:hover {
-  background-color: #ebb563;
-}
-
-/* Danger button */
-.el-button--danger {
-  background-color: var(--color-error);
-  color: white;
-}
-
-.el-button--danger:hover {
-  background-color: #f78989;
-}
-
-/* Text button */
-.el-button--text {
-  background-color: transparent;
-  color: var(--color-primary);
-  box-shadow: none;
-}
-
-.el-button--text:hover {
-  color: #66b1ff;
-  background-color: rgba(64, 158, 255, 0.08);
-}
-
-/* Disabled state */
-.el-button:disabled,
-.el-button.is-disabled {
-  opacity: 0.6;
-  color: var(--color-text-disabled);
-  background-color: #f5f7fa;
-  border-color: var(--color-border);
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* Loading state */
-.el-button.is-loading {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Focus state */
-.el-button:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
+/* Header separation within card */
+.card-modern-header {
+  padding: var(--space-m);
+  border-bottom: 1px solid var(--slate-100);
 }
 ```
 
 ---
 
-## 10. Cards and Containers
+## 8\. Micro-Interactions & Animation
 
-```css
-.card {
-  background-color: var(--color-bg-card);
-  border-radius: var(--radius-standard);
-  box-shadow: var(--shadow-standard);
-  padding: var(--spacing-l);
-  transition: all 0.3s ease;
-}
+We replace standard eases with **Spring Physics** for a native-app feel.
 
-.card:hover {
-  box-shadow: var(--shadow-deep);
-}
-
-.el-dialog {
-  border-radius: var(--radius-loose);
-  box-shadow: var(--shadow-deep);
-}
-
-.el-dialog__header {
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--spacing-l);
-}
-
-.el-dialog__body {
-  padding: var(--spacing-l);
-}
-
-.el-dialog__footer {
-  border-top: 1px solid var(--color-border);
-  padding: var(--spacing-l);
-  text-align: right;
-}
-```
-
----
-
-## 11. Table Styles
-
-```css
-.el-table {
-  background-color: var(--color-bg-card);
-  border-radius: var(--radius-standard);
-  box-shadow: var(--shadow-standard);
-  overflow: hidden;
-}
-
-.el-table__header {
-  background-color: #f5f7fa;
-}
-
-.el-table__body tr:hover > td {
-  background-color: #f9f9fb !important;
-}
-
-.el-table__body-wrapper {
-  border-radius: 0 0 var(--radius-standard) var(--radius-standard);
-}
-
-.el-table td {
-  padding: var(--spacing-m);
-  border-color: var(--color-border);
-}
-
-.el-table th {
-  padding: var(--spacing-m);
-  border-color: var(--color-border);
-  font-weight: 600;
-}
-```
-
----
-
-## 12. Menus and Navigation
-
-```css
-.el-menu {
-  border-right: none;
-  background-color: var(--color-bg-card);
-}
-
-.el-menu-item {
-  height: 36px;
-  line-height: 36px;
-  padding: 0 var(--spacing-l);
-  color: var(--color-text-primary);
-  transition: all 0.3s ease;
-}
-
-.el-menu-item:hover {
-  background-color: #f0f0f0;
-  color: var(--color-primary);
-}
-
-.el-menu-item.is-active {
-  background-color: rgba(64, 158, 255, 0.1);
-  color: var(--color-primary);
-  font-weight: 600;
-  border-right: 3px solid var(--color-primary);
-}
-
-.el-submenu__title {
-  height: 36px;
-  line-height: 36px;
-  padding: 0 var(--spacing-l);
-  color: var(--color-text-primary);
-  transition: all 0.3s ease;
-}
-
-.el-submenu__title:hover {
-  background-color: #f0f0f0;
-  color: var(--color-primary);
-}
-
-.el-submenu.is-active > .el-submenu__title {
-  color: var(--color-primary);
-  font-weight: 600;
-}
-```
-
----
-
-## 13. Notifications and States
-
-### 13.1 Message Notifications
-
-```css
-.el-message {
-  border-radius: var(--radius-standard);
-  box-shadow: var(--shadow-deep);
-  padding: var(--spacing-m) var(--spacing-l);
-  font-size: 14px;
-}
-
-.el-message--success {
-  background-color: #f0f9ff;
-  color: var(--color-success);
-  border-left: 4px solid var(--color-success);
-}
-
-.el-message--error {
-  background-color: #fef0f0;
-  color: var(--color-error);
-  border-left: 4px solid var(--color-error);
-}
-
-.el-message--warning {
-  background-color: #fdf6ec;
-  color: var(--color-warning);
-  border-left: 4px solid var(--color-warning);
-}
-```
-
-### 13.2 Toast Notifications
-
-```css
-.el-notification {
-  border-radius: var(--radius-standard);
-  box-shadow: var(--shadow-deep);
-  padding: var(--spacing-l);
-  background-color: var(--color-bg-card);
-}
-```
-
-### 13.3 Loading States
-
-```css
-.el-loading-mask {
-  background-color: rgba(255, 255, 255, 0.9);
-  z-index: 999;
-}
-
-.el-loading-spinner {
-  width: 40px;
-  height: 40px;
-}
-```
-
-### 13.4 Empty States
-
-```css
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-2xl) var(--spacing-xl);
-  color: var(--color-text-tertiary);
-  text-align: center;
-  min-height: 300px;
-}
-
-.empty-state__icon {
-  font-size: 48px;
-  margin-bottom: var(--spacing-m);
-  color: var(--color-text-tertiary);
-}
-
-.empty-state__text {
-  font-size: 14px;
-  margin-bottom: var(--spacing-m);
-}
-
-.empty-state__button {
-  margin-top: var(--spacing-m);
-}
-```
-
----
-
-## 14. Animations and Interactions
-
-### 14.1 Animation Duration System
-
-| Level | Duration | Purpose |
-|-------|----------|---------|
-| Fast | 0.1s | Button click feedback |
-| Standard | 0.3s | Page transitions, hover effects |
-| Slow | 0.5s | Modal opening, complex animations |
-
-### 14.2 Transition Animations
-
-```css
-/* Fade in/out */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* Slide in */
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.slide-enter-from {
-  transform: translateX(-10px);
-  opacity: 0;
-}
-
-.slide-leave-to {
-  transform: translateX(10px);
-  opacity: 0;
-}
-
-/* Scale in */
-.scale-enter-active,
-.scale-leave-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.scale-enter-from,
-.scale-leave-to {
-  transform: scale(0.95);
-  opacity: 0;
-}
-```
-
-### 14.3 Hover Effects
-
-```css
-/* Card hover */
-.card {
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-deep);
-  transform: translateY(-2px);
-}
-
-/* Button hover */
-.el-button {
-  transition: all 0.3s ease;
-}
-
-/* Link hover */
-a {
-  transition: color 0.3s ease;
-}
-
-a:hover {
-  color: #66b1ff;
-}
-```
-
----
-
-## 15. Responsive Layout
-
-### 15.1 Responsive Breakpoints
-
-| Device Type | Width Range | CSS Variable | Use Case |
-|-------------|-------------|--------------|----------|
-| Mobile | ≤ 768px | `--breakpoint-mobile` | Portrait phone |
-| Tablet | 769-1024px | `--breakpoint-tablet` | Tablets |
-| Desktop | ≥ 1025px | `--breakpoint-desktop` | Desktop |
-
-### 15.2 Media Queries
+### 8.1 The "Snappy" Transition
 
 ```css
 :root {
-  --breakpoint-mobile: 768px;
-  --breakpoint-tablet: 1024px;
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy */
+  --ease-out-smooth: cubic-bezier(0.33, 1, 0.68, 1); /* Decelerate */
 }
 
-/* Mobile devices */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .main-content {
-    padding: var(--spacing-m);
-  }
-
-  .el-button {
-    width: 100%;
-    margin-bottom: var(--spacing-s);
-  }
-
-  h1 {
-    font-size: 24px;
-  }
-
-  h2 {
-    font-size: 20px;
-  }
-}
-
-/* Tablets */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .sidebar {
-    width: 150px;
-  }
-
-  .card {
-    padding: var(--spacing-m);
-  }
-}
-
-/* Desktop */
-@media (min-width: 1025px) {
-  .sidebar {
-    width: 200px;
-  }
-
-  .main-content {
-    padding: var(--spacing-xl);
-  }
-}
-
-/* Extra large screens */
-@media (min-width: 1440px) {
-  .main-container {
-    max-width: 1400px;
-    margin: 0 auto;
-  }
+/* Usage on hover states */
+.interactive-element {
+  transition: transform 0.4s var(--ease-out-smooth), box-shadow 0.4s var(--ease-out-smooth);
 }
 ```
 
----
+### 8.2 Skeleton Loading (Polished)
 
-## 16. Accessibility Guidelines
-
-### 16.1 Focus States
+Instead of a simple spinner, use a shimmer effect that matches the Slate palette.
 
 ```css
-/* Keyboard navigation focus */
-.el-button:focus-visible,
-a:focus-visible,
-input:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
+.skeleton-shimmer {
+  background: #f1f5f9;
+  background-image: linear-gradient(
+    to right,
+    #f1f5f9 0%,
+    #e2e8f0 20%,
+    #f1f5f9 40%,
+    #f1f5f9 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 800px 104px;
+  animation-duration: 1.5s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: shimmer;
+  animation-timing-function: linear;
 }
 ```
 
-### 16.2 Color Contrast Ratios
+---
 
-- Body text to background contrast ratio at least 4.5:1
-- Large text to background contrast ratio at least 3:1
-- Interactive elements to background contrast ratio at least 3:1
+## 9\. Implementation Guide (Vue 3 / Element Plus)
 
-### 16.3 Text Alternatives
+To apply this over Element Plus without breaking functionality, use the CSS Variable override method in your `App.vue` or main stylesheet.
 
 ```css
-/* Icon buttons need text labels */
-.icon-button {
-  position: relative;
-}
+/* element-plus-overrides.css */
+:root {
+  /* Override Element Colors with Slate/Indigo */
+  --el-color-primary: var(--primary-500);
+  --el-color-primary-light-3: #818cf8;
+  --el-color-primary-light-9: #eef2ff;
 
-.icon-button::after {
-  content: attr(aria-label);
-  position: absolute;
-  white-space: nowrap;
-  overflow: hidden;
-  text-indent: -9999px;
+  --el-color-success: #10b981; /* Emerald Green - prettier than default */
+  --el-color-warning: #f59e0b; /* Amber */
+  --el-color-danger: #ef4444; /* Red */
+
+  --el-text-color-primary: var(--slate-900);
+  --el-text-color-regular: var(--slate-600);
+  --el-text-color-secondary: var(--slate-400);
+  --el-border-color: var(--slate-200);
+
+  /* Radius overrides */
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 6px;
 }
 ```
-
----
-
-## 17. Performance Optimization Recommendations
-
-1. **Use CSS Variables**: Facilitates theme switching and global maintenance
-2. **Avoid Deep Nesting**: Reduces CSS specificity conflicts
-3. **Enable GPU Acceleration**: Use `transform` and `opacity` instead of `left`, `top`
-4. **Reduce Reflow and Repaint**: Use properties like `will-change`, `contain`
-5. **Use Lazy Loading**: Load images and components on demand
-6. **Code Splitting**: Split CSS files by route or functionality
-
----
-
-## 18. Future Enhancement Plans
-
-- Dark mode support (`prefers-color-scheme` media query)
-- RTL (right-to-left) language support
-- Screen reader optimization
-- Custom theme generator tool
-- More state component style definitions

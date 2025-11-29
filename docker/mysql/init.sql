@@ -1,28 +1,32 @@
 -- 初始化 WorkManagement 数据库（首次启动 MySQL 容器时执行）
--- 默认账号：
---  teacher001 / 123456
---  student001 / 123456
---  student002 / 123456
+-- 账号：
+--  admin / admin123
+--  teacher001 / teacher123456
+--  teacher002 / teacher123456
+--  student001 / student123456
+--  student002 / student123456
+--  student003 / student123456
 
 SET NAMES utf8mb4;
--- 可选：更明确一点
 SET character_set_client = utf8mb4;
 SET character_set_connection = utf8mb4;
 SET character_set_results = utf8mb4;
 
-
+CREATE DATABASE IF NOT EXISTS WorkManagement CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE WorkManagement;
 
 CREATE TABLE IF NOT EXISTS `user` (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL
+    role VARCHAR(20) NOT NULL,
+    active TINYINT(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `course` (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(100) NOT NULL
+    title VARCHAR(100) NOT NULL UNIQUE,
+    deleted TINYINT(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `assignment` (
@@ -31,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `assignment` (
     title VARCHAR(100) NOT NULL,
     content TEXT NULL,
     deadline DATETIME NULL,
+    created_at DATETIME NULL,
     FOREIGN KEY (course_id) REFERENCES course(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -42,36 +47,44 @@ CREATE TABLE IF NOT EXISTS `submission` (
     score INT NULL,
     comment TEXT NULL,
     graded BOOLEAN DEFAULT FALSE,
+    submit_time DATETIME NULL,
     FOREIGN KEY (assignment_id) REFERENCES assignment(id),
     FOREIGN KEY (student_id) REFERENCES user(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 示例用户（密码均为 123456 的 BCrypt）
-INSERT INTO `user` (username, password, role) VALUES
-('teacher001', '$2a$10$RQxpVuZGgnfe5lgXnkc/1ODooBk6I5avnhRqRrnE5mVaRqGBIwXtu', 'teacher'),
-('student001', '$2a$10$TXbPiA6ESkp2YZhyWF1lbej5oCV6eRBNZmPXK8BxvGoH0xx733X7O', 'student'),
-('student002', '$2a$10$PyvK2LJJFijeFcIOtgIC2.t.sMLGGHYn4dwqkDzAin.pbPV0gl4.S', 'student')
+-- BCrypt 密码：admin123 / teacher123456 / student123456
+INSERT INTO `user` (id, username, password, role, active) VALUES
+(1, 'admin', '$2a$10$aubLb4odoI4TBwfSnejIP.qMcZMFsA78phSNw9YctAPWCS/9Ulr5W', 'admin', 1),
+(2, 'teacher001', '$2a$10$rMy3Bu77vKD/brDbtPKD7OWe8.GzPu.Ln8HJse3C7yIQGE95G8TKy', 'teacher', 1),
+(3, 'teacher002', '$2a$10$5cT6lIN5kR0vkrQYxsP2BeJbzoFpR6lmZ3sY3fE2L1.2EGbOOMYm2', 'teacher', 1),
+(4, 'student001', '$2a$10$0GRC8.KYaZjj6qHCbfEioO/LbrrimDZ8w5/aMrFJ2aQV6KvXbIdXi', 'student', 1),
+(5, 'student002', '$2a$10$FLhopfj5co3pwA2UOa6zYOGSLljfvBaeKYQ0TMTNETigF1269qe9C', 'student', 1),
+(6, 'student003', '$2a$10$kUIXZQfLxgYZ1quZnfX1aOlT3DCw5vDXQWCe7yMCq/cEDBlYQa9VW', 'student', 1)
 ON DUPLICATE KEY UPDATE
-  username = VALUES(username),
   password = VALUES(password),
-  role     = VALUES(role);
+  role     = VALUES(role),
+  active   = VALUES(active);
 
--- 示例课程
-INSERT INTO `course` (id, title) VALUES
-(1, 'Java 程序设计'),
-(2, '数据库系统概论')
-ON DUPLICATE KEY UPDATE title = VALUES(title);
+-- 示例课程（软删除字段默认 0）
+INSERT INTO `course` (id, title, deleted) VALUES
+(1, '数据结构与算法', 0),
+(2, '操作系统原理', 0),
+(3, 'Web 应用开发', 0)
+ON DUPLICATE KEY UPDATE title = VALUES(title), deleted = VALUES(deleted);
 
--- 示例作业
-INSERT INTO `assignment` (id, course_id, title, content, deadline) VALUES
-(1, 1, '第1次作业：变量与数据类型', '完成课后习题1-10', '2024-12-20 23:59:59'),
-(2, 1, '第2次作业：流程控制', '完成课堂练习', '2024-12-25 23:59:59'),
-(3, 2, '数据库 E-R 模型', '绘制课程管理系统 E-R 图', '2024-12-28 23:59:59')
-ON DUPLICATE KEY UPDATE title = VALUES(title), content = VALUES(content), deadline = VALUES(deadline), course_id = VALUES(course_id);
+-- 示例作业（含创建时间）
+INSERT INTO `assignment` (id, course_id, title, content, deadline, created_at) VALUES
+(1, 1, '链表与栈实现', '完成单链表、栈的增删查操作，提交代码与复杂度分析。', DATE_ADD(NOW(), INTERVAL 7 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
+(2, 1, '排序算法对比', '实现冒泡/快排/归并，并对随机数组进行性能对比。', DATE_ADD(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
+(3, 2, '进程与线程', '对比进程/线程差异，撰写 800 字小结并附上示例代码。', DATE_ADD(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY)),
+(4, 3, 'Vue 组件拆分', '基于课程项目，拆分并封装通用组件，附代码链接。', DATE_ADD(NOW(), INTERVAL 12 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY))
+ON DUPLICATE KEY UPDATE title = VALUES(title), content = VALUES(content), deadline = VALUES(deadline), course_id = VALUES(course_id), created_at = VALUES(created_at);
 
--- 示例提交
-INSERT INTO `submission` (assignment_id, student_id, content, score, comment, graded) VALUES
-(1, 2, '完成所有习题，附上代码截图。', 95, '完成得很好！', TRUE),
-(1, 3, '部分习题未完成。', NULL, NULL, FALSE),
-(2, 2, '流程控制练习代码提交。', NULL, NULL, FALSE)
-ON DUPLICATE KEY UPDATE content = VALUES(content), score = VALUES(score), comment = VALUES(comment), graded = VALUES(graded);
+-- 示例提交（含提交时间与批改状态）
+INSERT INTO `submission` (assignment_id, student_id, content, score, comment, graded, submit_time) VALUES
+(1, 4, '链表与栈代码提交，包含单元测试。', 92, '实现完整，变量命名清晰。', TRUE, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+(1, 5, '链表操作完成，栈尚未补充。', NULL, NULL, FALSE, DATE_SUB(NOW(), INTERVAL 20 HOUR)),
+(2, 4, '排序算法实现，对比结果已记录。', NULL, NULL, FALSE, DATE_SUB(NOW(), INTERVAL 5 HOUR)),
+(3, 5, '线程与进程小结，附示例代码链接。', 88, '内容清晰，但示例需补充注释。', TRUE, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+(4, 6, '拆分了 Header/Footer 组件，并封装了请求工具。', NULL, NULL, FALSE, DATE_SUB(NOW(), INTERVAL 8 HOUR))
+ON DUPLICATE KEY UPDATE content = VALUES(content), score = VALUES(score), comment = VALUES(comment), graded = VALUES(graded), submit_time = VALUES(submit_time);

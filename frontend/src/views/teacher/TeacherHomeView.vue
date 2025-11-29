@@ -1,7 +1,5 @@
 <template>
   <div class="page">
-    <TeacherNav />
-
     <section class="card header-card">
       <div>
         <h2>老师主页</h2>
@@ -26,26 +24,25 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import TeacherNav from '@/components/TeacherNav.vue'
 import http from '@/net/index.js'
 
 const router = useRouter()
 
 const stats = ref([
-  { label: '待评分', value: 0, path: '/teacher/assignments' },
-  { label: '已发布作业', value: 0, path: '/teacher/assignments' },
+  { label: '待评分', value: 0, path: '/assignments/manage' },
+  { label: '已发布作业', value: 0, path: '/assignments/manage' },
   { label: '学生总数', value: 0, path: '/teacher/students' },
-  { label: '学科数量', value: 0, path: '/teacher/subjects' },
+  { label: '学科数量', value: 0, path: '/courses' },
 ])
 
 const loadStats = async () => {
   try {
     const data = await http.get('/teacher/stats')
     stats.value = [
-      { label: '待评分', value: data.pendingSubmissions ?? 0, path: '/teacher/assignments' },
-      { label: '已发布作业', value: data.assignments ?? 0, path: '/teacher/assignments' },
+      { label: '待评分', value: data.pendingSubmissions ?? 0, path: '/assignments/manage' },
+      { label: '已发布作业', value: data.assignments ?? 0, path: '/assignments/manage' },
       { label: '学生总数', value: data.students ?? 0, path: '/teacher/students' },
-      { label: '学科数量', value: data.courses ?? 0, path: '/teacher/subjects' },
+      { label: '学科数量', value: data.courses ?? 0, path: '/courses' },
     ]
   } catch (e) {
     ElMessage.error('获取统计数据失败')

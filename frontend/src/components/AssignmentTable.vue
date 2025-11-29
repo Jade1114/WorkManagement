@@ -3,7 +3,9 @@
     <div class="search-section">
       <el-input v-model="localSearch" placeholder="搜索作业标题或学生姓名..." clearable style="flex: 1">
         <template #prefix>
-          <el-icon><Search /></el-icon>
+          <el-icon>
+            <Search />
+          </el-icon>
         </template>
       </el-input>
       <el-select v-model="localType" placeholder="全部类型" style="width: 150px">
@@ -12,7 +14,8 @@
       </el-select>
       <el-select v-model="localStudent" placeholder="全部学生" style="width: 150px">
         <el-option label="全部学生" value="all" />
-        <el-option v-for="student in students" :key="student.id" :label="student.username" :value="student.id.toString()" />
+        <el-option v-for="student in students" :key="student.id" :label="student.username"
+          :value="student.id.toString()" />
       </el-select>
       <el-button type="primary" @click="handleSearchClick">搜索</el-button>
       <el-button :icon="Refresh" @click="emit('refresh')">刷新</el-button>

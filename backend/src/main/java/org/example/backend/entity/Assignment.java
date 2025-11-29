@@ -23,5 +23,14 @@ public class Assignment {
     private String content;
 
     private LocalDateTime deadline;
-}
 
+    // 创建时间，用于按发布时间排序
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
+}

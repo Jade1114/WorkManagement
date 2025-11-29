@@ -27,7 +27,8 @@ public class AssignmentController {
     @PostMapping("/create")
     public ApiResponse<AssignmentResponse> create(HttpServletRequest request,
             @RequestBody AssignmentCreateRequest req) {
-        if (!"teacher".equals(jwtUtil.getRole(request))) {
+        String role = jwtUtil.getRole(request);
+        if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
         return ApiResponse.success(assignmentService.createAssignment(req));
@@ -42,7 +43,8 @@ public class AssignmentController {
     // 教师获取所有作业列表
     @GetMapping("/all")
     public ApiResponse<List<TeacherAssignmentResponse>> listAll(HttpServletRequest request) {
-        if (!"teacher".equals(jwtUtil.getRole(request))) {
+        String role = jwtUtil.getRole(request);
+        if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
         return ApiResponse.success(assignmentService.getAllAssignments());

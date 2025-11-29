@@ -12,6 +12,7 @@ import org.example.backend.repository.CoursesRepository;
 import org.example.backend.repository.SubmissionRepository;
 import org.example.backend.repository.UserRepository;
 import org.example.backend.service.SubmissionService;
+import org.example.backend.vo.RecentSubmissionResponse;
 import org.example.backend.vo.SubmissionListItemResponse;
 import org.example.backend.vo.SubmissionResponse;
 import org.example.backend.vo.StudentSubmissionResponse;
@@ -158,7 +159,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         Set<Long> courseIds = assignmentMap.values().stream()
                 .map(Assignment::getCourseId)
                 .collect(Collectors.toSet());
-        Map<Long, String> courseTitleMap = coursesRepository.findAllById(courseIds).stream()
+        Map<Long, String> courseTitleMap = coursesRepository.findByIdInAndDeletedFalse(courseIds).stream()
                 .collect(Collectors.toMap(Courses::getId, Courses::getTitle));
 
         return submissions.stream()
@@ -199,7 +200,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         Set<Long> courseIds = assignmentMap.values().stream()
                 .map(Assignment::getCourseId)
                 .collect(Collectors.toSet());
-        Map<Long, String> courseTitleMap = coursesRepository.findAllById(courseIds).stream()
+        Map<Long, String> courseTitleMap = coursesRepository.findByIdInAndDeletedFalse(courseIds).stream()
                 .collect(Collectors.toMap(Courses::getId, Courses::getTitle));
 
         // 批量查询学生
@@ -215,21 +216,66 @@ public class SubmissionServiceImpl implements SubmissionService {
                     String courseTitle = a != null ? courseTitleMap.getOrDefault(a.getCourseId(), "未关联课程") : "未知课程";
                     String assignmentTitle = a != null ? a.getTitle() : "未知作业";
                     String assignmentContent = a != null ? a.getContent() : null;
+                            String studentName = studentNameMap.getOrDefault(s.getStudentId(), "未知学生");
+                            return new TeacherSubmissionItemResponse(
+                                    s.getId(),
+                                    s.getAssignmentId(),
+                                    assignmentTitle,
+                                    a != null ? a.getCourseId() : null,
+                                    courseTitle,
+                                    s.getStudentId(),
+                                    studentName,
+                                    assignmentContent,
+                                    s.getContent(),
+                                    s.getSubmitTime() == null ? null : s.getSubmitTime().toString(),
+                                    s.getGraded(),
+                                    s.getScore(),
+                                    s.getComment()
+                            );
+                })
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<RecentSubmissionResponse> listRecentSubmissions() {
+        List<Submission> submissions = submissionRepository.findTop2ByOrderBySubmitTimeDesc();
+        if (submissions.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Long> assignmentIds = submissions.stream()
+                .map(Submission::getAssignmentId)
+                .collect(Collectors.toSet());
+        Map<Long, Assignment> assignmentMap = assignmentRepository.findAllById(assignmentIds).stream()
+                .collect(Collectors.toMap(Assignment::getId, a -> a));
+
+        Set<Long> courseIds = assignmentMap.values().stream()
+                .map(Assignment::getCourseId)
+                .collect(Collectors.toSet());
+        Map<Long, String> courseTitleMap = coursesRepository.findAllById(courseIds).stream()
+                .collect(Collectors.toMap(Courses::getId, Courses::getTitle));
+
+        Set<Long> studentIds = submissions.stream()
+                .map(Submission::getStudentId)
+                .collect(Collectors.toSet());
+        Map<Long, String> studentNameMap = userRepository.findAllById(studentIds).stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername));
+
+        return submissions.stream()
+                .map(s -> {
+                    Assignment a = assignmentMap.get(s.getAssignmentId());
+                    String assignmentTitle = a != null ? a.getTitle() : "未知作业";
+                    String courseTitle = a != null ? courseTitleMap.getOrDefault(a.getCourseId(), "未关联课程") : "未知课程";
                     String studentName = studentNameMap.getOrDefault(s.getStudentId(), "未知学生");
-                    return new TeacherSubmissionItemResponse(
+                    return new RecentSubmissionResponse(
                             s.getId(),
-                            s.getAssignmentId(),
-                            assignmentTitle,
-                            a != null ? a.getCourseId() : null,
-                            courseTitle,
-                            s.getStudentId(),
                             studentName,
-                            assignmentContent,
-                            s.getContent(),
-                            null, // 暂未记录提交时间字段，数据库未存储
+                            assignmentTitle,
+                            courseTitle,
                             s.getGraded(),
                             s.getScore(),
-                            s.getComment()
+                            s.getSubmitTime()
                     );
                 })
                 .collect(Collectors.toList());

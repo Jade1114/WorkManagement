@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import StudentAssignmentTable from '@/components/StudentAssignmentTable.vue'
-import StudentNav from '@/components/StudentNav.vue'
 import http from '@/net/index.js'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
@@ -36,8 +35,6 @@ onMounted(() => {
 
 <template>
   <div class="page">
-    <StudentNav />
-
     <section class="card header-card">
       <div>
         <h2>已提交作业列表</h2>

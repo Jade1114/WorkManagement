@@ -1,12 +1,19 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import TeacherNav from '@/components/TeacherNav.vue'
 import http from '@/net/index.js'
 import { Refresh } from '@element-plus/icons-vue'
+import Pagination from '@/components/Pagination.vue'
 
 const students = ref([])
 const loading = ref(false)
+const currentPage = ref(1)
+const pageSize = 10
+
+const pagedStudents = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return students.value.slice(start, start + pageSize)
+})
 
 const loadStudents = async () => {
   loading.value = true
@@ -32,8 +39,6 @@ onMounted(() => {
 
 <template>
   <div class="page">
-    <TeacherNav />
-
     <section class="card header-card">
       <div>
         <h2>学生列表</h2>
@@ -42,9 +47,14 @@ onMounted(() => {
     </section>
 
     <section class="card table-card">
-      <el-table :data="students" stripe border style="width: 100%" v-loading="loading">
+      <el-table :data="pagedStudents" stripe border style="width: 100%" v-loading="loading">
         <el-table-column prop="name" label="学生姓名" min-width="160" />
       </el-table>
+      <Pagination
+        :total="students.length"
+        :page-size="pageSize"
+        v-model:current-page="currentPage"
+      />
     </section>
   </div>
 </template>

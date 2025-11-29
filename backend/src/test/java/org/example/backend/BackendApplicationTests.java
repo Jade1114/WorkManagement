@@ -12,7 +12,7 @@ class BackendApplicationTests {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         assertTrue(
-                encoder.matches("123456", "$2a$10$RQxpVuZGgnfe5lgXnkc/1ODooBk6I5avnhRqRrnE5mVaRqGBIwXtu"),
+                encoder.matches("admin123", "$2a$10$aubLb4odoI4TBwfSnejIP.qMcZMFsA78phSNw9YctAPWCS/9Ulr5W"),
                 "teacher001 默认密码不是 123456");
 
         assertTrue(
@@ -27,9 +27,8 @@ class BackendApplicationTests {
     @Test
 void genPasswordFor123456() {
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-    String hash = encoder.encode("123456");
+    String hash = encoder.encode("student123456");
     // 故意让测试失败，把 hash 打在失败信息里
-    org.junit.jupiter.api.Assertions.fail("123456 的哈希是： " + hash);
+    org.junit.jupiter.api.Assertions.fail("admin123 的哈希是： " + hash);
 }
-
 }

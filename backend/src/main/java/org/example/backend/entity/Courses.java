@@ -13,4 +13,14 @@ public class Courses {
 
     @Column(nullable = false, unique = true)
     private String title;
+
+    @Column(nullable = false)
+    private Boolean deleted;
+
+    @PrePersist
+    public void prePersist() {
+        if (deleted == null) {
+            deleted = false;
+        }
+    }
 }

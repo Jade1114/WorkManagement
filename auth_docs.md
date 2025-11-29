@@ -1,176 +1,46 @@
-# 📘 Auth 模块 API 文档（最终版）
+# 📘 Auth 模块 API 文档（当前版）
 
-## 基础说明
+## 基础
+- 前缀：`/api/auth`
+- 响应：`{ code, message, data }`；业务/权限异常 `400`，未登录/过期 `401`。
+- 角色：注册仅创建 `student`；`teacher`/`admin` 需由管理员创建（或直接写入 DB）。
+- 密码：BCrypt 存储；Token 有效期 1 小时。
 
-### **接口 URL 前缀**
+## 接口列表
 
-```
-/api/auth
-```
-
-### **统一响应格式（所有接口遵循）**
-
+### 1) 学生注册 `POST /api/auth/register`
+- 描述：学生自助注册，role 固定为 `student`。
+- 请求体：
 ```json
-{
-  "code": 200,          // 成功固定返回 200
-  "message": "success", // 失败时为具体错误信息
-  "data": {} | null     // 返回数据
-}
+{ "username": "20240123", "password": "123456" }
 ```
+- 成功：`{ code:200, message:"注册成功，请登录", data:null }`
+- 失败示例：`code=400, message="用户名已存在"`
 
-### **错误码规范**
-
-| code | 含义                |
-|------| ----------------- |
-| 200  | 成功                |
-| 400  | 参数错误 / 业务异常       |
-| 401  | 未登录 / token 无效或过期 |
-| 403  | 无权限               |
-| 500  | 服务器错误             |
-
----
-
-# 1. **学生注册接口**
-
-## **POST /api/auth/register**
-
-### 描述
-
-* 学生自行注册账号
-* 注册成功后需要手动登录
-* role 固定为 `"student"`
-* 密码后端使用 BCrypt 加密存储
-
----
-
-### 请求参数（JSON）
-
+### 2) 登录 `POST /api/auth/login`
+- 描述：学生 / 教师 / 管理员登录，返回 JWT。
+- 请求体：
 ```json
-{
-  "username": "20240123",
-  "password": "123456"
-}
+{ "username": "teacher001", "password": "teacher123456" }
 ```
-
-字段说明：
-
-| 字段       | 必填 | 说明              |
-| -------- | -- | --------------- |
-| username | 是  | 用户名（通常为学号），需要唯一 |
-| password | 是  | 登录密码            |
-
----
-
-### 响应（成功）
-
-```json
-{
-  "code": 200,
-  "message": "注册成功，请登录",
-  "data": null
-}
-```
-
----
-
-### 响应（失败示例）
-
-用户名已存在：
-
-```json
-{
-  "code": 400,
-  "message": "用户名已存在",
-  "data": null
-}
-```
-
----
-
-# 2. **登录接口**
-
-## **POST /api/auth/login**
-
-### 描述
-
-* 用户登录（学生/老师/管理员）
-* 返回 JWT Token
-* Token 通过前端保存（pinia）
-
----
-
-### 请求参数（JSON）
-
-```json
-{
-  "username": "20240123",
-  "password": "123456"
-}
-```
-
----
-
-### 响应（成功）
-
+- 成功：
 ```json
 {
   "code": 200,
   "message": "success",
   "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "userId": 1,
-    "username": "20240123",
-    "role": "student"
+    "token": "...",
+    "userId": 2,
+    "username": "teacher001",
+    "role": "teacher"
   }
 }
 ```
+- 失败：
+  - 账号或密码错误 → `code=400, message="用户名或密码错误"`
+  - 账号被禁用（active=false）→ `code=400, message="账号已禁用"`
 
-- token 过期时间：1 小时
-
----
-
-### 响应（失败示例）
-
-用户名/密码错误：
-
-```json
-{
-  "code": 400,
-  "message": "用户名或密码错误",
-  "data": null
-}
-```
-
-
----
-
-# 3. **退出接口**
-
-## **POST /api/auth/logout**
-
-### 描述
-
-* 前端请求退出登录
-* 后端直接退出
-
----
-
-### 请求头
-
-```
-Authorization: Bearer <token>
-```
-
----
-
-### 响应（成功）
-
-```json
-{
-  "code": 200,
-  "message": "退出成功",
-  "data": null
-}
-```
-
----
+### 3) 退出 `POST /api/auth/logout`
+- 描述：前端退出，后端直接返回成功。
+- 请求头：`Authorization: Bearer <token>`
+- 成功：`{ code:200, message:"退出成功" }`

@@ -7,7 +7,8 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const homePath = computed(() => {
-  if (userStore.role === 'teacher') return '/teacher/home'
+  if (userStore.role === 'admin') return '/dashboard'
+  if (userStore.role === 'teacher') return '/dashboard'
   if (userStore.role === 'student') return '/student/home'
   return '/login'
 })

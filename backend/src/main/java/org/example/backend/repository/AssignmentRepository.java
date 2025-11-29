@@ -10,4 +10,6 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     List<Assignment> findByCourseId(Long courseId);
 
     long countByCourseId(Long courseId);
+
+    List<Assignment> findTop2ByOrderByCreatedAtDesc();
 }

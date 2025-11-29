@@ -3,9 +3,8 @@
     <span>共 {{ total }} 条</span>
     <el-pagination
       v-model:current-page="localCurrentPage"
-      v-model:page-size="localPageSize"
-      :page-sizes="pageSizes"
-      layout="sizes, prev, pager, next, jumper"
+      :page-size="localPageSize"
+      layout="prev, pager, next, jumper"
       :total="total"
     />
   </div>
@@ -18,13 +17,12 @@ const props = defineProps({
   total: { type: Number, required: true },
   currentPage: { type: Number, default: 1 },
   pageSize: { type: Number, default: 10 },
-  pageSizes: { type: Array, default: () => [5, 10, 20, 50] },
 })
 
 const emit = defineEmits(['update:currentPage', 'update:pageSize'])
 
 const localCurrentPage = ref(props.currentPage)
-const localPageSize = ref(props.pageSize)
+const localPageSize = ref(props.pageSize || 10)
 
 watch(localCurrentPage, (val) => emit('update:currentPage', val))
 watch(localPageSize, (val) => emit('update:pageSize', val))
