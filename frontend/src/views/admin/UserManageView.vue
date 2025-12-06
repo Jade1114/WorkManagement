@@ -7,33 +7,33 @@
       <el-button :icon="Refresh" :loading="loading" @click="loadUsers">刷新</el-button>
     </section>
 
-    <section class="card table-card">
-      <el-table :data="pagedUsers" stripe border style="width: 100%" v-loading="loading">
-        <el-table-column prop="username" label="用户名" min-width="140" />
-        <el-table-column prop="role" label="角色" min-width="140">
-          <template #default="{ row }">
-            <el-select v-model="row.role" placeholder="选择角色" size="small" @change="updateRole(row)">
-              <el-option v-for="r in roles" :key="r" :label="r" :value="r" />
-            </el-select>
-          </template>
-        </el-table-column>
-        <el-table-column prop="active" label="状态" min-width="120">
-          <template #default="{ row }">
-            <el-switch v-model="row.active" @change="toggleActive(row)" />
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="120">
-          <template #default="{ row }">
-            <el-popconfirm title="确认冻结该用户？" @confirm="disableUser(row)">
-              <template #reference>
-                <el-button type="danger" size="small">冻结</el-button>
-              </template>
-            </el-popconfirm>
-          </template>
-        </el-table-column>
-      </el-table>
-      <Pagination :total="users.length" :page-size="pageSize" v-model:current-page="currentPage" />
-    </section>
+    <TableShell :data="pagedUsers" :loading="loading">
+      <el-table-column prop="username" label="用户名" min-width="140" />
+      <el-table-column prop="role" label="角色" min-width="140">
+        <template #default="{ row }">
+          <el-select v-model="row.role" placeholder="选择角色" size="small" @change="updateRole(row)">
+            <el-option v-for="r in roles" :key="r" :label="r" :value="r" />
+          </el-select>
+        </template>
+      </el-table-column>
+      <el-table-column prop="active" label="状态" min-width="120">
+        <template #default="{ row }">
+          <el-switch v-model="row.active" @change="toggleActive(row)" />
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="120">
+        <template #default="{ row }">
+          <el-popconfirm title="确认冻结该用户？" @confirm="disableUser(row)">
+            <template #reference>
+              <el-button type="danger" size="small">冻结</el-button>
+            </template>
+          </el-popconfirm>
+        </template>
+      </el-table-column>
+      <template #footer>
+        <Pagination :total="users.length" :page-size="pageSize" v-model:current-page="currentPage" />
+      </template>
+    </TableShell>
   </div>
 </template>
 
@@ -43,6 +43,7 @@ import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
 import http from '@/net/index.js'
 import Pagination from '@/components/Pagination.vue'
+import TableShell from '@/components/TableShell.vue'
 
 const roles = ['admin', 'teacher', 'student']
 const users = ref([])

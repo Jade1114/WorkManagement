@@ -20,30 +20,23 @@
       <div class="chart" ref="submissionStatusRef"></div>
     </section>
 
-    <section class="card tables">
-      <div class="table-block">
-        <div class="table-header">
-          <h3>最近发布的作业</h3>
-        </div>
-        <el-table :data="recentAssignments" size="small" stripe>
-          <el-table-column prop="title" label="标题" min-width="160" />
-          <el-table-column prop="course" label="学科" min-width="120" />
-          <el-table-column prop="createdAt" label="发布时间" min-width="180" />
-          <el-table-column prop="deadline" label="截止时间" min-width="160" />
-        </el-table>
-      </div>
-      <div class="table-block">
-        <div class="table-header">
-          <h3>最近提交</h3>
-        </div>
-        <el-table :data="recentSubmissions" size="small" stripe>
-          <el-table-column prop="student" label="学生" min-width="120" />
-          <el-table-column prop="assignment" label="作业" min-width="160" />
-          <el-table-column prop="course" label="学科" min-width="120" />
-          <el-table-column prop="submitTime" label="提交时间" min-width="180" />
-          <el-table-column prop="status" label="状态" min-width="100" />
-        </el-table>
-      </div>
+    <section class="tables">
+      <TableShell :data="recentAssignments" :loading="loading" size="small">
+        <template #title>最近发布的作业</template>
+        <el-table-column prop="title" label="标题" min-width="160" />
+        <el-table-column prop="course" label="学科" min-width="120" />
+        <el-table-column prop="createdAt" label="发布时间" min-width="180" />
+        <el-table-column prop="deadline" label="截止时间" min-width="160" />
+      </TableShell>
+
+      <TableShell :data="recentSubmissions" :loading="loading" size="small">
+        <template #title>最近提交</template>
+        <el-table-column prop="student" label="学生" min-width="120" />
+        <el-table-column prop="assignment" label="作业" min-width="160" />
+        <el-table-column prop="course" label="学科" min-width="120" />
+        <el-table-column prop="submitTime" label="提交时间" min-width="180" />
+        <el-table-column prop="status" label="状态" min-width="100" />
+      </TableShell>
     </section>
   </div>
 </template>
@@ -54,6 +47,7 @@ import { Refresh } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import http from '@/net/index.js'
 import * as echarts from 'echarts'
+import TableShell from '@/components/TableShell.vue'
 
 const loading = ref(false)
 const statCards = ref([
@@ -160,16 +154,23 @@ const initCharts = () => {
   }
 }
 
+const getTextColor = () => {
+  const styles = getComputedStyle(document.documentElement)
+  return styles.getPropertyValue('--color-text-primary')?.trim() || '#000'
+}
+
 const updateCharts = () => {
   if (!courseChart || !submissionTrendChart || !submissionStatusChart) return
 
+  const textColor = getTextColor()
+
   const courses = dataScreen.value.assignmentsByCourse || []
   courseChart.setOption({
-    title: { text: '各学科作业数', textStyle: { color: '#000', fontSize: 14 } },
+    title: { text: '各学科作业数', textStyle: { color: textColor, fontSize: 14 } },
     backgroundColor: 'transparent',
     grid: { left: 40, right: 10, top: 40, bottom: 30 },
-    xAxis: { type: 'category', data: courses.map(c => c.courseTitle), axisLabel: { color: '#000' } },
-    yAxis: { type: 'value', axisLabel: { color: '#000' } },
+    xAxis: { type: 'category', data: courses.map(c => c.courseTitle), axisLabel: { color: textColor } },
+    yAxis: { type: 'value', axisLabel: { color: textColor } },
     series: [{
       data: courses.map(c => c.assignments),
       type: 'bar',
@@ -181,11 +182,11 @@ const updateCharts = () => {
   const dates = (dataScreen.value.submissionsByDate || []).map(i => i.date)
   const counts = (dataScreen.value.submissionsByDate || []).map(i => i.count)
   submissionTrendChart.setOption({
-    title: { text: '最近7天提交量', textStyle: { color: '#000', fontSize: 14 } },
+    title: { text: '最近7天提交量', textStyle: { color: textColor, fontSize: 14 } },
     backgroundColor: 'transparent',
     grid: { left: 40, right: 20, top: 40, bottom: 30 },
-    xAxis: { type: 'category', data: dates, axisLabel: { color: '#000' } },
-    yAxis: { type: 'value', axisLabel: { color: '#000' } },
+    xAxis: { type: 'category', data: dates, axisLabel: { color: textColor } },
+    yAxis: { type: 'value', axisLabel: { color: textColor } },
     series: [{
       data: counts,
       type: 'line',
@@ -199,10 +200,10 @@ const updateCharts = () => {
 
   const { graded = 0, pending = 0 } = dataScreen.value.submissionStatus || {}
   submissionStatusChart.setOption({
-    title: { text: '提交状态分布', textStyle: { color: '#000', fontSize: 14 } },
+    title: { text: '提交状态分布', textStyle: { color: textColor, fontSize: 14 } },
     backgroundColor: 'transparent',
     tooltip: { trigger: 'item' },
-    legend: { bottom: 0, textStyle: { color: '#000' } },
+    legend: { bottom: 0, textStyle: { color: textColor } },
     series: [{
       name: '提交状态',
       type: 'pie',
@@ -211,7 +212,7 @@ const updateCharts = () => {
         { value: pending, name: '待批改' },
         { value: graded, name: '已批改' }
       ],
-      label: { color: '#000' }
+      label: { color: textColor }
     }]
   })
 }
@@ -236,6 +237,8 @@ onMounted(async () => {
   await loadAll()
   timer = setInterval(loadAll, 5000)
   window.addEventListener('resize', resizeCharts)
+  // 再次更新颜色以防主题切换后首次进入
+  updateCharts()
 })
 
 onBeforeUnmount(() => {

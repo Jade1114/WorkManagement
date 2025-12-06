@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import TeacherNav from '@/components/TeacherNav.vue'
+import TableShell from '@/components/TableShell.vue'
 import http from '@/net/index.js'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
@@ -61,12 +62,10 @@ onMounted(() => {
       </el-space>
     </section>
 
-    <section class="card table-card">
-      <el-table :data="subjects" stripe border style="width: 100%" v-loading="loading">
-        <el-table-column prop="name" label="学科名称" min-width="100" />
-        <el-table-column prop="assignmentCount" label="已发布作业数量" min-width="160" />
-      </el-table>
-    </section>
+    <TableShell :data="subjects" :loading="loading">
+      <el-table-column prop="name" label="学科名称" min-width="100" />
+      <el-table-column prop="assignmentCount" label="已发布作业数量" min-width="160" />
+    </TableShell>
 
     <el-dialog v-model="createVisible" title="新建学科" width="400px">
       <el-form :model="createForm" label-position="top">

@@ -21,7 +21,11 @@ const rules = {
 }
 
 async function handleLogin() {
+  if (!formRef.value) return
   try {
+    const valid = await formRef.value.validate()
+    if (!valid) return
+
     const data = await http.post('/auth/login', {
       username: form.username,
       password: form.password,
@@ -39,7 +43,6 @@ async function handleLogin() {
     } else {
       router.push('/error')
     }
-
   } catch (err) {
     console.error('登录出错：', err)
   }

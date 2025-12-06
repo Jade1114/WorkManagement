@@ -5,19 +5,18 @@
         <div class="brand-name">Work Management</div>
       </div>
       <div class="top-actions">
-        <el-tag type="info" effect="dark" size="large" class="role-pill">{{ roleDisplay }}</el-tag>
-        <el-dropdown>
-          <span class="user-entry">
-            <el-avatar :size="32">{{ usernameInitial }}</el-avatar>
-            <span class="user-name">{{ username || '未登录' }}</span>
-            <el-icon><arrow-down /></el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+        <button
+          class="pill-button role-pill"
+          type="button"
+          @click="handleLogout"
+          @mouseenter="hoverLogout = true"
+          @mouseleave="hoverLogout = false"
+          @focus="hoverLogout = true"
+          @blur="hoverLogout = false"
+        >
+          <el-icon :size="16"><ArrowDown /></el-icon>
+          <span>{{ hoverLogout ? '退出登录' : pillDisplay }}</span>
+        </button>
       </div>
     </header>
 
@@ -28,6 +27,14 @@
             <span>{{ item.label }}</span>
           </el-menu-item>
         </el-menu>
+        <div class="sidebar-actions">
+          <button class="pill-button wide" type="button" @click="cycleTheme">
+            <el-icon :size="16">
+              <component :is="themeIcon" />
+            </el-icon>
+            <span>{{ themeLabel }}</span>
+          </button>
+        </div>
       </aside>
 
       <main class="content">
@@ -38,15 +45,18 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowDown } from '@element-plus/icons-vue'
+import { ArrowDown, Moon, Sunny, SwitchButton } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
+import { useThemeStore } from '@/stores/themeStore'
 import http from '@/net/index.js'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const themeStore = useThemeStore()
+const hoverLogout = ref(false)
 
 const menus = [
   { label: '仪表盘', path: '/dashboard', roles: ['admin', 'teacher'] },
@@ -63,12 +73,21 @@ const filteredMenus = computed(() => menus.filter(m => m.roles.includes(userStor
 
 const username = computed(() => userStore.username)
 const usernameInitial = computed(() => (userStore.username ? userStore.username[0].toUpperCase() : 'U'))
-const roleDisplay = computed(() => {
-  if (userStore.role === 'admin') return 'Admin'
-  if (userStore.role === 'teacher') return 'Teacher'
-  if (userStore.role === 'student') return 'Student'
-  return 'Guest'
+const pillDisplay = computed(() => username.value || '退出登录')
+
+const themeLabel = computed(() => {
+  if (themeStore.mode === 'dark') return '夜间模式'
+  if (themeStore.mode === 'light') return '日间模式'
+  return '跟随系统'
 })
+
+const themeIcon = computed(() => {
+  if (themeStore.mode === 'dark') return Moon
+  if (themeStore.mode === 'light') return Sunny
+  return SwitchButton
+})
+
+const cycleTheme = () => themeStore.nextMode()
 
 const goHome = () => {
   if (userStore.role === 'admin' || userStore.role === 'teacher') {
@@ -132,31 +151,10 @@ const handleLogout = async () => {
   display: flex;
   align-items: center;
   gap: var(--spacing-m);
+  position: relative;
 }
 
-.user-entry {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-s);
-  cursor: pointer;
-  color: var(--color-text-primary);
-  padding: 6px 10px;
-  border-radius: var(--radius);
-  transition: background 0.15s ease;
-}
 
-.role-pill {
-  border-radius: 999px;
-  padding: 4px 12px;
-}
-
-.user-entry:hover {
-  background: rgba(61, 126, 255, 0.08);
-}
-
-.user-name {
-  font-weight: 600;
-}
 
 .body {
   display: grid;
@@ -182,6 +180,14 @@ const handleLogout = async () => {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   overflow: hidden;
+}
+
+.sidebar-actions {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-s);
+  margin-top: auto;
+  margin-bottom: var(--spacing-2xl);
 }
 
 .menu {

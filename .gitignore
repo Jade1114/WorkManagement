@@ -1,0 +1,33 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# Build outputs
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Dependency caches
+backend/.mvn/
+backend/.classpath
+backend/.project
+
+# Node artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+frontend/.next/
+frontend/.nuxt/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# Environment files
+.env
+.env.*

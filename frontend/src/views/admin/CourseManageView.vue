@@ -10,23 +10,23 @@
       </el-space>
     </section>
 
-    <section class="card table-card">
-      <el-table :data="pagedSubjects" stripe border style="width: 100%" v-loading="loading">
-        <el-table-column prop="name" label="学科名称" min-width="160" />
-        <el-table-column prop="assignmentCount" label="已发布作业数量" min-width="180" />
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="{ row }">
-            <el-button type="primary" size="small" @click="openEdit(row)">编辑</el-button>
-            <el-popconfirm title="确认删除该学科？" @confirm="removeCourse(row)">
-              <template #reference>
-                <el-button type="danger" size="small">删除</el-button>
-              </template>
-            </el-popconfirm>
-          </template>
-        </el-table-column>
-      </el-table>
-      <Pagination :total="subjects.length" :page-size="pageSize" v-model:current-page="currentPage" />
-    </section>
+    <TableShell :data="pagedSubjects" :loading="loading">
+      <el-table-column prop="name" label="学科名称" min-width="160" />
+      <el-table-column prop="assignmentCount" label="已发布作业数量" min-width="180" />
+      <el-table-column label="操作" width="200" fixed="right">
+        <template #default="{ row }">
+          <el-button type="primary" size="small" @click="openEdit(row)">编辑</el-button>
+          <el-popconfirm title="确认删除该学科？" @confirm="removeCourse(row)">
+            <template #reference>
+              <el-button type="danger" size="small">删除</el-button>
+            </template>
+          </el-popconfirm>
+        </template>
+      </el-table-column>
+      <template #footer>
+        <Pagination :total="subjects.length" :page-size="pageSize" v-model:current-page="currentPage" />
+      </template>
+    </TableShell>
 
     <el-dialog v-model="createVisible" title="新建学科" width="420px">
       <el-form :model="createForm" label-position="top">
@@ -60,6 +60,7 @@ import http from '@/net/index.js'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
 import Pagination from '@/components/Pagination.vue'
+import TableShell from '@/components/TableShell.vue'
 
 const subjects = ref([])
 const loading = ref(false)

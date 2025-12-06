@@ -1,12 +1,22 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import StudentAssignmentTable from '@/components/StudentAssignmentTable.vue'
+import Pagination from '@/components/Pagination.vue'
 import http from '@/net/index.js'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
 
 const assignments = ref([])
 const loading = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
+
+const pagedAssignments = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return assignments.value.slice(start, start + pageSize.value)
+})
+
+const totalAssignments = computed(() => assignments.value.length)
 
 const loadMySubmissions = async () => {
   loading.value = true
@@ -43,7 +53,15 @@ onMounted(() => {
     </section>
 
     <section class="card">
-      <StudentAssignmentTable :assignments="assignments" v-loading="loading" />
+      <StudentAssignmentTable :assignments="pagedAssignments" :loading="loading">
+        <template #footer>
+          <Pagination
+            :total="totalAssignments"
+            v-model:current-page="currentPage"
+            v-model:page-size="pageSize"
+          />
+        </template>
+      </StudentAssignmentTable>
     </section>
   </div>
 </template>

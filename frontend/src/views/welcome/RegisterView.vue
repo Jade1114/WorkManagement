@@ -37,8 +37,7 @@ async function handleRegister() {
     })
 
     ElMessage.success('注册成功!')
-
-    router.push('/index')
+    router.push('/login')
   } catch (err) {
     console.error('注册出错:', err)
   }

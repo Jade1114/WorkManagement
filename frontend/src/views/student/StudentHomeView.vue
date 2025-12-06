@@ -8,19 +8,24 @@
     </section>
 
 
-    <section class="card">
-      <el-table :data="assignments" stripe border style="width: 100%" v-loading="loading" row-key="id">
-        <el-table-column prop="title" label="标题" min-width="100" />
-        <el-table-column prop="content" label="内容" min-width="300" />
-        <el-table-column prop="subject" label="学科/课程" min-width="140" />
-        <el-table-column prop="deadline" label="到期时间" min-width="100" />
-        <el-table-column label="操作" width="120" fixed="right">
-          <template #default="{ row }">
-            <el-button type="primary" size="small" @click="openSubmit(row)">提交</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </section>
+    <TableShell :data="pagedAssignments" :loading="loading" row-key="id">
+      <el-table-column prop="title" label="标题" min-width="100" />
+      <el-table-column prop="content" label="内容" min-width="300" />
+      <el-table-column prop="subject" label="学科/课程" min-width="140" />
+      <el-table-column prop="deadline" label="到期时间" min-width="100" />
+      <el-table-column label="操作" width="120" fixed="right">
+        <template #default="{ row }">
+          <el-button type="primary" size="small" @click="openSubmit(row)">提交</el-button>
+        </template>
+      </el-table-column>
+      <template #footer>
+        <Pagination
+          :total="totalAssignments"
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+        />
+      </template>
+    </TableShell>
 
     <el-dialog v-model="submitVisible" title="提交作业" width="520px">
       <p style="margin-bottom: 8px;">{{ currentAssignment?.title }}</p>
@@ -34,8 +39,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import http from '@/net/index.js'
+import TableShell from '@/components/TableShell.vue'
+import Pagination from '@/components/Pagination.vue'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
 
@@ -45,6 +52,15 @@ const submitVisible = ref(false)
 const submitLoading = ref(false)
 const submitContent = ref('')
 const currentAssignment = ref(null)
+const currentPage = ref(1)
+const pageSize = ref(10)
+
+const pagedAssignments = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return assignments.value.slice(start, start + pageSize.value)
+})
+
+const totalAssignments = computed(() => assignments.value.length)
 
 const loadPendingAssignments = async () => {
   loading.value = true

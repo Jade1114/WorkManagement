@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
 import TeacherAssignmentTable from '@/components/TeacherAssignmentTable.vue'
+import TableShell from '@/components/TableShell.vue'
 import Pagination from '@/components/Pagination.vue'
 import http from '@/net/index.js'
 import { ElMessage } from 'element-plus'
@@ -10,8 +11,10 @@ const activeTab = ref('submissions') // submissions | published
 const submissions = ref([])
 const published = ref([])
 const loading = ref(false)
-const currentPage = ref(1)
-const pageSize = ref(10)
+const submissionsPage = ref(1)
+const submissionsPageSize = ref(10)
+const publishedPage = ref(1)
+const publishedPageSize = ref(10)
 const createVisible = ref(false)
 const gradeVisible = ref(false)
 
@@ -33,11 +36,18 @@ const gradeForm = ref({
 })
 
 const pagedSubmissions = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  return submissions.value.slice(start, start + pageSize.value)
+  const start = (submissionsPage.value - 1) * submissionsPageSize.value
+  return submissions.value.slice(start, start + submissionsPageSize.value)
 })
 
 const totalSubmissions = computed(() => submissions.value.length)
+
+const pagedPublished = computed(() => {
+  const start = (publishedPage.value - 1) * publishedPageSize.value
+  return published.value.slice(start, start + publishedPageSize.value)
+})
+
+const totalPublished = computed(() => published.value.length)
 
 const loadSubmissions = async () => {
   loading.value = true
@@ -89,7 +99,11 @@ const loadData = async () => {
 
 const onTabChange = (name) => {
   activeTab.value = name
-  currentPage.value = 1
+  if (name === 'submissions') {
+    submissionsPage.value = 1
+  } else {
+    publishedPage.value = 1
+  }
   loadData()
 }
 
@@ -164,33 +178,39 @@ onMounted(() => {
       </el-space>
     </section>
 
-    <section class="card">
+    <section>
       <TeacherAssignmentTable
         v-if="activeTab === 'submissions'"
         :assignments="pagedSubmissions"
-        v-loading="loading"
+        :loading="loading"
         :show-student="true"
         @grade="openGrade"
-      />
-      <el-table
+      >
+        <template #footer>
+          <Pagination
+            :total="totalSubmissions"
+            v-model:current-page="submissionsPage"
+            v-model:page-size="submissionsPageSize"
+          />
+        </template>
+      </TeacherAssignmentTable>
+      <TableShell
         v-else
-        :data="published"
-        stripe
-        border
-        style="width: 100%"
-        v-loading="loading"
+        :data="pagedPublished"
+        :loading="loading"
       >
         <el-table-column prop="title" label="标题" min-width="200" />
         <el-table-column prop="subject" label="所属学科" min-width="140" />
         <el-table-column prop="content" label="作业内容" min-width="220" />
         <el-table-column prop="deadline" label="截止时间" min-width="180" />
-      </el-table>
-      <Pagination
-        v-if="activeTab === 'submissions'"
-        :total="totalSubmissions"
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-      />
+        <template #footer>
+          <Pagination
+            :total="totalPublished"
+            v-model:current-page="publishedPage"
+            v-model:page-size="publishedPageSize"
+          />
+        </template>
+      </TableShell>
     </section>
 
     <el-dialog v-model="createVisible" title="新建作业" width="520px">

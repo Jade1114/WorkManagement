@@ -9,6 +9,7 @@
           {{ item.label }}
         </el-menu-item>
       </el-menu>
+      <div class="pill-button role-pill">{{ roleLabel }}</div>
       <el-button type="danger" @click="handleLogout">
         退出登录
       </el-button>
@@ -33,6 +34,7 @@ const studentNav = [
 
 const activePath = computed(() => route.path)
 const username = computed(() => userStore.username)
+const roleLabel = computed(() => 'Student')
 
 const handleLogout = async () => {
   try {
@@ -77,5 +79,9 @@ const handleLogout = async () => {
   /* 防止溢出用的关键值，可根据屏幕调 */
   border-bottom: none;
   background: transparent;
+}
+
+.role-pill {
+  padding: 4px 12px;
 }
 </style>

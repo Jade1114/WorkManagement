@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import http from '@/net/index.js'
 import { Refresh } from '@element-plus/icons-vue'
 import Pagination from '@/components/Pagination.vue'
+import TableShell from '@/components/TableShell.vue'
 
 const students = ref([])
 const loading = ref(false)
@@ -46,16 +47,16 @@ onMounted(() => {
       <el-button :icon="Refresh" :loading="loading" @click="loadStudents">刷新</el-button>
     </section>
 
-    <section class="card table-card">
-      <el-table :data="pagedStudents" stripe border style="width: 100%" v-loading="loading">
-        <el-table-column prop="name" label="学生姓名" min-width="160" />
-      </el-table>
-      <Pagination
-        :total="students.length"
-        :page-size="pageSize"
-        v-model:current-page="currentPage"
-      />
-    </section>
+    <TableShell :data="pagedStudents" :loading="loading">
+      <el-table-column prop="name" label="学生姓名" min-width="160" />
+      <template #footer>
+        <Pagination
+          :total="students.length"
+          :page-size="pageSize"
+          v-model:current-page="currentPage"
+        />
+      </template>
+    </TableShell>
   </div>
 </template>
 

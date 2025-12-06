@@ -1,12 +1,8 @@
 <template>
   <div class="pagination-container card">
     <span>共 {{ total }} 条</span>
-    <el-pagination
-      v-model:current-page="localCurrentPage"
-      :page-size="localPageSize"
-      layout="prev, pager, next, jumper"
-      :total="total"
-    />
+    <el-pagination v-model:current-page="localCurrentPage" :page-size="localPageSize" layout="prev, pager, next, jumper"
+      :total="total" />
   </div>
 </template>
 
