@@ -1,5 +1,5 @@
 :root {
-  /* Spacing (Harmonic) */
+  /* Spacing */
   --spacing-xs: 4px;
   --spacing-s: 8px;
   --spacing-m: 12px;
@@ -7,21 +7,19 @@
   --spacing-xl: 36px;
   --spacing-2xl: 48px;
 
-  /* Slate palette */
+  /* Palette */
   --slate-50: #f8fafc;
   --slate-100: #f1f5f9;
   --slate-200: #e2e8f0;
   --slate-400: #94a3b8;
   --slate-600: #475569;
   --slate-900: #0f172a;
-
-  /* Primary indigo */
   --primary-50: #eef2ff;
   --primary-100: #e0e7ff;
   --primary-500: #6366f1;
   --primary-600: #4f46e5;
 
-  /* Semantic colors - light glass */
+  /* Light theme tokens */
   --color-bg-page: #eef2f9;
   --color-bg-card: #ffffff;
   --color-bg-glass: rgba(255, 255, 255, 0.82);
@@ -70,6 +68,7 @@
   --shadow-glow: 0 0 0 1px #6366f1, 0 0 0 6px rgba(99, 102, 241, 0.35);
 }
 
+/* Base resets */
 *,
 *::before,
 *::after {
@@ -102,7 +101,6 @@ body {
     radial-gradient(900px 520px at -10% 0%, rgba(99, 102, 241, 0.16), transparent),
     radial-gradient(700px 480px at 110% 10%, rgba(56, 189, 248, 0.12), transparent),
     var(--color-bg-page);
-  color: var(--color-text-primary);
 }
 
 h1 {
@@ -143,6 +141,7 @@ a:visited {
   color: #6a7ae0;
 }
 
+/* Surfaces & layout */
 .card {
   background: var(--color-bg-glass);
   backdrop-filter: blur(14px);
@@ -162,6 +161,7 @@ a:visited {
   background: transparent;
 }
 
+/* Pills & buttons */
 .pill-button {
   display: inline-flex;
   align-items: center;
@@ -201,7 +201,22 @@ a:visited {
   transform: translateY(0);
 }
 
-/* Soft inputs */
+:deep(.el-button) {
+  border-radius: 999px;
+  padding: 10px 18px;
+}
+
+:deep(.el-button--primary) {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  border: 1px solid var(--primary-600);
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.18);
+}
+
+:deep(.el-button--primary:hover) {
+  filter: brightness(1.05);
+}
+
+/* Form elements */
 :deep(.el-input__wrapper),
 :deep(.el-textarea__inner) {
   background-color: var(--slate-100);
@@ -244,23 +259,7 @@ a:visited {
   box-shadow: var(--shadow-glow);
 }
 
-/* Buttons */
-:deep(.el-button--primary) {
-  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
-  border: 1px solid var(--primary-600);
-  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.18);
-}
-
-:deep(.el-button) {
-  border-radius: 999px;
-  padding: 10px 18px;
-}
-
-:deep(.el-button--primary:hover) {
-  filter: brightness(1.05);
-}
-
-/* Table */
+/* Tables */
 :deep(.el-table) {
   --el-table-header-bg-color: #f7f8fd;
   --el-table-border-color: var(--slate-200);
@@ -276,10 +275,185 @@ a:visited {
   color: var(--color-text-secondary);
 }
 
-/* Utility */
+/* Utilities */
 .glass-panel {
   background: var(--color-bg-glass);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Layout: Admin shell */
+.layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-l);
+  padding: var(--spacing-l);
+  background: var(--color-bg-page);
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-m) var(--spacing-l);
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-m);
+}
+
+.brand-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-text-primary);
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-m);
+  position: relative;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--spacing-l);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+.sidebar {
+  padding: var(--spacing-s);
+  height: 100%;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.sidebar-actions {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-s);
+  margin-top: auto;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.menu {
+  border-right: none;
+  --el-menu-item-height: 44px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  text-align: center;
+}
+
+:deep(.el-menu-item) {
+  border-radius: var(--radius);
+  margin: 4px 6px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+:deep(.el-menu-item.is-active) {
+  background: linear-gradient(135deg, var(--primary-50), rgba(99, 102, 241, 0.08));
+  color: var(--color-primary-strong);
+  box-shadow: var(--shadow);
+}
+
+:deep(.el-menu-item:hover) {
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-l);
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: var(--spacing-l);
+  box-shadow: var(--shadow-strong);
+  overflow: auto;
+  min-height: 0;
+}
+
+@media (max-width: 900px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: relative;
+    top: 0;
+  }
+}
+
+/* Table shell */
+.table-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-s);
+  padding: var(--spacing-m);
+}
+
+.table-shell__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-m);
+}
+
+.table-shell__title {
+  font-weight: 600;
+}
+
+.table-shell__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+}
+
+.table-shell__body {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.table-shell__footer {
+  padding-top: var(--spacing-s);
+}
+
+/* Assignment table bits */
+.score {
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--color-text-tertiary);
 }
