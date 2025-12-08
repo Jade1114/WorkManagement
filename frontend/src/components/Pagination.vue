@@ -1,27 +1,31 @@
 <template>
   <div class="pagination-container card">
     <span>共 {{ total }} 条</span>
-    <el-pagination v-model:current-page="localCurrentPage" :page-size="localPageSize" layout="prev, pager, next, jumper"
-      :total="total" />
+    <el-pagination
+      v-model:current-page="localCurrentPage"
+      :page-size="localPageSize"
+      layout="prev, pager, next, jumper"
+      :total="total"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue";
 
 const props = defineProps({
   total: { type: Number, required: true },
   currentPage: { type: Number, default: 1 },
   pageSize: { type: Number, default: 10 },
-})
+});
 
-const emit = defineEmits(['update:currentPage', 'update:pageSize'])
+const emit = defineEmits(["update:currentPage", "update:pageSize"]);
 
-const localCurrentPage = ref(props.currentPage)
-const localPageSize = ref(props.pageSize || 10)
+const localCurrentPage = ref(props.currentPage);
+const localPageSize = ref(props.pageSize || 10);
 
-watch(localCurrentPage, (val) => emit('update:currentPage', val))
-watch(localPageSize, (val) => emit('update:pageSize', val))
+watch(localCurrentPage, (val) => emit("update:currentPage", val));
+watch(localPageSize, (val) => emit("update:pageSize", val));
 </script>
 
 <style scoped>

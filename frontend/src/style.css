@@ -337,7 +337,7 @@ a:visited {
 }
 
 .sidebar {
-  padding: var(--spacing-s);
+  padding: 0;
   height: 100%;
   align-self: stretch;
   display: flex;

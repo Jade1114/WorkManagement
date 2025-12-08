@@ -6,6 +6,7 @@ import org.example.backend.vo.RecentSubmissionResponse;
 import org.example.backend.vo.SubmissionListItemResponse;
 import org.example.backend.vo.SubmissionResponse;
 import org.example.backend.vo.StudentSubmissionResponse;
+import org.example.backend.vo.TopSubmitterResponse;
 import org.example.backend.vo.TeacherSubmissionItemResponse;
 
 import java.util.List;
@@ -20,4 +21,5 @@ public interface SubmissionService {
 
     List<RecentSubmissionResponse> listRecentSubmissions();
 
+    List<TopSubmitterResponse> listTopSubmitters(int limit);
 }

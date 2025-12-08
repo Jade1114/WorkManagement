@@ -14,6 +14,7 @@ import org.example.backend.vo.DataScreenResponse;
 import org.example.backend.vo.RecentAssignmentResponse;
 import org.example.backend.vo.RecentSubmissionResponse;
 import org.example.backend.vo.TeacherStatsResponse;
+import org.example.backend.vo.TopSubmitterResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -88,6 +89,16 @@ public class TeacherStatsController {
             throw new RuntimeException("权限不足");
         }
         List<RecentSubmissionResponse> list = submissionService.listRecentSubmissions();
+        return ApiResponse.success(list);
+    }
+
+    @GetMapping("/topSubmitters")
+    public ApiResponse<List<TopSubmitterResponse>> topSubmitters(HttpServletRequest request) {
+        String role = jwtUtil.getRole(request);
+        if (!"teacher".equals(role) && !"admin".equals(role)) {
+            throw new RuntimeException("权限不足");
+        }
+        List<TopSubmitterResponse> list = submissionService.listTopSubmitters(3);
         return ApiResponse.success(list);
     }
 

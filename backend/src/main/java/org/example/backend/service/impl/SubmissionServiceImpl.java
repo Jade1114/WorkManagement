@@ -16,8 +16,10 @@ import org.example.backend.vo.RecentSubmissionResponse;
 import org.example.backend.vo.SubmissionListItemResponse;
 import org.example.backend.vo.SubmissionResponse;
 import org.example.backend.vo.StudentSubmissionResponse;
+import org.example.backend.vo.TopSubmitterResponse;
 import org.example.backend.vo.TeacherSubmissionItemResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Map;
 import java.util.Set;
@@ -277,6 +279,28 @@ public class SubmissionServiceImpl implements SubmissionService {
                             s.getScore(),
                             s.getSubmitTime()
                     );
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TopSubmitterResponse> listTopSubmitters(int limit) {
+        int size = limit > 0 ? limit : 3;
+        List<TopSubmitterResponse> tops = submissionRepository.findTopSubmitters(PageRequest.of(0, size));
+        if (tops.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Long> studentIds = tops.stream()
+                .map(TopSubmitterResponse::getStudentId)
+                .collect(Collectors.toSet());
+        Map<Long, String> studentNameMap = userRepository.findAllById(studentIds).stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername));
+
+        return tops.stream()
+                .map(t -> {
+                    t.setStudentName(studentNameMap.getOrDefault(t.getStudentId(), "未知学生"));
+                    return t;
                 })
                 .collect(Collectors.toList());
     }

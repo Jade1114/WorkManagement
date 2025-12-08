@@ -28,7 +28,7 @@ http.interceptors.response.use(
 
     switch (res.code) {
       case 200:
-        return res.data; // 成功，返回 data
+        return res.data;
       case 400:
         ElMessage.warning(res.message || "参数错误");
         break;

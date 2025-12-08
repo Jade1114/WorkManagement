@@ -5,25 +5,41 @@
         <div class="brand-name">Work Management</div>
       </div>
       <div class="top-actions">
-        <button
-          class="pill-button role-pill"
-          type="button"
-          @click="handleLogout"
-          @mouseenter="hoverLogout = true"
-          @mouseleave="hoverLogout = false"
-          @focus="hoverLogout = true"
-          @blur="hoverLogout = false"
-        >
-          <el-icon :size="16"><ArrowDown /></el-icon>
-          <span>{{ hoverLogout ? '退出登录' : pillDisplay }}</span>
-        </button>
+        <el-dropdown trigger="click">
+          <button
+            class="pill-button role-pill"
+            type="button"
+            @mouseenter="hoverLogout = true"
+            @mouseleave="hoverLogout = false"
+            @focus="hoverLogout = true"
+            @blur="hoverLogout = false"
+          >
+            <span>{{ hoverLogout ? "操作" : pillDisplay }}</span>
+            <el-icon :size="16"><ArrowDown /></el-icon>
+          </button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="openEdit">更改信息</el-dropdown-item>
+              <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
     </header>
 
     <div class="body">
       <aside class="sidebar card">
-        <el-menu router :default-active="activePath" class="menu" background-color="transparent">
-          <el-menu-item v-for="item in filteredMenus" :key="item.path" :index="item.path">
+        <el-menu
+          router
+          :default-active="activePath"
+          class="menu"
+          background-color="transparent"
+        >
+          <el-menu-item
+            v-for="item in filteredMenus"
+            :key="item.path"
+            :index="item.path"
+          >
             <span>{{ item.label }}</span>
           </el-menu-item>
         </el-menu>
@@ -42,204 +58,113 @@
       </main>
     </div>
   </div>
+
+  <el-dialog v-model="editVisible" title="更改信息" width="360px">
+    <el-form label-position="top">
+      <el-form-item label="用户名">
+        <el-input v-model="editForm.username" placeholder="请输入新的用户名" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="editVisible = false">取消</el-button>
+      <el-button type="primary" @click="submitEdit">保存</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ArrowDown, Moon, Sunny, SwitchButton } from '@element-plus/icons-vue'
-import { useUserStore } from '@/stores/userStore'
-import { useThemeStore } from '@/stores/themeStore'
-import http from '@/net/index.js'
+import { ref, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { ArrowDown, Moon, Sunny, SwitchButton } from "@element-plus/icons-vue";
+import { useUserStore } from "@/stores/userStore";
+import { useThemeStore } from "@/stores/themeStore";
+import http from "@/net/index.js";
+import { ElMessage } from "element-plus";
 
-const route = useRoute()
-const router = useRouter()
-const userStore = useUserStore()
-const themeStore = useThemeStore()
-const hoverLogout = ref(false)
+const route = useRoute();
+const router = useRouter();
+const userStore = useUserStore();
+const themeStore = useThemeStore();
+const hoverLogout = ref(false);
+const editVisible = ref(false);
+const editForm = ref({ username: "" });
 
 const menus = [
-  { label: '仪表盘', path: '/dashboard', roles: ['admin', 'teacher'] },
-  { label: '用户管理', path: '/admin/users', roles: ['admin'] },
-  { label: '学科管理', path: '/courses', roles: ['admin', 'teacher'] },
-  { label: '作业管理', path: '/assignments/manage', roles: ['admin', 'teacher'] },
-  { label: '学生列表', path: '/teacher/students', roles: ['admin', 'teacher'] },
-  { label: '学生主页', path: '/student/home', roles: ['student'] },
-  { label: '学生作业', path: '/student/assignments', roles: ['student'] },
-]
+  { label: "仪表盘", path: "/dashboard", roles: ["admin", "teacher"] },
+  { label: "用户管理", path: "/admin/users", roles: ["admin"] },
+  { label: "学科管理", path: "/courses", roles: ["admin", "teacher"] },
+  {
+    label: "作业管理",
+    path: "/assignments/manage",
+    roles: ["admin", "teacher"],
+  },
+  { label: "学生列表", path: "/teacher/students", roles: ["teacher"] },
+  { label: "未提交作业", path: "/student/home", roles: ["student"] },
+  { label: "已提交作业", path: "/student/assignments", roles: ["student"] },
+];
 
-const activePath = computed(() => route.path)
-const filteredMenus = computed(() => menus.filter(m => m.roles.includes(userStore.role)))
+const activePath = computed(() => route.path);
+const filteredMenus = computed(() =>
+  menus.filter((m) => m.roles.includes(userStore.role))
+);
 
-const username = computed(() => userStore.username)
-const usernameInitial = computed(() => (userStore.username ? userStore.username[0].toUpperCase() : 'U'))
-const pillDisplay = computed(() => username.value || '退出登录')
+const username = computed(() => userStore.username);
+const usernameInitial = computed(() =>
+  userStore.username ? userStore.username[0].toUpperCase() : "U"
+);
+const pillDisplay = computed(() => username.value || "退出登录");
 
 const themeLabel = computed(() => {
-  if (themeStore.mode === 'dark') return '夜间模式'
-  if (themeStore.mode === 'light') return '日间模式'
-  return '跟随系统'
-})
+  if (themeStore.mode === "dark") return "夜间模式";
+  if (themeStore.mode === "light") return "日间模式";
+  return "跟随系统";
+});
 
 const themeIcon = computed(() => {
-  if (themeStore.mode === 'dark') return Moon
-  if (themeStore.mode === 'light') return Sunny
-  return SwitchButton
-})
+  if (themeStore.mode === "dark") return Moon;
+  if (themeStore.mode === "light") return Sunny;
+  return SwitchButton;
+});
 
-const cycleTheme = () => themeStore.nextMode()
+const cycleTheme = () => themeStore.nextMode();
 
 const goHome = () => {
-  if (userStore.role === 'admin' || userStore.role === 'teacher') {
-    router.push('/dashboard')
-  } else if (userStore.role === 'student') {
-    router.push('/student/home')
+  if (userStore.role === "admin" || userStore.role === "teacher") {
+    router.push("/dashboard");
+  } else if (userStore.role === "student") {
+    router.push("/student/home");
   } else {
-    router.push('/login')
+    router.push("/login");
   }
-}
+};
 
 const handleLogout = async () => {
   try {
-    await http.post('/auth/logout')
+    await http.post("/auth/logout");
   } catch (e) {
     // ignore logout error
   } finally {
-    userStore.logout()
-    router.push('/login')
+    userStore.logout();
+    router.push("/login");
   }
-}
+};
+
+const openEdit = () => {
+  editForm.value = { username: userStore.username };
+  editVisible.value = true;
+};
+
+const submitEdit = async () => {
+  try {
+    await http.put("/users/admin/update", {
+      userId: userStore.user?.userId,
+      username: editForm.value.username,
+    });
+    userStore.user = { ...(userStore.user || {}), username: editForm.value.username };
+    ElMessage.success("信息已更新");
+    editVisible.value = false;
+  } catch (e) {
+    ElMessage.error("更新失败");
+  }
+};
 </script>
-
-<style scoped>
-.layout {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-l);
-  padding: var(--spacing-l);
-  background: var(--color-bg-page);
-}
-
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-m) var(--spacing-l);
-  background: var(--color-bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-m);
-}
-
-.brand-name {
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--color-text-primary);
-}
-
-.top-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-m);
-  position: relative;
-}
-
-
-
-.body {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: var(--spacing-l);
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  align-items: stretch;
-}
-
-.sidebar {
-  padding: var(--spacing-s);
-  height: 100%;
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  background: var(--color-bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
-.sidebar-actions {
-  display: flex;
-  justify-content: center;
-  padding: var(--spacing-s);
-  margin-top: auto;
-  margin-bottom: var(--spacing-2xl);
-}
-
-.menu {
-  border-right: none;
-  --el-menu-item-height: 44px;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-}
-
-:deep(.el-menu-item) {
-  border-radius: var(--radius);
-  margin: 4px 6px;
-  color: var(--color-text-secondary);
-  font-weight: 500;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-:deep(.el-menu-item.is-active) {
-  background: linear-gradient(135deg, var(--primary-50), rgba(99, 102, 241, 0.08));
-  color: var(--color-primary-strong);
-  box-shadow: var(--shadow);
-}
-
-:deep(.el-menu-item:hover) {
-  background: rgba(99, 102, 241, 0.12);
-}
-
-.content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-l);
-  background: var(--color-bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: var(--spacing-l);
-  box-shadow: var(--shadow-strong);
-  overflow: auto;
-  min-height: 0;
-}
-
-@media (max-width: 900px) {
-  .body {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    position: relative;
-    top: 0;
-  }
-}
-</style>
