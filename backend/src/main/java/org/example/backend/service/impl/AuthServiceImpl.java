@@ -80,4 +80,5 @@ public class AuthServiceImpl implements AuthService {
         // 4. 返回 LoginResponse
         return new LoginResponse(token, user.getId(), user.getUsername(), user.getRole());
     }
+
 }
