@@ -24,6 +24,10 @@ public class User {
     @Column(nullable = false)
     private Boolean active;
 
+    // 微信小程序绑定
+    @Column(unique = true)
+    private String openid;
+
     @PrePersist
     public void prePersist() {
         if (active == null) {

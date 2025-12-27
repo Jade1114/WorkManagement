@@ -18,3 +18,7 @@ logging:
   level:
     root: info
     org.hibernate.SQL: debug
+
+wechat:
+  appid: ""   # 填写你的小程序 appid
+  secret: ""  # 填写你的小程序 secret

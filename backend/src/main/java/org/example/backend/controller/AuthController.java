@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import org.example.backend.common.ApiResponse;
 import org.example.backend.dto.LoginRequest;
 import org.example.backend.dto.RegisterRequest;
+import org.example.backend.dto.WechatLoginRequest;
 import org.example.backend.service.AuthService;
 import org.example.backend.util.JwtUtil;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,12 @@ public class AuthController {
     @PostMapping("/login")
     public ApiResponse<?> login(@RequestBody LoginRequest req) {
         return ApiResponse.success(authService.login(req));
+    }
+
+    // 微信小程序登录/注册绑定（学生）
+    @PostMapping("/weapp/login")
+    public ApiResponse<?> weappLogin(@RequestBody WechatLoginRequest req) {
+        return ApiResponse.success(authService.wechatLogin(req));
     }
 
     // 退出接口

@@ -12,7 +12,8 @@ CREATE TABLE `user` (
   username VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
   role VARCHAR(20) NOT NULL,
-  active TINYINT(1) NOT NULL DEFAULT 1
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  openid VARCHAR(64) UNIQUE NULL
 );
 ```
 
@@ -23,6 +24,7 @@ CREATE TABLE `user` (
 | password | BCrypt 密文 |
 | role | admin / teacher / student |
 | active | 是否启用 |
+| openid | 微信 openid（唯一，可空） |
 
 默认账号见 `README.md`。
 
