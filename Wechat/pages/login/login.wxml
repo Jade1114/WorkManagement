@@ -1,0 +1,19 @@
+<view class="login-page">
+  <view class="section">
+    <view class="title">微信登录</view>
+    <view class="muted">点击下方按钮获取微信登录态</view>
+    <button class="primary" loading="{{loading}}" bindtap="tryLogin">微信一键登录</button>
+  </view>
+
+  <view wx:if="{{needBind}}" class="section">
+    <view class="title">绑定已有账号</view>
+    <view class="muted">首次使用需要绑定账号/学号和密码</view>
+    <view class="form-item">
+      <input class="input" placeholder="账号/学号" value="{{bindUsername}}" bindinput="onBindUsernameInput" />
+    </view>
+    <view class="form-item">
+      <input class="input" password placeholder="密码" value="{{bindPassword}}" bindinput="onBindPasswordInput" />
+    </view>
+    <button class="primary" loading="{{binding}}" bindtap="bindAccount">绑定并登录</button>
+  </view>
+</view>

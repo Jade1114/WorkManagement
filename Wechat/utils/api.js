@@ -10,6 +10,15 @@ function weappLogin(code) {
   });
 }
 
+function weappBind(payload) {
+  return request({
+    url: '/api/auth/weapp/bind',
+    method: 'POST',
+    data: payload,
+    auth: false,
+  });
+}
+
 function getPendingAssignments() {
   return request({
     url: '/api/assignments/pending',
@@ -19,22 +28,31 @@ function getPendingAssignments() {
 
 function getMySubmissions() {
   return request({
-    url: '/api/submissions/my',
+    url: '/api/submissions/my/list',
     method: 'GET',
   });
 }
 
 function createSubmission(payload) {
   return request({
-    url: '/api/submissions/create',
+    url: '/api/submissions/submit',
     method: 'POST',
     data: payload,
   });
 }
 
+function getCurrentUser() {
+  return request({
+    url: '/api/users/me',
+    method: 'GET',
+  });
+}
+
 module.exports = {
   weappLogin,
+  weappBind,
   getPendingAssignments,
   getMySubmissions,
   createSubmission,
+  getCurrentUser,
 };

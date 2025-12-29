@@ -1,12 +1,25 @@
 <scroll-view class="page" scroll-y>
+  <view class="section" wx:if="{{userInfo}}">
+    <view class="title">我的信息</view>
+    <view class="user-line">账号：{{userInfo.username}}</view>
+    <view class="user-line">角色：{{userInfo.role}}</view>
+  </view>
+
   <view class="section">
     <view class="title">待提交作业</view>
     <view wx:if="{{loading}}" class="muted">加载中...</view>
     <view wx:if="{{!loading && assignments.length === 0}}" class="muted">暂无待提交作业</view>
 
-    <picker wx:if="{{assignments.length}}" mode="selector" range="{{assignments}}" range-key="title" value="{{selectedIndex}}" bindchange="onPickerChange">
+    <picker
+      wx:if="{{assignments.length}}"
+      mode="selector"
+      range="{{assignments}}"
+      range-key="title"
+      value="{{selectedIndex}}"
+      bindchange="onPickerChange"
+    >
       <view class="picker">
-        当前选择：{{assignments[selectedIndex].title}}（截止：{{assignments[selectedIndex].deadline || '无'}}）
+        当前选择：{{assignments[selectedIndex].title}}（截止：{{assignments[selectedIndex].deadline || '暂无'}}）
       </view>
     </picker>
 
@@ -15,7 +28,7 @@
         <view class="card">
           <view class="card-title">{{item.title}}</view>
           <view class="card-sub">课程：{{item.courseTitle || item.courseId}}</view>
-          <view class="card-sub">截止：{{item.deadline || '无'}}</view>
+          <view class="card-sub">截止：{{item.deadline || '暂无'}}</view>
         </view>
       </block>
     </view>
@@ -23,7 +36,28 @@
 
   <view class="section">
     <view class="title">提交内容</view>
-    <textarea class="textarea" placeholder="输入作业内容" value="{{submissionContent}}" bindinput="onInput" />
+    <textarea
+      class="textarea"
+      placeholder="请输入作业内容"
+      value="{{submissionContent}}"
+      bindinput="onInput"
+    ></textarea>
     <button class="primary" bindtap="submitAssignment">提交</button>
+  </view>
+
+  <view class="section">
+    <view class="title">我的提交</view>
+    <view wx:if="{{loadingSubmissions}}" class="muted">加载中...</view>
+    <view wx:if="{{!loadingSubmissions && submissions.length === 0}}" class="muted">暂无提交记录</view>
+    <view class="submission-list">
+      <block wx:for="{{submissions}}" wx:key="id">
+        <view class="card">
+          <view class="card-title">{{item.assignmentTitle}}</view>
+          <view class="card-sub">课程：{{item.courseTitle || item.courseId}}</view>
+          <view class="card-sub">成绩：{{item.score !== null ? item.score : '未批改'}}</view>
+          <view class="card-sub" wx:if="{{item.comment}}">评语：{{item.comment}}</view>
+        </view>
+      </block>
+    </view>
   </view>
 </scroll-view>

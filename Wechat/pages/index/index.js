@@ -7,6 +7,9 @@ Page({
     loading: false,
     selectedIndex: 0,
     submissionContent: '',
+    userInfo: null,
+    submissions: [],
+    loadingSubmissions: false,
   },
 
   onLoad() {
@@ -14,32 +17,44 @@ Page({
   },
 
   async init() {
-    this.setData({ loading: true });
     const hasToken = !!wx.getStorageSync('token');
-    if (!hasToken) {
-      app.loginWithWeapp();
-      // 简单等待登录完成；正式环境可改为 Promise 回调
-      await new Promise((r) => setTimeout(r, 800));
+    if (!hasToken || app.globalData.needBind) {
+      wx.redirectTo({ url: '/pages/login/login' });
+      return;
     }
-    this.loadAssignments();
+    this.setData({ loading: true });
+    await Promise.all([this.loadUserInfo(), this.loadAssignments(), this.loadSubmissions()]);
+    this.setData({ loading: false });
   },
 
-  loadAssignments() {
-    api
-      .getPendingAssignments()
-      .then((res) => {
-        if (res.code === 200) {
-          const list = res.data || [];
-          this.setData({
-            assignments: list,
-            selectedIndex: list.length ? 0 : -1,
-          });
-        } else {
-          wx.showToast({ title: res.message || '加载失败', icon: 'none' });
-        }
-      })
-      .catch(() => wx.showToast({ title: '加载失败', icon: 'none' }))
-      .finally(() => this.setData({ loading: false }));
+  async loadUserInfo() {
+    try {
+      const res = await api.getCurrentUser();
+      if (res.code === 200) {
+        this.setData({ userInfo: res.data });
+      } else {
+        wx.showToast({ title: res.message || '用户信息获取失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.showToast({ title: '用户信息获取失败', icon: 'none' });
+    }
+  },
+
+  async loadAssignments() {
+    try {
+      const res = await api.getPendingAssignments();
+      if (res.code === 200) {
+        const list = res.data || [];
+        this.setData({
+          assignments: list,
+          selectedIndex: list.length ? 0 : -1,
+        });
+      } else {
+        wx.showToast({ title: res.message || '待提交获取失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.showToast({ title: '待提交获取失败', icon: 'none' });
+    }
   },
 
   onPickerChange(e) {
@@ -67,10 +82,28 @@ Page({
         if (res.code === 200) {
           wx.showToast({ title: '提交成功', icon: 'success' });
           this.setData({ submissionContent: '' });
+          this.loadAssignments();
+          this.loadSubmissions();
         } else {
           wx.showToast({ title: res.message || '提交失败', icon: 'none' });
         }
       })
       .catch(() => wx.showToast({ title: '提交失败', icon: 'none' }));
+  },
+
+  async loadSubmissions() {
+    this.setData({ loadingSubmissions: true });
+    try {
+      const res = await api.getMySubmissions();
+      if (res.code === 200) {
+        this.setData({ submissions: res.data || [] });
+      } else {
+        wx.showToast({ title: res.message || '我的提交获取失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.showToast({ title: '我的提交获取失败', icon: 'none' });
+    } finally {
+      this.setData({ loadingSubmissions: false });
+    }
   },
 });

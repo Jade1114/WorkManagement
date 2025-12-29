@@ -4,10 +4,14 @@ import jakarta.annotation.Resource;
 import org.example.backend.common.ApiResponse;
 import org.example.backend.dto.LoginRequest;
 import org.example.backend.dto.RegisterRequest;
+import org.example.backend.dto.WechatBindRequest;
 import org.example.backend.dto.WechatLoginRequest;
 import org.example.backend.service.AuthService;
-import org.example.backend.util.JwtUtil;
-import org.springframework.web.bind.annotation.*;
+import org.example.backend.vo.WechatLoginResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -15,9 +19,6 @@ public class AuthController {
 
     @Resource
     private AuthService authService;
-
-    @Resource
-    private JwtUtil  jwtUtil;
 
     // 注册接口
     @PostMapping("/register")
@@ -32,13 +33,23 @@ public class AuthController {
         return ApiResponse.success(authService.login(req));
     }
 
-    // 微信小程序登录/注册绑定（学生）
+    // 微信小程序登录：已绑定直接登录，未绑定返回 needBind + bindTicket
     @PostMapping("/weapp/login")
     public ApiResponse<?> weappLogin(@RequestBody WechatLoginRequest req) {
-        return ApiResponse.success(authService.wechatLogin(req));
+        WechatLoginResult result = authService.wechatLogin(req);
+        if (Boolean.TRUE.equals(result.getNeedBind())) {
+            return ApiResponse.success("need_bind", result);
+        }
+        return ApiResponse.success(result);
     }
 
-    // 退出接口
+    // 微信小程序绑定：用户名+密码绑定 openid
+    @PostMapping("/weapp/bind")
+    public ApiResponse<?> weappBind(@RequestBody WechatBindRequest req) {
+        return ApiResponse.success(authService.wechatBind(req));
+    }
+
+    // 登出接口
     @PostMapping("/logout")
     public ApiResponse<?> logout() {
         return ApiResponse.success("退出成功");
