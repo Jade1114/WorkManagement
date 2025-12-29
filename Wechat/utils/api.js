@@ -41,6 +41,51 @@ function createSubmission(payload) {
   });
 }
 
+function getTeacherAssignments() {
+  return request({
+    url: '/api/assignments/all',
+    method: 'GET',
+  });
+}
+
+function getSubmissionsByAssignment(assignmentId) {
+  return request({
+    url: '/api/submissions/list',
+    method: 'GET',
+    data: { assignmentId },
+  });
+}
+
+function gradeSubmission(payload) {
+  return request({
+    url: '/api/submissions/grade',
+    method: 'POST',
+    data: payload,
+  });
+}
+
+function getTeacherStats() {
+  return request({
+    url: '/api/teacher/stats',
+    method: 'GET',
+  });
+}
+
+function getCourses() {
+  return request({
+    url: '/api/courses/get',
+    method: 'GET',
+  });
+}
+
+function createAssignment(payload) {
+  return request({
+    url: '/api/assignments/create',
+    method: 'POST',
+    data: payload,
+  });
+}
+
 function getCurrentUser() {
   return request({
     url: '/api/users/me',
@@ -54,5 +99,11 @@ module.exports = {
   getPendingAssignments,
   getMySubmissions,
   createSubmission,
+  getTeacherAssignments,
+  getSubmissionsByAssignment,
+  gradeSubmission,
+  getTeacherStats,
+  getCourses,
+  createAssignment,
   getCurrentUser,
 };

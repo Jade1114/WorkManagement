@@ -114,6 +114,12 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         return allAssignments.stream()
                 .filter(a -> !submittedIds.contains(a.getId()))
+                .sorted((a, b) -> {
+                    if (a.getDeadline() == null && b.getDeadline() == null) return 0;
+                    if (a.getDeadline() == null) return 1;
+                    if (b.getDeadline() == null) return -1;
+                    return a.getDeadline().compareTo(b.getDeadline());
+                })
                 .map(a -> new PendingAssignmentResponse(
                         a.getId(),
                         a.getCourseId(),

@@ -3,17 +3,23 @@ const app = getApp();
 
 Page({
   data: {
+    currentTab: 'info',
+    userInfo: null,
     assignments: [],
-    loading: false,
+    loadingAssignments: false,
     selectedIndex: 0,
     submissionContent: '',
-    userInfo: null,
     submissions: [],
     loadingSubmissions: false,
+    sliderItems: [],
   },
 
-  onLoad() {
+  onShow() {
     this.init();
+  },
+
+  onPullDownRefresh() {
+    this.init().finally(() => wx.stopPullDownRefresh());
   },
 
   async init() {
@@ -22,9 +28,17 @@ Page({
       wx.redirectTo({ url: '/pages/login/login' });
       return;
     }
-    this.setData({ loading: true });
+    // 如果是教师，跳到教师端
+    if (app.globalData.role === 'teacher' || app.globalData.role === 'admin') {
+      wx.redirectTo({ url: '/pages/teacher/index' });
+      return;
+    }
     await Promise.all([this.loadUserInfo(), this.loadAssignments(), this.loadSubmissions()]);
-    this.setData({ loading: false });
+  },
+
+  switchTab(e) {
+    const { tab } = e.currentTarget.dataset;
+    this.setData({ currentTab: tab });
   },
 
   async loadUserInfo() {
@@ -41,19 +55,28 @@ Page({
   },
 
   async loadAssignments() {
+    this.setData({ loadingAssignments: true });
     try {
       const res = await api.getPendingAssignments();
       if (res.code === 200) {
-        const list = res.data || [];
+        const list = (res.data || []).sort((a, b) => {
+          if (!a.deadline && !b.deadline) return 0;
+          if (!a.deadline) return 1;
+          if (!b.deadline) return -1;
+          return new Date(a.deadline) - new Date(b.deadline);
+        });
         this.setData({
           assignments: list,
           selectedIndex: list.length ? 0 : -1,
+          sliderItems: list.slice(0, 5),
         });
       } else {
         wx.showToast({ title: res.message || '待提交获取失败', icon: 'none' });
       }
     } catch (e) {
       wx.showToast({ title: '待提交获取失败', icon: 'none' });
+    } finally {
+      this.setData({ loadingAssignments: false });
     }
   },
 

@@ -28,6 +28,7 @@ Page({
           this.setData({
             needBind: true,
             bindTicket: res.bindTicket || app.globalData.bindTicket,
+            loading: false,
           });
         } else {
           this.goHome();
@@ -94,6 +95,10 @@ Page({
   },
 
   goHome() {
-    wx.redirectTo({ url: '/pages/index/index' });
+    if (app.globalData.role === 'teacher' || app.globalData.role === 'admin') {
+      wx.redirectTo({ url: '/pages/teacher/index' });
+    } else {
+      wx.redirectTo({ url: '/pages/student/index' });
+    }
   },
 });
