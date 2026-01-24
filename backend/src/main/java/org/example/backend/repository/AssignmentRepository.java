@@ -9,7 +9,11 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 
     List<Assignment> findByCourseId(Long courseId);
 
+    List<Assignment> findByTeacherId(Long teacherId);
+
     long countByCourseId(Long courseId);
 
     List<Assignment> findTop2ByOrderByCreatedAtDesc();
+
+    List<Assignment> findTop2ByTeacherIdOrderByCreatedAtDesc(Long teacherId);
 }

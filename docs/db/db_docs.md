@@ -48,17 +48,19 @@ CREATE TABLE `course` (
 学生默认拥有所有课程，不设 student-course 关系表。
 
 ## 3️⃣ assignment 表
-- 关联 `course_id`；含发布时间 `created_at`，用于排序。
+- 关联 `course_id` 和 `teacher_id`；含发布时间 `created_at`，用于排序。
 
 ```sql
 CREATE TABLE `assignment` (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   course_id BIGINT NOT NULL,
+  teacher_id BIGINT NOT NULL,
   title VARCHAR(100) NOT NULL,
   content TEXT NULL,
   deadline DATETIME NULL,
   created_at DATETIME NULL,
-  FOREIGN KEY (course_id) REFERENCES course(id)
+  FOREIGN KEY (course_id) REFERENCES course(id),
+  FOREIGN KEY (teacher_id) REFERENCES user(id)
 );
 ```
 
@@ -66,6 +68,7 @@ CREATE TABLE `assignment` (
 | --- | --- |
 | id | 作业 ID |
 | course_id | 所属课程 |
+| teacher_id | 发布老师（user.id） |
 | title | 作业标题 |
 | content | 作业内容 |
 | deadline | 截止时间 |

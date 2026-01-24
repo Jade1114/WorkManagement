@@ -31,7 +31,8 @@ public class AssignmentController {
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
-        return ApiResponse.success(assignmentService.createAssignment(req));
+        Long teacherId = jwtUtil.getUserId(request);
+        return ApiResponse.success(assignmentService.createAssignment(req, teacherId));
     }
 
     // 获取某课程的所有作业
@@ -47,7 +48,11 @@ public class AssignmentController {
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
-        return ApiResponse.success(assignmentService.getAllAssignments());
+        if ("admin".equals(role)) {
+            return ApiResponse.success(assignmentService.getAllAssignments());
+        }
+        Long teacherId = jwtUtil.getUserId(request);
+        return ApiResponse.success(assignmentService.getAllAssignments(teacherId));
     }
 
     // 学生获取自己尚未提交的作业

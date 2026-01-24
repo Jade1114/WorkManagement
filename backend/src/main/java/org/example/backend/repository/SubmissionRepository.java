@@ -12,6 +12,7 @@ import java.util.List;
 public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     Submission findByAssignmentIdAndStudentId(Long courseId, Long studentId);
     List<Submission> findByAssignmentId(Long assignmentId);
+    List<Submission> findByAssignmentIdIn(Iterable<Long> assignmentIds);
     List<Submission> findByStudentId(Long studentId);
     long countByGradedFalseOrGradedIsNull();
 

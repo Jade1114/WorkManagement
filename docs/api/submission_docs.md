@@ -19,6 +19,7 @@
 
 ### 3) 教师/管理员查看某作业提交列表 `GET /api/submissions/list?assignmentId=10`
 - 权限：`teacher` / `admin`
+- 说明：教师仅可查看自己发布作业的提交
 - 返回：`[{ id, studentId, studentUsername, content, score, graded }]`
 
 ### 4) 教师/管理员批改 `POST /api/submissions/grade`
@@ -28,6 +29,7 @@
 
 ### 5) 教师/管理员查看所有提交 `GET /api/submissions/all`
 - 权限：`teacher` / `admin`
+- 说明：教师仅可查看自己发布作业的提交
 - 返回：`[{ submissionId, assignmentId, assignmentTitle, courseId, courseTitle, studentId, studentName, assignmentContent, submitContent, submitTime, graded, score, comment }]`
 
 ### 6) 学生查看自己所有提交列表 `GET /api/submissions/my/list`
@@ -36,6 +38,7 @@
 
 ### 7) 仪表盘最近提交 `GET /api/teacher/recent/submissions`
 - 权限：`teacher` / `admin`
+- 说明：教师仅可查看自己发布作业的提交
 - 返回：`[{ submissionId, studentName, assignmentTitle, courseTitle, graded, score, submitTime }]`
 
 > 权限不足时返回 `code=400, message="权限不足"`。

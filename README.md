@@ -25,6 +25,8 @@ docker compose up -d --build db
 
 密码在数据库中存储为 BCrypt，`init.sql` 会在重复执行时同步更新密码、角色与启用状态。
 
+> 多教师场景：教师仅能查看和管理自己发布的作业与对应提交。
+
 ## 4. 后端 / 前端对接
 - 后端 MySQL 配置：`backend/src/main/resources/application-docker.yml`（指向 `localhost:3307/WorkManagement`）。
 - 启动后端（示例）：`./mvnw spring-boot:run` 或 IDE 运行，确保 `Active profiles: docker`。

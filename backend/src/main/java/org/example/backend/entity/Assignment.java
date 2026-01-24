@@ -17,6 +17,9 @@ public class Assignment {
     // 所属课程
     private Long courseId;
 
+    // 发布老师（user.id）
+    private Long teacherId;
+
     private String title;
 
     @Column(columnDefinition = "TEXT")

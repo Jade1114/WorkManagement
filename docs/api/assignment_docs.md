@@ -9,7 +9,7 @@
 ## 接口
 
 ### 1) 创建作业 `POST /api/assignments/create`
-- 权限：`teacher` / `admin`
+- 权限：`teacher` / `admin`（作业归属当前登录老师）
 - 请求体：
 ```json
 {
@@ -27,6 +27,7 @@
 
 ### 3) 查看全部作业（教师/管理员）`GET /api/assignments/all`
 - 权限：`teacher` / `admin`
+- 说明：教师仅返回自己发布的作业，管理员返回全部
 - 返回：`[{ id, courseId, courseTitle, title, content, deadline }]`
 
 ### 4) 学生未提交列表 `GET /api/assignments/pending`

@@ -33,7 +33,11 @@ public class AssignmentServiceImpl implements AssignmentService {
     private CoursesRepository coursesRepository;
 
     @Override
-    public AssignmentResponse createAssignment(AssignmentCreateRequest req) {
+    public AssignmentResponse createAssignment(AssignmentCreateRequest req, Long teacherId) {
+
+        if (teacherId == null) {
+            throw new RuntimeException("teacherId 不能为空");
+        }
 
         if (req.getTitle() == null) {
             throw new RuntimeException("作业标题不能为空");
@@ -41,6 +45,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         Assignment a = new Assignment();
         a.setCourseId(req.getCourseId());
+        a.setTeacherId(teacherId);
         a.setTitle(req.getTitle());
         a.setContent(req.getContent());
         a.setDeadline(req.getDeadline());
@@ -75,6 +80,30 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public List<TeacherAssignmentResponse> getAllAssignments() {
         List<Assignment> assignments = assignmentRepository.findAll();
+        Set<Long> courseIds = assignments.stream()
+                .map(Assignment::getCourseId)
+                .collect(Collectors.toSet());
+        Map<Long, String> courseTitleMap = coursesRepository.findByIdInAndDeletedFalse(courseIds).stream()
+                .collect(Collectors.toMap(Courses::getId, Courses::getTitle));
+
+        return assignments.stream()
+                .map(a -> new TeacherAssignmentResponse(
+                        a.getId(),
+                        a.getCourseId(),
+                        courseTitleMap.getOrDefault(a.getCourseId(), "未关联课程"),
+                        a.getTitle(),
+                        a.getContent(),
+                        a.getDeadline()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TeacherAssignmentResponse> getAllAssignments(Long teacherId) {
+        if (teacherId == null) {
+            throw new RuntimeException("teacherId 不能为空");
+        }
+        List<Assignment> assignments = assignmentRepository.findByTeacherId(teacherId);
         Set<Long> courseIds = assignments.stream()
                 .map(Assignment::getCourseId)
                 .collect(Collectors.toSet());
@@ -134,6 +163,34 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public List<RecentAssignmentResponse> getRecentAssignments() {
         List<Assignment> assignments = assignmentRepository.findTop2ByOrderByCreatedAtDesc();
+        if (assignments.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Long> courseIds = assignments.stream()
+                .map(Assignment::getCourseId)
+                .collect(Collectors.toSet());
+        Map<Long, String> courseTitleMap = coursesRepository.findAllById(courseIds).stream()
+                .collect(Collectors.toMap(Courses::getId, Courses::getTitle));
+
+        return assignments.stream()
+                .map(a -> new RecentAssignmentResponse(
+                        a.getId(),
+                        a.getCourseId(),
+                        courseTitleMap.getOrDefault(a.getCourseId(), "未关联课程"),
+                        a.getTitle(),
+                        a.getDeadline(),
+                        a.getCreatedAt()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RecentAssignmentResponse> getRecentAssignments(Long teacherId) {
+        if (teacherId == null) {
+            throw new RuntimeException("teacherId 不能为空");
+        }
+        List<Assignment> assignments = assignmentRepository.findTop2ByTeacherIdOrderByCreatedAtDesc(teacherId);
         if (assignments.isEmpty()) {
             return List.of();
         }

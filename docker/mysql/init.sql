@@ -33,11 +33,13 @@ CREATE TABLE IF NOT EXISTS `course` (
 CREATE TABLE IF NOT EXISTS `assignment` (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     course_id BIGINT NOT NULL,
+    teacher_id BIGINT NOT NULL,
     title VARCHAR(100) NOT NULL,
     content TEXT NULL,
     deadline DATETIME NULL,
     created_at DATETIME NULL,
-    FOREIGN KEY (course_id) REFERENCES course(id)
+    FOREIGN KEY (course_id) REFERENCES course(id),
+    FOREIGN KEY (teacher_id) REFERENCES user(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `submission` (
@@ -74,12 +76,12 @@ INSERT INTO `course` (id, title, deleted) VALUES
 ON DUPLICATE KEY UPDATE title = VALUES(title), deleted = VALUES(deleted);
 
 -- 示例作业（含创建时间）
-INSERT INTO `assignment` (id, course_id, title, content, deadline, created_at) VALUES
-(1, 1, '链表与栈实现', '完成单链表、栈的增删查操作，提交代码与复杂度分析。', DATE_ADD(NOW(), INTERVAL 7 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(2, 1, '排序算法对比', '实现冒泡/快排/归并，并对随机数组进行性能对比。', DATE_ADD(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
-(3, 2, '进程与线程', '对比进程/线程差异，撰写 800 字小结并附上示例代码。', DATE_ADD(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY)),
-(4, 3, 'Vue 组件拆分', '基于课程项目，拆分并封装通用组件，附代码链接。', DATE_ADD(NOW(), INTERVAL 12 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY))
-ON DUPLICATE KEY UPDATE title = VALUES(title), content = VALUES(content), deadline = VALUES(deadline), course_id = VALUES(course_id), created_at = VALUES(created_at);
+INSERT INTO `assignment` (id, course_id, teacher_id, title, content, deadline, created_at) VALUES
+(1, 1, 2, '链表与栈实现', '完成单链表、栈的增删查操作，提交代码与复杂度分析。', DATE_ADD(NOW(), INTERVAL 7 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
+(2, 1, 2, '排序算法对比', '实现冒泡/快排/归并，并对随机数组进行性能对比。', DATE_ADD(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
+(3, 2, 3, '进程与线程', '对比进程/线程差异，撰写 800 字小结并附上示例代码。', DATE_ADD(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY)),
+(4, 3, 3, 'Vue 组件拆分', '基于课程项目，拆分并封装通用组件，附代码链接。', DATE_ADD(NOW(), INTERVAL 12 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY))
+ON DUPLICATE KEY UPDATE title = VALUES(title), content = VALUES(content), deadline = VALUES(deadline), course_id = VALUES(course_id), teacher_id = VALUES(teacher_id), created_at = VALUES(created_at);
 
 -- 示例提交（含提交时间与批改状态）
 INSERT INTO `submission` (assignment_id, student_id, content, score, comment, graded, submit_time) VALUES

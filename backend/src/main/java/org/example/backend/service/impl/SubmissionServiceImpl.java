@@ -140,6 +140,21 @@ public class SubmissionServiceImpl implements SubmissionService {
     }
 
     @Override
+    public List<SubmissionListItemResponse> listByAssignment(Long assignmentId, Long teacherId) {
+        if (teacherId == null) {
+            throw new RuntimeException("teacherId 不能为空");
+        }
+
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new RuntimeException("作业不存在"));
+        if (!teacherId.equals(assignment.getTeacherId())) {
+            throw new RuntimeException("权限不足");
+        }
+
+        return listByAssignment(assignmentId);
+    }
+
+    @Override
     public List<StudentSubmissionResponse> listByStudent(Long studentId) {
         if (studentId == null) {
             throw new RuntimeException("studentId 不能为空");
@@ -238,6 +253,66 @@ public class SubmissionServiceImpl implements SubmissionService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<TeacherSubmissionItemResponse> listAllSubmissionsForTeacher(Long teacherId) {
+        if (teacherId == null) {
+            throw new RuntimeException("teacherId 不能为空");
+        }
+
+        List<Assignment> assignments = assignmentRepository.findByTeacherId(teacherId);
+        if (assignments.isEmpty()) {
+            return List.of();
+        }
+
+        Set<Long> assignmentIds = assignments.stream()
+                .map(Assignment::getId)
+                .collect(Collectors.toSet());
+        List<Submission> submissions = submissionRepository.findByAssignmentIdIn(assignmentIds);
+        if (submissions.isEmpty()) {
+            return List.of();
+        }
+
+        Map<Long, Assignment> assignmentMap = assignments.stream()
+                .collect(Collectors.toMap(Assignment::getId, a -> a));
+
+        Set<Long> courseIds = assignments.stream()
+                .map(Assignment::getCourseId)
+                .collect(Collectors.toSet());
+        Map<Long, String> courseTitleMap = coursesRepository.findByIdInAndDeletedFalse(courseIds).stream()
+                .collect(Collectors.toMap(Courses::getId, Courses::getTitle));
+
+        Set<Long> studentIds = submissions.stream()
+                .map(Submission::getStudentId)
+                .collect(Collectors.toSet());
+        Map<Long, String> studentNameMap = userRepository.findAllById(studentIds).stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername));
+
+        return submissions.stream()
+                .map(s -> {
+                    Assignment a = assignmentMap.get(s.getAssignmentId());
+                    String courseTitle = a != null ? courseTitleMap.getOrDefault(a.getCourseId(), "未关联课程") : "未知课程";
+                    String assignmentTitle = a != null ? a.getTitle() : "未知作业";
+                    String assignmentContent = a != null ? a.getContent() : null;
+                    String studentName = studentNameMap.getOrDefault(s.getStudentId(), "未知学生");
+                    return new TeacherSubmissionItemResponse(
+                            s.getId(),
+                            s.getAssignmentId(),
+                            assignmentTitle,
+                            a != null ? a.getCourseId() : null,
+                            courseTitle,
+                            s.getStudentId(),
+                            studentName,
+                            assignmentContent,
+                            s.getContent(),
+                            s.getSubmitTime() == null ? null : s.getSubmitTime().toString(),
+                            s.getGraded(),
+                            s.getScore(),
+                            s.getComment()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public List<RecentSubmissionResponse> listRecentSubmissions() {
@@ -327,6 +402,36 @@ public class SubmissionServiceImpl implements SubmissionService {
         s.setGraded(true);
 
         // 3. 保存修改
+        submissionRepository.save(s);
+    }
+
+    @Override
+    public void grade(SubmissionGradeRequest req, Long teacherId) {
+        if (teacherId == null) {
+            throw new RuntimeException("teacherId 不能为空");
+        }
+
+        if (req.getSubmissionId() == null) {
+            throw new RuntimeException("submissionId 不能为空");
+        }
+
+        if (req.getScore() == null) {
+            throw new RuntimeException("score 不能为空");
+        }
+
+        Submission s = submissionRepository.findById(req.getSubmissionId())
+                .orElseThrow(() -> new RuntimeException("提交记录不存在"));
+
+        Assignment assignment = assignmentRepository.findById(s.getAssignmentId())
+                .orElseThrow(() -> new RuntimeException("作业不存在"));
+        if (!teacherId.equals(assignment.getTeacherId())) {
+            throw new RuntimeException("权限不足");
+        }
+
+        s.setScore(req.getScore());
+        s.setComment(req.getComment());
+        s.setGraded(true);
+
         submissionRepository.save(s);
     }
 }

@@ -52,7 +52,11 @@ public class SubmissionController {
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
-        return ApiResponse.success(submissionService.listByAssignment(assignmentId));
+        if ("admin".equals(role)) {
+            return ApiResponse.success(submissionService.listByAssignment(assignmentId));
+        }
+        Long teacherId = jwtUtil.getUserId(request);
+        return ApiResponse.success(submissionService.listByAssignment(assignmentId, teacherId));
     }
 
     // 老师查看所有提交列表
@@ -62,7 +66,13 @@ public class SubmissionController {
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
-        List<TeacherSubmissionItemResponse> list = submissionService.listAllSubmissionsForTeacher();
+        List<TeacherSubmissionItemResponse> list;
+        if ("admin".equals(role)) {
+            list = submissionService.listAllSubmissionsForTeacher();
+        } else {
+            Long teacherId = jwtUtil.getUserId(request);
+            list = submissionService.listAllSubmissionsForTeacher(teacherId);
+        }
         return ApiResponse.success(list);
     }
 
@@ -84,7 +94,12 @@ public class SubmissionController {
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
-        submissionService.grade(req);
+        if ("admin".equals(role)) {
+            submissionService.grade(req);
+        } else {
+            Long teacherId = jwtUtil.getUserId(request);
+            submissionService.grade(req, teacherId);
+        }
         return ApiResponse.success("批改成功");
     }
 }

@@ -24,7 +24,7 @@
 - 布局：`layouts/AdminLayout.vue` 提供侧边导航与顶栏，支持角色过滤菜单与主题切换。
 - 欢迎：`views/welcome/LoginView.vue`、`RegisterView.vue` 表单校验+登录后按角色跳转。
 - 管理员/教师：`views/admin/DashboardView.vue` 仪表盘（ECharts 柱/折/饼）、`UserManageView.vue` 用户角色/状态管理，`CourseManageView.vue` 学科 CRUD。
-- 教师：`views/teacher/TeacherAssignmentsView.vue` 查看待批改提交/已发布作业，评分弹窗；`TeacherHomeView.vue` 等用于概览。
+- 教师：`views/teacher/TeacherAssignmentsView.vue` 仅查看自己发布作业的提交与作业列表，评分弹窗；`TeacherHomeView.vue` 等用于概览。
 - 学生：`views/student/StudentHomeView.vue` 未提交作业列表+提交弹窗，`StudentAssignmentsView.vue` 已提交/得分查看。
 
 ## 复用组件
