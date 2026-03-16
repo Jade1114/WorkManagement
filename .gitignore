@@ -31,3 +31,4 @@ frontend/pnpm-debug.log*
 # Environment files
 .env
 .env.*
+.alma-snapshots
