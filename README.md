@@ -1,51 +1,186 @@
-# WorkManagement 一键运行指南
+# WorkManagement
 
-本项目前后端分离，仓库内的 `docker-compose.yml` 只提供 **MySQL** 服务（端口 3307），供前后端本地开发使用；前后端自行手动启动。
+一个面向教师与学生的前后端分离作业管理系统，围绕作业发布、提交、批改、成绩查看等教学场景进行统一管理。项目重点在于通过角色权限控制、业务流程拆分和前后端联调，完成一个具备真实业务闭环的 Web 系统。
 
-## 1. 环境要求
+## 项目定位
+
+相比单纯的 CRUD 演示项目，WorkManagement 更强调围绕教学作业场景完成完整业务流程设计：
+
+- 管理员维护用户与角色信息
+- 教师管理课程、发布作业、查看提交并评分
+- 学生查看作业、提交内容、查看成绩反馈
+- 系统通过登录鉴权、角色隔离、软删除与分页查询等机制保证业务可用性与可维护性
+
+这个项目的核心价值不在于堆叠复杂技术，而在于把一个典型业务场景从数据建模、接口设计、权限控制到前后端联调完整落地。
+
+## 技术栈
+
+### 后端
+
+- Java 17
+- Spring Boot 3
+- Spring MVC
+- Spring Data JPA
+- MySQL
+- JWT
+- BCrypt
+- Hibernate Validator
+
+### 前端
+
+- Vue 3
+- Vite
+- Pinia
+- Vue Router
+- Element Plus
+- Axios
+- ECharts
+
+### 开发与部署
+
 - Docker / Docker Compose
-- 端口占用：3307 (MySQL)，后端/前端按本地端口自定
+- MySQL 初始化脚本
+- 前后端分离开发
 
-## 2. 快速启动数据库
+## 核心业务场景
+
+### 角色模型
+
+- Admin
+- Teacher
+- Student
+
+### 核心业务对象
+
+- 用户
+- 学科 / 课程
+- 作业
+- 提交记录
+
+### 主要业务流程
+
+1. 用户登录后根据角色进入不同工作台
+2. 管理员可管理用户信息、角色与启用状态
+3. 教师可创建课程、发布作业、查看自己发布作业的提交情况并评分
+4. 学生可查看作业、提交作业并查看成绩反馈
+5. 系统对用户、课程、作业、提交记录采用软删除机制，保证数据管理可追踪
+
+## 项目亮点
+
+- 基于 `JWT + 路由守卫 + Axios 拦截器` 构建登录鉴权与权限控制链路，区分管理员、教师、学生三类角色访问范围
+- 基于 `Spring Boot + Vue 3` 搭建前后端分离系统，完成登录、课程管理、作业管理、提交与评分等完整业务闭环
+- 使用 `JPA + MySQL` 进行数据建模与持久化，覆盖用户、课程、作业、提交记录等核心实体
+- 支持分页查询、角色隔离、教师仅查看本人发布作业相关提交等业务规则
+- 前端使用 `Pinia` 做状态管理，结合 `Vue Router` 实现权限路由控制与登录态持久化
+- 网络层基于 `Axios` 统一处理鉴权头注入、错误拦截与响应提示
+- 使用 `ECharts + Element Plus` 构建基础仪表盘与后台管理界面，提升可视化与交互体验
+- 通过 `Docker Compose` 管理本地 MySQL 开发环境，并通过初始化脚本快速完成表结构与基础数据准备
+
+## 系统结构
+
+### 后端目录
+
+- `backend/src/main/java`：后端核心代码
+- `backend/src/main/resources`：配置文件
+
+后端主要分层包括：
+
+- Controller：接口层
+- Service：业务逻辑层
+- Entity / Model：数据对象层
+- Repository：数据访问层
+- Config：鉴权、运行配置等
+
+### 前端目录
+
+- `frontend/src/views`：业务页面
+- `frontend/src/components`：通用组件
+- `frontend/src/layouts`：布局结构
+- `frontend/src/stores`：Pinia 状态管理
+- `frontend/src/router`：路由与权限控制
+- `frontend/src/net`：请求封装
+
+## 业务规则说明
+
+当前项目已明确实现或约束如下：
+
+- 管理员可以维护教师与学生信息，并调整角色或启用状态
+- 管理员与教师可以管理课程
+- 教师创建作业时需要绑定所属课程
+- 学生围绕课程下发的作业进行提交
+- 教师仅能查看自己发布作业对应的提交记录并进行评分
+- 多教师场景下，教师间数据隔离
+- 用户、课程、作业、提交记录采用软删除字段控制数据状态
+
+## 我在项目中的主要实践内容
+
+如果从面试表达角度概括，这个项目主要体现了以下能力：
+
+- 基于真实业务场景进行模块拆分与接口设计
+- 完成登录鉴权、角色权限控制与基础安全链路搭建
+- 结合数据库表设计完成后端 CRUD 与业务约束实现
+- 完成前后端联调，并围绕分页、列表查询、提交与评分流程处理页面交互
+- 对教学作业管理场景中的角色边界、数据隔离和业务流程形成了较完整的理解
+
+## 快速运行
+
+本项目采用前后端分离运行方式，仓库内 `docker-compose.yml` 主要用于启动 MySQL，前后端分别本地启动。
+
+### 1. 环境要求
+
+- Docker / Docker Compose
+- Node.js
+- Java 17
+- Maven
+
+### 2. 启动数据库
+
 ```bash
 docker compose up -d --build db
 ```
 
-启动后：
-- 数据库：`127.0.0.1:3307`，库名 `WorkManagement`
-- 账号：`app / app_pass`（root：`root / root_pass`）
-- 首次启动自动执行 `docker/mysql/init.sql` 预置表结构与示例数据，强制使用 `utf8mb4` 防止中文乱码。
+### 3. 启动后端
 
-> 如需重新初始化数据：`docker compose down -v && docker compose up -d --build db`
+在 `backend/` 目录下运行：
 
-## 3. 默认账号
-- 管理员：`admin / admin123`
-- 教师：`teacher001 / teacher123456`，`teacher002 / teacher123456`
-- 学生：`student001 / student123456`，`student002 / student123456`，`student003 / student123456`
+```bash
+./mvnw spring-boot:run
+```
 
-密码在数据库中存储为 BCrypt，`init.sql` 会在重复执行时同步更新密码、角色与启用状态。
+并确保使用对应的数据库配置。
 
-> 多教师场景：教师仅能查看和管理自己发布的作业与对应提交。
+### 4. 启动前端
 
-## 4. 后端 / 前端对接
-- 后端 MySQL 配置：`backend/src/main/resources/application-docker.yml`（指向 `localhost:3307/WorkManagement`）。
-- 启动后端（示例）：`./mvnw spring-boot:run` 或 IDE 运行，确保 `Active profiles: docker`。
-- 前端默认使用代理 `/api` 指向后端，启动方式参考前端目录说明。
+在 `frontend/` 目录下运行：
 
-## 5. Navicat / MySQL 客户端连接
-- Host：`127.0.0.1`
-- Port：`3307`
-- User/Password：`app / app_pass`（或 `root / root_pass`）
-- 字符集：选择 `utf8mb4`，避免查看数据时出现乱码。
+```bash
+npm install
+npm run dev
+```
 
-## 6. 常用命令
-- 查看日志：`docker compose logs -f db`
-- 停止服务：`docker compose down`
-- 停止并清理数据卷：`docker compose down -v`（删除数据库数据）
+前端通过代理将 `/api` 请求转发到本地后端服务。
 
-## 7. 目录说明
-- `backend/`：Spring Boot 代码
-- `frontend/`：Vue3 代码、Nginx 配置
-- `docker/mysql/init.sql`：建表 & 示例数据脚本（utf8mb4，含软删除/禁用字段与创建/提交时间字段）
-- `docker-compose.yml`：MySQL 编排配置（仅数据库）
-- `auth_docs.md` / `user_docs.md` / `course_docs.md` / `assignment_docs.md` / `submission_docs.md`：后端 API 文档（当前版）
+## 相关文档
+
+项目文档位于 `docs/` 目录，包含：
+
+- API 文档
+- 前端结构说明
+- 数据库说明
+- 业务规则说明
+- 历史规划与设计文档
+
+文档索引见：`docs/README.md`
+
+## 项目总结
+
+WorkManagement 是一个偏业务型的前后端分离项目。它的价值在于完成了一个真实教学场景下的管理系统闭环，并让我系统实践了以下内容：
+
+- Java 后端基础开发
+- Spring Boot 分层与接口设计
+- JPA + MySQL 数据持久化
+- JWT 登录鉴权与角色权限控制
+- Vue 3 后台系统页面开发
+- 前后端联调与完整业务流程实现
+
+如果聊天室项目更偏向实时通信、并发与消息链路训练，那么 WorkManagement 更偏向真实业务系统的建模、权限、流程与工程化落地。
