@@ -1,0 +1,59 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: workmanagement-db
+    restart: unless-stopped
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD} || exit 1",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    environment:
+      MYSQL_DATABASE: WorkManagement
+      MYSQL_USER: app
+      MYSQL_PASSWORD: app_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  backend:
+    image: ghcr.io/jade1114/workmanagement-backend:latest
+    container_name: workmanagement-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:mysql://db:3306/WorkManagement?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      DB_USERNAME: app
+      DB_PASSWORD: app_pass
+      WECHAT_APPID: ${WECHAT_APPID:-}
+      WECHAT_SECRET: ${WECHAT_SECRET:-}
+    expose:
+      - "8080"
+
+  frontend:
+    image: ghcr.io/jade1114/workmanagement-frontend:latest
+    container_name: workmanagement-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  db_data:
