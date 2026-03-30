@@ -3,10 +3,10 @@ server:
 
 spring:
   datasource:
-    username: remoteUser
+    username: root
     password: 20041114Liuyu!
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://8.137.146.104:3306/WorkManagement?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    url: ${DB_URL:jdbc:mysql://localhost:3306/WorkManagement?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
 
   jpa:
     properties:
@@ -20,5 +20,5 @@ logging:
     org.hibernate.SQL: debug
 
 wechat:
-  appid: "wx22ed958743ce58f4" # 填写你的小程序 appid
-  secret: "3fb4f16a52b37dd09c3c93813a37125c" # 填写你的小程序 secret
+  appid: ${WECHAT_APPID:}
+  secret: ${WECHAT_SECRET:}
