@@ -7,6 +7,7 @@ import org.example.backend.dto.SubmissionCreateRequest;
 import org.example.backend.dto.SubmissionGradeRequest;
 import org.example.backend.service.SubmissionService;
 import org.example.backend.util.JwtUtil;
+import org.example.backend.util.TokenResolver;
 import org.example.backend.vo.TeacherSubmissionItemResponse;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,14 +23,18 @@ public class SubmissionController {
     @Resource
     private JwtUtil jwtUtil;
 
+    @Resource
+    private TokenResolver resolver;
+
     // 学生提交作业
     @PostMapping("/submit")
     public ApiResponse<?> submit(HttpServletRequest request,
                 @RequestBody SubmissionCreateRequest req) {
-        if (!"student".equals(jwtUtil.getRole(request))) {
+        String token = resolver.resolveToken(request);
+        if (!"student".equals(jwtUtil.getRole(token))) {
             throw new RuntimeException("权限不足");
         }
-        Long studentId = jwtUtil.getUserId(request);
+        Long studentId = jwtUtil.getUserId(token);
         return ApiResponse.success(submissionService.submit(studentId, req));
     }
 
@@ -37,10 +42,11 @@ public class SubmissionController {
     @GetMapping("/my")
     public ApiResponse<?> mySubmission(HttpServletRequest request,
                 @RequestParam Long assignmentId) {
-        if (!"student".equals(jwtUtil.getRole(request))) {
+        String token = resolver.resolveToken(request);
+        if (!"student".equals(jwtUtil.getRole(token))) {
             throw new RuntimeException("权限不足");
         }
-        Long studentId = jwtUtil.getUserId(request);
+        Long studentId = jwtUtil.getUserId(token);
         return ApiResponse.success(submissionService.getSubmissionByStudent(studentId, assignmentId));
     }
 
@@ -48,21 +54,23 @@ public class SubmissionController {
     @GetMapping("/list")
     public ApiResponse<?> listByAssignment(HttpServletRequest request,
                 @RequestParam Long assignmentId) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
         if ("admin".equals(role)) {
             return ApiResponse.success(submissionService.listByAssignment(assignmentId));
         }
-        Long teacherId = jwtUtil.getUserId(request);
+        Long teacherId = jwtUtil.getUserId(token);
         return ApiResponse.success(submissionService.listByAssignment(assignmentId, teacherId));
     }
 
     // 老师查看所有提交列表
     @GetMapping("/all")
     public ApiResponse<?> listAll(HttpServletRequest request) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
@@ -70,7 +78,7 @@ public class SubmissionController {
         if ("admin".equals(role)) {
             list = submissionService.listAllSubmissionsForTeacher();
         } else {
-            Long teacherId = jwtUtil.getUserId(request);
+            Long teacherId = jwtUtil.getUserId(token);
             list = submissionService.listAllSubmissionsForTeacher(teacherId);
         }
         return ApiResponse.success(list);
@@ -79,10 +87,11 @@ public class SubmissionController {
     // 学生查看自己所有课程的提交记录
     @GetMapping("/my/list")
     public ApiResponse<?> listByStudent(HttpServletRequest request) {
-        if (!"student".equals(jwtUtil.getRole(request))) {
+        String token = resolver.resolveToken(request);
+        if (!"student".equals(jwtUtil.getRole(token))) {
             throw new RuntimeException("权限不足");
         }
-        Long studentId = jwtUtil.getUserId(request);
+        Long studentId = jwtUtil.getUserId(token);
         return ApiResponse.success(submissionService.listByStudent(studentId));
     }
 
@@ -90,14 +99,15 @@ public class SubmissionController {
     @PostMapping("/grade")
     public ApiResponse<?> grade(HttpServletRequest request,
                 @RequestBody SubmissionGradeRequest req) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
         if ("admin".equals(role)) {
             submissionService.grade(req);
         } else {
-            Long teacherId = jwtUtil.getUserId(request);
+            Long teacherId = jwtUtil.getUserId(token);
             submissionService.grade(req, teacherId);
         }
         return ApiResponse.success("批改成功");

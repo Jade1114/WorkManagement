@@ -10,6 +10,7 @@ import org.example.backend.repository.UserRepository;
 import org.example.backend.service.AssignmentService;
 import org.example.backend.service.SubmissionService;
 import org.example.backend.util.JwtUtil;
+import org.example.backend.util.TokenResolver;
 import org.example.backend.vo.DataScreenResponse;
 import org.example.backend.vo.RecentAssignmentResponse;
 import org.example.backend.vo.RecentSubmissionResponse;
@@ -49,10 +50,14 @@ public class TeacherStatsController {
     @Resource
     private SubmissionService submissionService;
 
+    @Resource
+    private TokenResolver resolver;
+
     // 获取老师管理界面的所有统计数据
     @GetMapping("/stats")
     public ApiResponse<TeacherStatsResponse> stats(HttpServletRequest request) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
@@ -73,7 +78,8 @@ public class TeacherStatsController {
     // 最近发布的作业（按创建时间倒序取前2条）
     @GetMapping("/recent/assignments")
     public ApiResponse<?> recentAssignments(HttpServletRequest request) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
@@ -84,7 +90,8 @@ public class TeacherStatsController {
     // 最近的提交（按提交时间倒序取前2条）
     @GetMapping("/recent/submissions")
     public ApiResponse<?> recentSubmissions(HttpServletRequest request) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
@@ -94,7 +101,8 @@ public class TeacherStatsController {
 
     @GetMapping("/topSubmitters")
     public ApiResponse<List<TopSubmitterResponse>> topSubmitters(HttpServletRequest request) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
@@ -105,7 +113,8 @@ public class TeacherStatsController {
     // 数据大屏数据
     @GetMapping("/dataScreen")
     public ApiResponse<DataScreenResponse> dataScreen(HttpServletRequest request) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }

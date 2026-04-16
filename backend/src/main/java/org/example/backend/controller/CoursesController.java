@@ -7,6 +7,7 @@ import org.example.backend.dto.CreateCoursesRequest;
 import org.example.backend.dto.UpdateCoursesRequest;
 import org.example.backend.service.CoursesService;
 import org.example.backend.util.JwtUtil;
+import org.example.backend.util.TokenResolver;
 import org.example.backend.vo.CourseWithCountResponse;
 import org.example.backend.vo.CoursesResponse;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +23,15 @@ public class CoursesController {
     @Resource
     private JwtUtil jwtUtil;
 
+    @Resource
+    private TokenResolver resolver;
+
     // 教师创建课程
     @PostMapping("/create")
     public ApiResponse<CoursesResponse> create(HttpServletRequest request,
                                                @RequestBody CreateCoursesRequest dto) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
@@ -42,7 +47,8 @@ public class CoursesController {
     // 教师查看学科及其作业数量
     @GetMapping("/withCount")
     public ApiResponse<List<CourseWithCountResponse>> getWithCount(HttpServletRequest request) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
@@ -53,7 +59,8 @@ public class CoursesController {
     @PutMapping("/update")
     public ApiResponse<CoursesResponse> update(HttpServletRequest request,
                                                @RequestBody UpdateCoursesRequest dto) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
@@ -63,7 +70,8 @@ public class CoursesController {
     // 软删除课程
     @DeleteMapping("/delete/{id}")
     public ApiResponse<String> delete(HttpServletRequest request, @PathVariable Long id) {
-        String role = jwtUtil.getRole(request);
+        String token = resolver.resolveToken(request);
+        String role = jwtUtil.getRole(token);
         if (!"teacher".equals(role) && !"admin".equals(role)) {
             throw new RuntimeException("权限不足");
         }
