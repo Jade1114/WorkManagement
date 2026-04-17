@@ -23,3 +23,6 @@ spring:
             - Path=/user/**
           filters:
             - StripPrefix=1
+  config:
+    import:
+      - optional:nacos:jwt-config.yaml?group=DEFAULT_GROUP

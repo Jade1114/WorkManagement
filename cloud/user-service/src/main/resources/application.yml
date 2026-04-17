@@ -16,4 +16,4 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   config:
     import:
-      - optional:nacos:user-service.yaml?group=DEFAULT_GROUP
+      - optional:nacos:jwt-config.yaml?group=DEFAULT_GROUP
