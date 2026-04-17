@@ -8,10 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 // Keep the skeleton bootable before a real MySQL instance and JPA model are wired in.
 @EnableFeignClients
-@SpringBootApplication(exclude = {
-        DataSourceAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class
-})
+@SpringBootApplication
 public class EducationServiceApplication {
 
     public static void main(String[] args) {
