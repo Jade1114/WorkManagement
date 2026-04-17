@@ -6,6 +6,10 @@ import org.example.workmanagement.cloud.user.entity.User;
 
 @Mapper
 public interface UserMapper {
-    @Select("select * from user where id = #{id}")
+
+    @Select("select id, username, password, role, active from user where id = #{id}")
     User selectById(Long id);
+
+    @Select("select id, username, password, role, active from user where username = #{username}")
+    User selectByUsername(String username);
 }

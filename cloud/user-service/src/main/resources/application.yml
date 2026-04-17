@@ -14,7 +14,6 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:change_me}
     driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: none
-    open-in-view: false
+  config:
+    import:
+      - optional:nacos:user-service.yaml?group=DEFAULT_GROUP

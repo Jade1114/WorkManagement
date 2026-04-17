@@ -10,7 +10,16 @@ spring:
         server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
         enabled: ${NACOS_DISCOVERY_ENABLED:true}
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
+      routes:
+        - id: education-service-route
+          uri: lb://education-service
+          predicates:
+            - Path=/education/**
+          filters:
+            - StripPrefix=1
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
