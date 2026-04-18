@@ -1,5 +1,6 @@
 package org.example.workmanagement.cloud.user.controller;
 
+import org.example.workmanagement.cloud.user.common.ApiResponse;
 import org.example.workmanagement.cloud.user.dto.LoginRequest;
 import org.example.workmanagement.cloud.user.service.AuthService;
 import org.example.workmanagement.cloud.user.vo.LoginResponse;
@@ -21,7 +22,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
-        return authService.login(request.getUsername(), request.getPassword());
+    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ApiResponse.success(authService.login(request.getUsername(), request.getPassword()));
     }
 }

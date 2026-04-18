@@ -2,6 +2,7 @@ package org.example.workmanagement.cloud.user.controller;
 
 import java.util.Map;
 
+import org.example.workmanagement.cloud.user.common.ApiResponse;
 import org.example.workmanagement.cloud.user.config.JwtProperties;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,13 +19,13 @@ public class InternalConfigController {
     }
 
     @GetMapping("/jwt")
-    public Map<String, Object> jwtConfig() {
+    public ApiResponse<Map<String, Object>> jwtConfig() {
         String secret = jwtProperties.getSecret();
         Long expireMs = jwtProperties.getExpireMs();
-        return Map.of(
+        return ApiResponse.success(Map.of(
                 "secretLoaded", secret != null && !secret.isBlank(),
                 "secretLength", secret == null ? 0 : secret.length(),
                 "expireMs", expireMs
-        );
+        ));
     }
 }

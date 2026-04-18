@@ -1,5 +1,6 @@
 package org.example.workmanagement.cloud.education.controller;
 
+import org.example.workmanagement.cloud.education.common.ApiResponse;
 import org.example.workmanagement.cloud.education.dto.AssignmentCreateRequest;
 import org.example.workmanagement.cloud.education.service.AssignmentCommandService;
 import org.example.workmanagement.cloud.education.vo.AssignmentResponse;
@@ -22,10 +23,10 @@ public class AssignmentCommandController {
     }
 
     @PostMapping("/create")
-    public AssignmentResponse createAssignment(
+    public ApiResponse<AssignmentResponse> createAssignment(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole,
             @Valid @RequestBody AssignmentCreateRequest request) {
-        return assignmentCommandService.createAssignment(userId, userRole, request);
+        return ApiResponse.success(assignmentCommandService.createAssignment(userId, userRole, request));
     }
 }
