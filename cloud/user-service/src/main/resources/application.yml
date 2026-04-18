@@ -9,11 +9,7 @@ spring:
       discovery:
         server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
         enabled: ${NACOS_DISCOVERY_ENABLED:true}
-  datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/work_management?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:change_me}
-    driver-class-name: com.mysql.cj.jdbc.Driver
   config:
     import:
       - optional:nacos:jwt-config.yaml?group=DEFAULT_GROUP
+      - optional:nacos:db-config.yaml?group=DEFAULT_GROUP
