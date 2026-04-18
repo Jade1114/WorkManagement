@@ -9,9 +9,6 @@ import lombok.Data;
 @Data
 public class AssignmentCreateRequest {
     @NotNull
-    private Long publisherId;
-
-    @NotNull
     private Long courseId;
 
     @NotBlank

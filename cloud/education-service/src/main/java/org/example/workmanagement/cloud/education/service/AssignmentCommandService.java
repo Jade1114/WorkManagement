@@ -26,9 +26,12 @@ public class AssignmentCommandService {
         this.remoteUserCheckService = remoteUserCheckService;
     }
 
-    public AssignmentResponse createAssignment(AssignmentCreateRequest request) {
-        if (request.getPublisherId() == null) {
-            throw new RuntimeException("publisherId 不能为空");
+    public AssignmentResponse createAssignment(Long userId, String userRole, AssignmentCreateRequest request) {
+        if (userId == null) {
+            throw new RuntimeException("当前用户不存在");
+        }
+        if (userRole == null || userRole.isBlank()) {
+            throw new RuntimeException("当前用户角色缺失");
         }
         if (request.getCourseId() == null) {
             throw new RuntimeException("courseId 不能为空");
@@ -39,13 +42,16 @@ public class AssignmentCommandService {
         if (request.getDeadline() == null) {
             throw new RuntimeException("deadline 不能为空");
         }
+        if (!"teacher".equals(userRole) && !"admin".equals(userRole)) {
+            throw new RuntimeException("当前用户无权限发布作业");
+        }
 
         Course course = courseMapper.selectAvailableById(request.getCourseId());
         if (course == null) {
             throw new RuntimeException("课程不存在");
         }
 
-        UserCheckResult userCheckResult = remoteUserCheckService.checkPublisher(request.getPublisherId());
+        UserCheckResult userCheckResult = remoteUserCheckService.checkPublisher(userId);
         if (!Boolean.TRUE.equals(userCheckResult.exists())) {
             throw new RuntimeException("发布人不存在");
         }
@@ -58,7 +64,7 @@ public class AssignmentCommandService {
 
         Assignment assignment = new Assignment();
         assignment.setCourseId(request.getCourseId());
-        assignment.setTeacherId(request.getPublisherId());
+        assignment.setTeacherId(userId);
         assignment.setTitle(request.getTitle());
         assignment.setContent(request.getContent());
         assignment.setDeadline(request.getDeadline());

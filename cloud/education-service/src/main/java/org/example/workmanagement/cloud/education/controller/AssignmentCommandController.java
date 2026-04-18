@@ -5,6 +5,7 @@ import org.example.workmanagement.cloud.education.service.AssignmentCommandServi
 import org.example.workmanagement.cloud.education.vo.AssignmentResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +22,10 @@ public class AssignmentCommandController {
     }
 
     @PostMapping("/create")
-    public AssignmentResponse createAssignment(@Valid @RequestBody AssignmentCreateRequest request) {
-        return assignmentCommandService.createAssignment(request);
+    public AssignmentResponse createAssignment(
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader("X-User-Role") String userRole,
+            @Valid @RequestBody AssignmentCreateRequest request) {
+        return assignmentCommandService.createAssignment(userId, userRole, request);
     }
 }
