@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.example.workmanagement.cloud.education.entity.Submission;
 
 @Mapper
@@ -29,10 +30,25 @@ public interface SubmissionMapper {
             """)
     List<Submission> selectByAssignmentIdOrderBySubmitTimeDesc(Long assignmentId);
 
+    @Select("""
+            select id, assignment_id, student_id, content, score, comment, graded, submit_time
+            from submission
+            where id = #{id}
+            limit 1
+            """)
+    Submission selectById(Long id);
+
     @Insert("""
             insert into submission (assignment_id, student_id, content, score, comment, graded, submit_time)
             values (#{assignmentId}, #{studentId}, #{content}, #{score}, #{comment}, #{graded}, #{submitTime})
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Submission submission);
+
+    @Update("""
+            update submission
+            set score = #{score}, comment = #{comment}, graded = #{graded}
+            where id = #{id}
+            """)
+    int updateGrade(Submission submission);
 }

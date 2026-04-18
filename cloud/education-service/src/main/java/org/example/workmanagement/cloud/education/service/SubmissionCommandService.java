@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.example.workmanagement.cloud.education.common.BusinessException;
 import org.example.workmanagement.cloud.education.dto.SubmissionCreateRequest;
+import org.example.workmanagement.cloud.education.dto.SubmissionGradeRequest;
 import org.example.workmanagement.cloud.education.dto.UserCheckResult;
 import org.example.workmanagement.cloud.education.entity.Assignment;
 import org.example.workmanagement.cloud.education.entity.Submission;
@@ -96,5 +97,49 @@ public class SubmissionCommandService {
                 submission.getScore(),
                 submission.getComment(),
                 submission.getGraded());
+    }
+
+    public void gradeSubmission(Long userId, String userRole, SubmissionGradeRequest request) {
+        log.info("grade submission start: userId={}, role={}, submissionId={}", userId, userRole, request.submissionId());
+
+        if (userId == null) {
+            log.warn("grade submission failed: reason=current user missing");
+            throw new BusinessException("当前用户不存在");
+        }
+        if (userRole == null || userRole.isBlank()) {
+            log.warn("grade submission failed: userId={}, reason=role missing", userId);
+            throw new BusinessException("当前用户角色缺失");
+        }
+        if (!"admin".equals(userRole) && !"teacher".equals(userRole)) {
+            log.warn("grade submission failed: userId={}, role={}, reason=role not allowed", userId, userRole);
+            throw new BusinessException("当前用户无权限批改作业");
+        }
+
+        Submission submission = submissionMapper.selectById(request.submissionId());
+        if (submission == null) {
+            log.warn("grade submission failed: userId={}, submissionId={}, reason=submission not found",
+                    userId, request.submissionId());
+            throw new BusinessException("提交记录不存在");
+        }
+
+        Assignment assignment = assignmentMapper.selectById(submission.getAssignmentId());
+        if (assignment == null) {
+            log.warn("grade submission failed: userId={}, submissionId={}, reason=assignment not found",
+                    userId, request.submissionId());
+            throw new BusinessException("作业不存在");
+        }
+        if ("teacher".equals(userRole) && !userId.equals(assignment.getTeacherId())) {
+            log.warn("grade submission failed: userId={}, submissionId={}, reason=teacher not owner",
+                    userId, request.submissionId());
+            throw new BusinessException("当前用户无权限批改该作业");
+        }
+
+        submission.setScore(request.score());
+        submission.setComment(request.comment());
+        submission.setGraded(true);
+        submissionMapper.updateGrade(submission);
+
+        log.info("grade submission success: userId={}, role={}, submissionId={}, score={}",
+                userId, userRole, submission.getId(), submission.getScore());
     }
 }
