@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.example.workmanagement.cloud.gateway.common.ApiResponse;
 import org.example.workmanagement.cloud.gateway.util.JwtUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -25,6 +27,8 @@ import reactor.core.publisher.Mono;
 @Component
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthGlobalFilter.class);
+
     private static final List<String> WHITELIST = List.of(
             "/user/auth/login",
             "/user/internal/config"
@@ -40,12 +44,19 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
-        if (isWhitelisted(path) || !path.startsWith("/education/")) {
+        if (isWhitelisted(path)) {
+            log.info("gateway auth bypassed: path={}", path);
             return chain.filter(exchange);
         }
 
+        if (!path.startsWith("/education/")) {
+            return chain.filter(exchange);
+        }
+
+        log.info("gateway auth required: path={}", path);
         String authorization = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authorization == null || !authorization.startsWith("Bearer ")) {
+            log.warn("gateway auth failed: reason=missing bearer token, path={}", path);
             return writeUnauthorized(exchange, "未登录或 token 格式错误");
         }
 
@@ -55,6 +66,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             Long userId = jwtUtils.getUserId(jwt);
             String role = jwtUtils.getRole(jwt);
 
+            log.info("gateway auth success: userId={}, role={}, path={}", userId, role, path);
             ServerHttpRequest mutatedRequest = exchange.getRequest()
                     .mutate()
                     .header("X-User-Id", String.valueOf(userId))
@@ -63,6 +75,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
             return chain.filter(exchange.mutate().request(mutatedRequest).build());
         } catch (Exception e) {
+            log.warn("gateway auth failed: reason=invalid token, path={}", path);
             return writeUnauthorized(exchange, "未登录或 token 无效");
         }
     }
