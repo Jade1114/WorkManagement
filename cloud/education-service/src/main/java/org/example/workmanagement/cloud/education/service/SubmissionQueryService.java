@@ -6,6 +6,7 @@ import org.example.workmanagement.cloud.education.common.BusinessException;
 import org.example.workmanagement.cloud.education.entity.Assignment;
 import org.example.workmanagement.cloud.education.mapper.AssignmentMapper;
 import org.example.workmanagement.cloud.education.mapper.SubmissionMapper;
+import org.example.workmanagement.cloud.education.vo.StudentSubmissionItemResponse;
 import org.example.workmanagement.cloud.education.vo.SubmissionListItemResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +71,37 @@ public class SubmissionQueryService {
 
         log.info("list submissions success: userId={}, role={}, assignmentId={}, count={}",
                 userId, userRole, assignmentId, result.size());
+        return result;
+    }
+
+    public List<StudentSubmissionItemResponse> listMySubmissions(Long userId, String userRole) {
+        log.info("list my submissions start: userId={}, role={}", userId, userRole);
+
+        if (userId == null) {
+            log.warn("list my submissions failed: reason=current user missing");
+            throw new BusinessException("当前用户不存在");
+        }
+        if (userRole == null || userRole.isBlank()) {
+            log.warn("list my submissions failed: userId={}, reason=role missing", userId);
+            throw new BusinessException("当前用户角色缺失");
+        }
+        if (!"student".equals(userRole)) {
+            log.warn("list my submissions failed: userId={}, role={}, reason=role not allowed", userId, userRole);
+            throw new BusinessException("当前用户无权限查看自己的提交列表");
+        }
+
+        List<StudentSubmissionItemResponse> result = submissionMapper.selectByStudentIdOrderBySubmitTimeDesc(userId).stream()
+                .map(submission -> new StudentSubmissionItemResponse(
+                        submission.getId(),
+                        submission.getAssignmentId(),
+                        submission.getContent(),
+                        submission.getScore(),
+                        submission.getComment(),
+                        submission.getGraded(),
+                        submission.getSubmitTime()))
+                .toList();
+
+        log.info("list my submissions success: userId={}, count={}", userId, result.size());
         return result;
     }
 }

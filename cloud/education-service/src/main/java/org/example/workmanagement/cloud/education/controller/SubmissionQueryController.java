@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.example.workmanagement.cloud.education.common.ApiResponse;
 import org.example.workmanagement.cloud.education.service.SubmissionQueryService;
+import org.example.workmanagement.cloud.education.vo.StudentSubmissionItemResponse;
 import org.example.workmanagement.cloud.education.vo.SubmissionListItemResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -27,5 +28,12 @@ public class SubmissionQueryController {
             @RequestHeader("X-User-Role") String userRole,
             @RequestParam Long assignmentId) {
         return ApiResponse.success(submissionQueryService.listByAssignment(userId, userRole, assignmentId));
+    }
+
+    @GetMapping("/my")
+    public ApiResponse<List<StudentSubmissionItemResponse>> listMySubmissions(
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader("X-User-Role") String userRole) {
+        return ApiResponse.success(submissionQueryService.listMySubmissions(userId, userRole));
     }
 }

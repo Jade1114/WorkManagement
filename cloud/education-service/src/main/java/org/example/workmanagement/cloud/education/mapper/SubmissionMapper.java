@@ -38,6 +38,14 @@ public interface SubmissionMapper {
             """)
     Submission selectById(Long id);
 
+    @Select("""
+            select id, assignment_id, student_id, content, score, comment, graded, submit_time
+            from submission
+            where student_id = #{studentId}
+            order by submit_time desc, id desc
+            """)
+    List<Submission> selectByStudentIdOrderBySubmitTimeDesc(Long studentId);
+
     @Insert("""
             insert into submission (assignment_id, student_id, content, score, comment, graded, submit_time)
             values (#{assignmentId}, #{studentId}, #{content}, #{score}, #{comment}, #{graded}, #{submitTime})
