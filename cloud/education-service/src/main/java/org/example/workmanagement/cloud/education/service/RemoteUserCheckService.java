@@ -16,4 +16,8 @@ public class RemoteUserCheckService {
     public UserCheckResult checkPublisher(Long publisherId) {
         return userServiceClient.checkPublisher(publisherId);
     }
+
+    public UserCheckResult checkUser(Long userId) {
+        return userServiceClient.checkPublisher(userId);
+    }
 }

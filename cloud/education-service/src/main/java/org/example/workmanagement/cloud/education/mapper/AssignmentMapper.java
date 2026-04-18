@@ -32,4 +32,12 @@ public interface AssignmentMapper {
             order by created_at desc
             """)
     List<Assignment> selectByTeacherIdOrderByCreatedAtDesc(Long teacherId);
+
+    @Select("""
+            select id, course_id, teacher_id, title, content, deadline, created_at
+            from assignment
+            where id = #{id}
+            limit 1
+            """)
+    Assignment selectById(Long id);
 }
