@@ -1,7 +1,10 @@
 package org.example.workmanagement.cloud.user.controller;
 
+import java.util.List;
+
 import org.example.workmanagement.cloud.user.service.InternalUserQueryService;
 import org.example.workmanagement.cloud.user.vo.UserCheckResponse;
+import org.example.workmanagement.cloud.user.vo.UserSummaryResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,7 +21,17 @@ public class InternalUserController {
     }
 
     @GetMapping("/check")
-    public UserCheckResponse checkPublisher(@RequestParam Long publisherId) {
+    public UserCheckResponse checkPublisher(@RequestParam("publisherId") Long publisherId) {
         return internalUserQueryService.checkPublisher(publisherId);
+    }
+
+    @GetMapping("/summaries")
+    public List<UserSummaryResponse> listSummaries(@RequestParam("ids") List<Long> ids) {
+        return internalUserQueryService.listSummaries(ids);
+    }
+
+    @GetMapping("/count")
+    public Long countByRole(@RequestParam("role") String role) {
+        return internalUserQueryService.countByRole(role);
     }
 }

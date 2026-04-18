@@ -31,7 +31,18 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     private static final List<String> WHITELIST = List.of(
             "/user/auth/login",
-            "/user/internal/config"
+            "/user/auth/register",
+            "/user/auth/weapp",
+            "/user/internal/config",
+            "/api/auth/login",
+            "/api/auth/register",
+            "/api/auth/weapp"
+    );
+
+    private static final List<String> AUTH_PREFIXES = List.of(
+            "/education/",
+            "/user/",
+            "/api/"
     );
 
     private final JwtUtils jwtUtils;
@@ -49,7 +60,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        if (!path.startsWith("/education/")) {
+        if (!requiresAuth(path)) {
             return chain.filter(exchange);
         }
 
@@ -82,6 +93,10 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     private boolean isWhitelisted(String path) {
         return WHITELIST.stream().anyMatch(path::startsWith);
+    }
+
+    private boolean requiresAuth(String path) {
+        return AUTH_PREFIXES.stream().anyMatch(path::startsWith);
     }
 
     private Mono<Void> writeUnauthorized(ServerWebExchange exchange, String message) {

@@ -24,6 +24,32 @@ public class AuthService {
         this.jwtTokenService = jwtTokenService;
     }
 
+    public void register(String username, String password) {
+        log.info("register start: username={}", username);
+
+        if (username == null || username.isBlank()) {
+            log.warn("register failed: reason=username blank");
+            throw new BusinessException("用户名不能为空");
+        }
+        if (password == null || password.isBlank()) {
+            log.warn("register failed: username={}, reason=password blank", username);
+            throw new BusinessException("密码不能为空");
+        }
+        if (userMapper.countByUsername(username) > 0) {
+            log.warn("register failed: username={}, reason=username exists", username);
+            throw new BusinessException("用户名已存在");
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(encoder.encode(password));
+        user.setRole("student");
+        user.setActive(true);
+        userMapper.insert(user);
+
+        log.info("register success: userId={}, username={}", user.getId(), user.getUsername());
+    }
+
     public LoginResponse login(String username, String password) {
         log.info("login start: username={}", username);
 

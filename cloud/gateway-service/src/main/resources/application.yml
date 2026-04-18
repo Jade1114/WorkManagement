@@ -11,6 +11,18 @@ spring:
         enabled: ${NACOS_DISCOVERY_ENABLED:true}
     gateway:
       routes:
+        - id: api-user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/api/auth/**,/api/users/**
+          filters:
+            - StripPrefix=1
+        - id: api-education-service-route
+          uri: lb://education-service
+          predicates:
+            - Path=/api/assignments/**,/api/submissions/**,/api/courses/**,/api/teacher/**
+          filters:
+            - StripPrefix=1
         - id: education-service-route
           uri: lb://education-service
           predicates:
