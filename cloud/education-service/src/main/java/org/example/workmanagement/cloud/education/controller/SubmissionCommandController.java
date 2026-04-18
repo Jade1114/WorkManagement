@@ -31,6 +31,14 @@ public class SubmissionCommandController {
         return ApiResponse.success(submissionCommandService.submitAssignment(userId, userRole, request));
     }
 
+    @PostMapping("/submit")
+    public ApiResponse<SubmissionResponse> submitAssignmentLegacy(
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestHeader("X-User-Role") String userRole,
+            @Valid @RequestBody SubmissionCreateRequest request) {
+        return ApiResponse.success(submissionCommandService.submitAssignment(userId, userRole, request));
+    }
+
     @PostMapping("/grade")
     public ApiResponse<Void> gradeSubmission(
             @RequestHeader("X-User-Id") Long userId,
