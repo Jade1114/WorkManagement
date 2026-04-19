@@ -9,6 +9,8 @@ import org.example.workmanagement.cloud.user.service.UserManagementService;
 import org.example.workmanagement.cloud.user.vo.AdminUserResponse;
 import org.example.workmanagement.cloud.user.vo.UserResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -32,33 +34,34 @@ public class UserController {
         return ApiResponse.success(userManagementService.getCurrentUser(userId));
     }
 
-    @PutMapping("/changePassword")
+    @PutMapping("/me/password")
     public ApiResponse<String> changePassword(
             @RequestHeader("X-User-Id") Long userId,
             @Valid @RequestBody ChangePasswordRequest request) {
         return ApiResponse.success(userManagementService.changePassword(userId, request));
     }
 
-    @GetMapping("/students")
+    @GetMapping(params = "role=student")
     public ApiResponse<List<UserResponse>> students(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole) {
         return ApiResponse.success(userManagementService.listStudents(userId, userRole));
     }
 
-    @GetMapping("/admin/list")
+    @GetMapping
     public ApiResponse<List<AdminUserResponse>> adminList(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole) {
         return ApiResponse.success(userManagementService.listUsersForAdmin(userId, userRole));
     }
 
-    @PutMapping("/admin/update")
+    @PatchMapping("/{targetUserId}")
     public ApiResponse<String> adminUpdate(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole,
+            @PathVariable Long targetUserId,
             @Valid @RequestBody AdminUpdateUserRequest request) {
-        userManagementService.updateUser(userId, userRole, request);
+        userManagementService.updateUser(userId, userRole, targetUserId, request);
         return ApiResponse.success("更新成功");
     }
 }

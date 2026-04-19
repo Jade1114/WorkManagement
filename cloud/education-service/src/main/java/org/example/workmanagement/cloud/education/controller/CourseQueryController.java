@@ -21,14 +21,14 @@ public class CourseQueryController {
         this.courseQueryService = courseQueryService;
     }
 
-    @GetMapping({"", "/get"})
+    @GetMapping
     public ApiResponse<List<CourseResponse>> listCourses(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole) {
         return ApiResponse.success(courseQueryService.listCourses(userId, userRole));
     }
 
-    @GetMapping("/withCount")
+    @GetMapping(params = "includeAssignmentCount=true")
     public ApiResponse<List<CourseWithAssignmentCountResponse>> listCoursesWithAssignmentCount(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole) {

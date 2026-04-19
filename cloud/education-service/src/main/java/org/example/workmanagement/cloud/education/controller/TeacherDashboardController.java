@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/teacher")
+@RequestMapping("/teachers/me")
 public class TeacherDashboardController {
 
     private final TeacherDashboardService teacherDashboardService;
@@ -45,14 +45,14 @@ public class TeacherDashboardController {
         return ApiResponse.success(teacherDashboardService.recentSubmissions(userId, userRole));
     }
 
-    @GetMapping("/topSubmitters")
+    @GetMapping("/top-submitters")
     public ApiResponse<List<TopSubmitterResponse>> topSubmitters(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole) {
         return ApiResponse.success(teacherDashboardService.topSubmitters(userId, userRole, 3));
     }
 
-    @GetMapping("/dataScreen")
+    @GetMapping("/data-screen")
     public ApiResponse<DataScreenResponse> dataScreen(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole) {

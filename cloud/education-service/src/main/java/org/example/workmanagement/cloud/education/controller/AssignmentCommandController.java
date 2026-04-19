@@ -22,7 +22,7 @@ public class AssignmentCommandController {
         this.assignmentCommandService = assignmentCommandService;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ApiResponse<AssignmentResponse> createAssignment(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole,

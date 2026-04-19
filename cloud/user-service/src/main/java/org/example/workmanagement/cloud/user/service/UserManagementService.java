@@ -72,20 +72,20 @@ public class UserManagementService {
         return result;
     }
 
-    public void updateUser(Long currentUserId, String currentUserRole, AdminUpdateUserRequest request) {
+    public void updateUser(Long currentUserId, String currentUserRole, Long targetUserId, AdminUpdateUserRequest request) {
         log.info("admin update user start: currentUserId={}, targetUserId={}",
-                currentUserId, request.userId());
+                currentUserId, targetUserId);
         requireAdmin(currentUserId, currentUserRole, "当前用户无权限更新用户");
 
-        User user = requireUser(request.userId());
+        User user = requireUser(targetUserId);
         String role = normalizeRole(request.role());
         if (role != null && !List.of("admin", "teacher", "student").contains(role)) {
             log.warn("admin update user failed: targetUserId={}, role={}, reason=invalid role",
-                    request.userId(), role);
+                    targetUserId, role);
             throw new BusinessException("用户角色不合法");
         }
         if (role == null && request.active() == null) {
-            log.info("admin update user skipped: targetUserId={}, reason=no changed fields", request.userId());
+            log.info("admin update user skipped: targetUserId={}, reason=no changed fields", targetUserId);
             return;
         }
 

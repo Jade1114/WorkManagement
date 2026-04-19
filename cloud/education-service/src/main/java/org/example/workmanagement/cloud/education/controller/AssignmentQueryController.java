@@ -22,21 +22,14 @@ public class AssignmentQueryController {
         this.assignmentQueryService = assignmentQueryService;
     }
 
-    @GetMapping
+    @GetMapping(params = {"!courseId", "!status"})
     public ApiResponse<List<AssignmentListItemResponse>> listAssignments(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole) {
         return ApiResponse.success(assignmentQueryService.listAssignments(userId, userRole));
     }
 
-    @GetMapping("/all")
-    public ApiResponse<List<AssignmentListItemResponse>> listAllAssignments(
-            @RequestHeader("X-User-Id") Long userId,
-            @RequestHeader("X-User-Role") String userRole) {
-        return ApiResponse.success(assignmentQueryService.listAssignments(userId, userRole));
-    }
-
-    @GetMapping("/list")
+    @GetMapping(params = {"courseId", "!status"})
     public ApiResponse<List<AssignmentListItemResponse>> listAssignmentsByCourse(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole,
@@ -44,7 +37,7 @@ public class AssignmentQueryController {
         return ApiResponse.success(assignmentQueryService.listAssignmentsByCourse(userId, userRole, courseId));
     }
 
-    @GetMapping("/pending")
+    @GetMapping(params = "status=pending")
     public ApiResponse<List<PendingAssignmentItemResponse>> listPendingAssignments(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole) {

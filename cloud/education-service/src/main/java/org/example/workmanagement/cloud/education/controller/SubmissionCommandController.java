@@ -5,6 +5,8 @@ import org.example.workmanagement.cloud.education.dto.SubmissionCreateRequest;
 import org.example.workmanagement.cloud.education.dto.SubmissionGradeRequest;
 import org.example.workmanagement.cloud.education.service.SubmissionCommandService;
 import org.example.workmanagement.cloud.education.vo.SubmissionResponse;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -31,20 +33,13 @@ public class SubmissionCommandController {
         return ApiResponse.success(submissionCommandService.submitAssignment(userId, userRole, request));
     }
 
-    @PostMapping("/submit")
-    public ApiResponse<SubmissionResponse> submitAssignmentLegacy(
-            @RequestHeader("X-User-Id") Long userId,
-            @RequestHeader("X-User-Role") String userRole,
-            @Valid @RequestBody SubmissionCreateRequest request) {
-        return ApiResponse.success(submissionCommandService.submitAssignment(userId, userRole, request));
-    }
-
-    @PostMapping("/grade")
+    @PatchMapping("/{submissionId}")
     public ApiResponse<Void> gradeSubmission(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole,
+            @PathVariable Long submissionId,
             @Valid @RequestBody SubmissionGradeRequest request) {
-        submissionCommandService.gradeSubmission(userId, userRole, request);
+        submissionCommandService.gradeSubmission(userId, userRole, submissionId, request);
         return ApiResponse.success();
     }
 }

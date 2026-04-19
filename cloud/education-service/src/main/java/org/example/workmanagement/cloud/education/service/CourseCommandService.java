@@ -40,19 +40,19 @@ public class CourseCommandService {
         return new CourseResponse(course.getId(), course.getTitle());
     }
 
-    public CourseResponse updateCourse(Long userId, String userRole, CourseUpdateRequest request) {
-        log.info("update course start: userId={}, role={}, courseId={}", userId, userRole, request.id());
+    public CourseResponse updateCourse(Long userId, String userRole, Long courseId, CourseUpdateRequest request) {
+        log.info("update course start: userId={}, role={}, courseId={}", userId, userRole, courseId);
         requireTeacherOrAdmin(userId, userRole, "当前用户无权限更新课程");
 
-        Course course = courseMapper.selectAvailableById(request.id());
+        Course course = courseMapper.selectAvailableById(courseId);
         if (course == null) {
-            log.warn("update course failed: userId={}, courseId={}, reason=course not found", userId, request.id());
+            log.warn("update course failed: userId={}, courseId={}, reason=course not found", userId, courseId);
             throw new BusinessException("课程不存在");
         }
 
         String title = normalizeTitle(request.title());
         if (title == null) {
-            log.info("update course skipped: userId={}, courseId={}, reason=title blank", userId, request.id());
+            log.info("update course skipped: userId={}, courseId={}, reason=title blank", userId, courseId);
             return new CourseResponse(course.getId(), course.getTitle());
         }
         if (courseMapper.countAvailableByTitleExceptId(course.getId(), title) > 0) {

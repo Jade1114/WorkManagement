@@ -26,7 +26,7 @@ public class CourseCommandController {
         this.courseCommandService = courseCommandService;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ApiResponse<CourseResponse> createCourse(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole,
@@ -34,15 +34,16 @@ public class CourseCommandController {
         return ApiResponse.success(courseCommandService.createCourse(userId, userRole, request));
     }
 
-    @PutMapping("/update")
+    @PutMapping("/{id}")
     public ApiResponse<CourseResponse> updateCourse(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole,
+            @PathVariable Long id,
             @Valid @RequestBody CourseUpdateRequest request) {
-        return ApiResponse.success(courseCommandService.updateCourse(userId, userRole, request));
+        return ApiResponse.success(courseCommandService.updateCourse(userId, userRole, id, request));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ApiResponse<String> deleteCourse(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole,

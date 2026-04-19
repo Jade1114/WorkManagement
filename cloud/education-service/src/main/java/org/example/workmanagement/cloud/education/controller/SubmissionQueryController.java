@@ -24,16 +24,8 @@ public class SubmissionQueryController {
         this.submissionQueryService = submissionQueryService;
     }
 
-    @GetMapping
+    @GetMapping(params = "assignmentId")
     public ApiResponse<List<SubmissionListItemResponse>> listByAssignment(
-            @RequestHeader("X-User-Id") Long userId,
-            @RequestHeader("X-User-Role") String userRole,
-            @RequestParam Long assignmentId) {
-        return ApiResponse.success(submissionQueryService.listByAssignment(userId, userRole, assignmentId));
-    }
-
-    @GetMapping("/list")
-    public ApiResponse<List<SubmissionListItemResponse>> listByAssignmentLegacy(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole,
             @RequestParam Long assignmentId) {
@@ -47,22 +39,7 @@ public class SubmissionQueryController {
         return ApiResponse.success(submissionQueryService.listMySubmissions(userId, userRole));
     }
 
-    @GetMapping("/my/list")
-    public ApiResponse<List<StudentSubmissionItemResponse>> listMySubmissionHistory(
-            @RequestHeader("X-User-Id") Long userId,
-            @RequestHeader("X-User-Role") String userRole) {
-        return ApiResponse.success(submissionQueryService.listMySubmissions(userId, userRole));
-    }
-
     @GetMapping(value = "/my", params = "assignmentId")
-    public ApiResponse<SubmissionResponse> getMySubmissionLegacy(
-            @RequestHeader("X-User-Id") Long userId,
-            @RequestHeader("X-User-Role") String userRole,
-            @RequestParam Long assignmentId) {
-        return ApiResponse.success(submissionQueryService.getMySubmission(userId, userRole, assignmentId));
-    }
-
-    @GetMapping("/my/detail")
     public ApiResponse<SubmissionResponse> getMySubmission(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole,
@@ -70,7 +47,7 @@ public class SubmissionQueryController {
         return ApiResponse.success(submissionQueryService.getMySubmission(userId, userRole, assignmentId));
     }
 
-    @GetMapping("/all")
+    @GetMapping(params = "!assignmentId")
     public ApiResponse<List<TeacherSubmissionItemResponse>> listAllSubmissions(
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String userRole) {

@@ -99,8 +99,8 @@ public class SubmissionCommandService {
                 submission.getGraded());
     }
 
-    public void gradeSubmission(Long userId, String userRole, SubmissionGradeRequest request) {
-        log.info("grade submission start: userId={}, role={}, submissionId={}", userId, userRole, request.submissionId());
+    public void gradeSubmission(Long userId, String userRole, Long submissionId, SubmissionGradeRequest request) {
+        log.info("grade submission start: userId={}, role={}, submissionId={}", userId, userRole, submissionId);
 
         if (userId == null) {
             log.warn("grade submission failed: reason=current user missing");
@@ -115,22 +115,22 @@ public class SubmissionCommandService {
             throw new BusinessException("当前用户无权限批改作业");
         }
 
-        Submission submission = submissionMapper.selectById(request.submissionId());
+        Submission submission = submissionMapper.selectById(submissionId);
         if (submission == null) {
             log.warn("grade submission failed: userId={}, submissionId={}, reason=submission not found",
-                    userId, request.submissionId());
+                    userId, submissionId);
             throw new BusinessException("提交记录不存在");
         }
 
         Assignment assignment = assignmentMapper.selectById(submission.getAssignmentId());
         if (assignment == null) {
             log.warn("grade submission failed: userId={}, submissionId={}, reason=assignment not found",
-                    userId, request.submissionId());
+                    userId, submissionId);
             throw new BusinessException("作业不存在");
         }
         if ("teacher".equals(userRole) && !userId.equals(assignment.getTeacherId())) {
             log.warn("grade submission failed: userId={}, submissionId={}, reason=teacher not owner",
-                    userId, request.submissionId());
+                    userId, submissionId);
             throw new BusinessException("当前用户无权限批改该作业");
         }
 

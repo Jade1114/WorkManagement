@@ -1,10 +1,9 @@
 package org.example.workmanagement.cloud.education.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public record CourseUpdateRequest(
-        @NotNull(message = "课程ID不能为空")
-        Long id,
+        @NotBlank(message = "课程标题不能为空")
         String title
 ) {
 }
