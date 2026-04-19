@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useThemeStore = defineStore('theme', {
   state: () => ({
-    mode: 'auto' // 'light' | 'dark' | 'auto'
+    mode: 'dark' // 'light' | 'dark' | 'auto'
   }),
   actions: {
     setMode(mode) {

@@ -1,10 +1,13 @@
 <template>
   <div class="page">
-    <section class="card header-card">
-      <div>
-        <h2>老师主页</h2>
-      </div>
-    </section>
+    <PageHeader
+      eyebrow="Teaching Desk"
+      title="老师主页"
+      description="今天先把反馈闭环，再安排新的学习任务。"
+      variant="dashboard"
+      metric-label="待评分"
+      :metric-value="stats[0]?.value ?? 0"
+    />
 
     <section class="stats">
       <div
@@ -25,6 +28,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import http from '@/net/index.js'
+import PageHeader from '@/components/PageHeader.vue'
 
 const router = useRouter()
 
@@ -65,13 +69,6 @@ onMounted(() => {
   gap: var(--spacing-xl);
 }
 
-.header-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-l);
-}
-
 .muted {
   color: var(--color-text-tertiary);
   margin: 4px 0 0;
@@ -84,8 +81,12 @@ onMounted(() => {
 }
 
 .stat {
+  min-height: 132px;
   padding: var(--spacing-m);
   cursor: pointer;
+  background:
+    linear-gradient(135deg, rgba(19, 168, 127, 0.11), transparent 56%),
+    var(--color-bg-glass);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 

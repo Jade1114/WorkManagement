@@ -1,8 +1,10 @@
 <template>
   <el-input
     v-bind="$attrs"
+    class="search-input"
     :model-value="modelValue"
     :placeholder="placeholder"
+    size="large"
     clearable
     @update:model-value="updateValue"
   >
@@ -24,3 +26,13 @@ const emit = defineEmits(["update:modelValue"]);
 
 const updateValue = (val) => emit("update:modelValue", val);
 </script>
+
+<style scoped>
+.search-input {
+  min-width: 200px;
+}
+
+.search-input :deep(.el-input__wrapper) {
+  min-height: 40px;
+}
+</style>

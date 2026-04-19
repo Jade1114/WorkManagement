@@ -1,88 +1,68 @@
 <template>
   <div class="page">
-    <section class="card header-card">
-      <div>
-        <h2>仪表盘</h2>
-      </div>
-      <el-button :icon="Refresh" :loading="loading" @click="manualRefresh"
-        >刷新</el-button
-      >
-    </section>
-
     <section class="stats">
-      <div class="card stat" v-for="item in statCards" :key="item.label">
-        <p class="label">{{ item.label }}</p>
-        <p class="value">{{ item.value }}</p>
+      <div
+        class="card stat"
+        v-for="(item, index) in statCards"
+        :key="item.label"
+        :class="`stat--${index}`"
+      >
+        <div class="stat-copy">
+          <p class="label">{{ item.label }}</p>
+          <p class="value">{{ item.value }}</p>
+        </div>
+        <span class="stat-mark"></span>
       </div>
     </section>
 
-    <section class="card data-screen">
-      <div class="chart" ref="courseChartRef"></div>
-      <div class="chart" ref="submissionTrendRef"></div>
-      <div class="chart" ref="submissionStatusRef"></div>
+    <section class="data-screen">
+      <article class="card chart-card chart-card--wide">
+        <div class="section-title">
+          <h2>近日提交趋势</h2>
+          <p>用变化判断本周节奏</p>
+        </div>
+        <div class="chart" ref="submissionTrendRef"></div>
+      </article>
+      <article class="card chart-card">
+        <div class="section-title">
+          <h2>提交状态分布</h2>
+          <p>批改压力是否集中</p>
+        </div>
+        <div class="chart" ref="submissionStatusRef"></div>
+      </article>
+      <article class="card chart-card chart-card--course">
+        <div class="section-title">
+          <h2>各学科作业数</h2>
+          <p>观察课程负载</p>
+        </div>
+        <div class="chart" ref="courseChartRef"></div>
+      </article>
     </section>
 
-    <section class="card carousel-card">
-      <el-carousel
-        height="260px"
-        indicator-position="none"
-        arrow="never"
-        :interval="6000"
-      >
-        <el-carousel-item>
-          <div class="carousel-block">
-            <div class="carousel-title">提交作业最多的学生</div>
-            <el-table :data="topSubmitters" size="small" border height="180">
-              <el-table-column prop="student" label="学生" min-width="120" />
-              <el-table-column prop="count" label="提交次数" width="120" />
-              <el-table-column
-                prop="lastSubmit"
-                label="最近提交"
-                min-width="140"
-              />
-            </el-table>
-          </div>
-        </el-carousel-item>
-        <el-carousel-item>
-          <div class="carousel-block">
-            <div class="carousel-title">最近发布的作业</div>
-            <el-table
-              :data="recentAssignments"
-              size="small"
-              border
-              height="180"
-            >
-              <el-table-column prop="title" label="标题" min-width="140" />
-              <el-table-column prop="course" label="学科" min-width="120" />
-              <el-table-column
-                prop="deadline"
-                label="截止时间"
-                min-width="140"
-              />
-            </el-table>
-          </div>
-        </el-carousel-item>
-        <el-carousel-item>
-          <div class="carousel-block">
-            <div class="carousel-title">最近提交</div>
-            <el-table
-              :data="recentSubmissions"
-              size="small"
-              border
-              height="180"
-            >
-              <el-table-column prop="student" label="学生" min-width="100" />
-              <el-table-column prop="assignment" label="作业" min-width="140" />
-              <el-table-column prop="course" label="学科" min-width="120" />
-              <el-table-column
-                prop="submitTime"
-                label="提交时间"
-                min-width="140"
-              />
-            </el-table>
-          </div>
-        </el-carousel-item>
-      </el-carousel>
+    <section class="card activity-card">
+      <div class="section-toolbar">
+        <div class="section-title">
+          <h2>最新提交列表</h2>
+          <p>明细承接图表判断，方便继续处理。</p>
+        </div>
+        <div class="section-actions">
+          <el-button>筛选</el-button>
+          <el-button :icon="Refresh" :loading="loading" @click="manualRefresh">刷新</el-button>
+        </div>
+      </div>
+      <el-table :data="recentSubmissions" border style="width: 100%">
+        <el-table-column prop="student" label="学生" min-width="120" />
+        <el-table-column prop="assignment" label="作业" min-width="180" />
+        <el-table-column prop="course" label="学科" min-width="140" />
+        <el-table-column prop="submitTime" label="提交时间" min-width="160" />
+        <el-table-column prop="status" label="状态" width="120">
+          <template #default="{ row }">
+            <el-tag size="small" :type="row.status === '已批改' ? 'success' : 'warning'">
+              {{ row.status }}
+            </el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
     </section>
   </div>
 </template>
@@ -224,30 +204,58 @@ const getTextColor = () => {
   return styles.getPropertyValue("--color-text-primary")?.trim() || "#000";
 };
 
+const getCssColor = (name, fallback) => {
+  const styles = getComputedStyle(document.documentElement);
+  return styles.getPropertyValue(name)?.trim() || fallback;
+};
+
 const updateCharts = () => {
   if (!courseChart || !submissionTrendChart || !submissionStatusChart) return;
 
   const textColor = getTextColor();
+  const mutedColor = getCssColor("--color-text-tertiary", "#7f847d");
+  const primaryColor = getCssColor("--color-primary", "#2f80ed");
+  const successColor = getCssColor("--color-success", "#78c257");
+  const warningColor = getCssColor("--color-warning", "#f59e0b");
 
   const courses = dataScreen.value.assignmentsByCourse || [];
   courseChart.setOption({
     title: {
       text: "各学科作业数",
-      textStyle: { color: textColor, fontSize: 14 },
+      show: false,
     },
     backgroundColor: "transparent",
-    grid: { left: 40, right: 10, top: 40, bottom: 30 },
+    grid: { left: 36, right: 12, top: 16, bottom: 28 },
     xAxis: {
       type: "category",
       data: courses.map((c) => c.courseTitle),
-      axisLabel: { color: textColor },
+      axisLabel: { color: mutedColor },
+      axisLine: { lineStyle: { color: "transparent" } },
+      axisTick: { show: false },
     },
-    yAxis: { type: "value", axisLabel: { color: textColor } },
+    yAxis: {
+      type: "value",
+      axisLabel: { color: mutedColor },
+      splitLine: { lineStyle: { color: "rgba(127, 132, 125, 0.18)" } },
+    },
     series: [
       {
         data: courses.map((c) => c.assignments),
         type: "bar",
-        itemStyle: { color: "#5B8FF9" },
+        itemStyle: {
+          borderRadius: [8, 8, 0, 0],
+          color: {
+            type: "linear",
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: primaryColor },
+              { offset: 1, color: successColor },
+            ],
+          },
+        },
         barMaxWidth: 32,
       },
     ],
@@ -258,19 +266,30 @@ const updateCharts = () => {
   submissionTrendChart.setOption({
     title: {
       text: "最近7天提交量",
-      textStyle: { color: textColor, fontSize: 14 },
+      show: false,
     },
     backgroundColor: "transparent",
-    grid: { left: 40, right: 20, top: 40, bottom: 30 },
-    xAxis: { type: "category", data: dates, axisLabel: { color: textColor } },
-    yAxis: { type: "value", axisLabel: { color: textColor } },
+    grid: { left: 36, right: 18, top: 16, bottom: 28 },
+    xAxis: {
+      type: "category",
+      data: dates,
+      axisLabel: { color: mutedColor },
+      axisLine: { lineStyle: { color: "transparent" } },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: { color: mutedColor },
+      splitLine: { lineStyle: { color: "rgba(127, 132, 125, 0.18)" } },
+    },
     series: [
       {
         data: counts,
         type: "line",
         smooth: true,
-        areaStyle: { color: "rgba(91, 143, 249, 0.25)" },
-        lineStyle: { color: "#5B8FF9" },
+        areaStyle: { color: "rgba(47, 128, 237, 0.18)" },
+        lineStyle: { color: primaryColor, width: 3 },
+        itemStyle: { color: primaryColor },
         symbol: "circle",
         symbolSize: 6,
       },
@@ -281,19 +300,19 @@ const updateCharts = () => {
   submissionStatusChart.setOption({
     title: {
       text: "提交状态分布",
-      textStyle: { color: textColor, fontSize: 14 },
+      show: false,
     },
     backgroundColor: "transparent",
     tooltip: { trigger: "item" },
-    legend: { bottom: 0, textStyle: { color: textColor } },
+    legend: { bottom: 0, textStyle: { color: mutedColor } },
     series: [
       {
         name: "提交状态",
         type: "pie",
         radius: ["35%", "60%"],
         data: [
-          { value: pending, name: "待批改" },
-          { value: graded, name: "已批改" },
+          { value: pending, name: "待批改", itemStyle: { color: warningColor } },
+          { value: graded, name: "已批改", itemStyle: { color: primaryColor } },
         ],
         label: { color: textColor },
       },
@@ -344,78 +363,25 @@ onBeforeUnmount(() => {
 .page {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
-}
-
-.header-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-l);
-}
-
-.carousel-card {
-  padding: var(--spacing-m);
-}
-
-.carousel-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  justify-content: center;
-  height: 100%;
-  padding: var(--spacing-m);
-}
-
-.carousel-block {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  height: 100%;
-  padding: var(--spacing-m);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.16),
-    rgba(255, 255, 255, 0.06)
-  );
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-}
-
-.carousel-title {
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.carousel-desc {
-  color: var(--color-text-secondary);
-}
-
-.carousel-meta {
-  color: var(--color-text-tertiary);
-  font-size: 12px;
-}
-
-.muted {
-  color: var(--color-text-tertiary);
-  margin: 4px 0 0;
+  gap: 18px;
 }
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
   gap: var(--spacing-m);
 }
 
 .stat {
-  padding: var(--spacing-m);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  min-height: 112px;
+  overflow: hidden;
+  padding: 18px;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .stat:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-strong, 0 8px 24px rgba(0, 0, 0, 0.12));
+  border-color: color-mix(in srgb, var(--stat-color, var(--color-primary)) 58%, var(--color-border));
 }
 
 .label {
@@ -424,28 +390,119 @@ onBeforeUnmount(() => {
 }
 
 .value {
-  font-size: 22px;
-  font-weight: 700;
+  color: var(--color-text-primary);
+  font-size: 30px;
+  font-weight: 820;
+  line-height: 1.05;
   margin: 0;
+}
+
+.stat-mark {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 40px;
+  height: 4px;
+  border-radius: var(--radius);
+  background: var(--stat-color, var(--color-primary));
+}
+
+.stat--0 {
+  --stat-color: var(--color-primary);
+}
+
+.stat--1 {
+  --stat-color: var(--color-success);
+}
+
+.stat--2 {
+  --stat-color: var(--color-info);
+}
+
+.stat--3 {
+  --stat-color: var(--color-warning);
 }
 
 .data-screen {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
   gap: var(--spacing-m);
-  padding: var(--spacing-m);
-  min-height: 320px;
+}
+
+.chart-card {
+  display: flex;
+  min-height: 300px;
+  flex-direction: column;
+  padding: 18px;
+}
+
+.chart-card--course {
+  grid-column: 1 / -1;
+  min-height: 260px;
+}
+
+.section-title h2 {
+  margin: 0;
+}
+
+.section-title p {
+  margin: 6px 0 0;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
 }
 
 .chart {
   width: 100%;
-  height: 320px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.06),
-    rgba(255, 255, 255, 0.02)
-  );
-  border-radius: 16px;
+  min-height: 220px;
+  flex: 1;
+  background: transparent;
+}
+
+.activity-card {
+  overflow: hidden;
+}
+
+.section-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-m);
+  padding: 18px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+}
+
+:deep(.el-table) {
+  border: 0;
+}
+
+@media (max-width: 1080px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+
+  .data-screen {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card--course {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .section-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 </style>
-

@@ -5,6 +5,7 @@ import http from '@/net/index.js'
 import { Refresh } from '@element-plus/icons-vue'
 import Pagination from '@/components/Pagination.vue'
 import TableShell from '@/components/TableShell.vue'
+import PageHeader from '@/components/PageHeader.vue'
 
 const students = ref([])
 const loading = ref(false)
@@ -40,12 +41,18 @@ onMounted(() => {
 
 <template>
   <div class="page">
-    <section class="card header-card">
-      <div>
-        <h2>学生列表</h2>
-      </div>
+    <PageHeader
+      eyebrow="Roster"
+      title="学生列表"
+      description="一个干净的名单视图，让点名、追踪和沟通都更轻。"
+      variant="people"
+      metric-label="学生"
+      :metric-value="students.length"
+    >
+      <template #actions>
       <el-button :icon="Refresh" :loading="loading" @click="loadStudents">刷新</el-button>
-    </section>
+      </template>
+    </PageHeader>
 
     <TableShell :data="pagedStudents" :loading="loading">
       <el-table-column prop="name" label="学生姓名" min-width="160" />
@@ -65,13 +72,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
-}
-
-.header-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-l);
 }
 
 .muted {

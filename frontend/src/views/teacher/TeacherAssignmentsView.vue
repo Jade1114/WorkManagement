@@ -6,6 +6,7 @@ import http from "@/net/index.js";
 import { ElMessage } from "element-plus";
 import { Refresh } from "@element-plus/icons-vue";
 import SearchInput from "@/components/SearchInput.vue";
+import PageHeader from "@/components/PageHeader.vue";
 
 const activeTab = ref("submissions"); // submissions | published
 const submissions = ref([]);
@@ -201,11 +202,15 @@ onMounted(() => {
 
 <template>
   <div class="page">
-    <section class="card header-card">
-      <div>
-        <h2>作业列表</h2>
-      </div>
-      <el-space>
+    <PageHeader
+      eyebrow="Assignment Studio"
+      title="作业管理"
+      description="发布、回收、评分都放在同一个工作流里，减少来回切换。"
+      variant="assignments"
+      metric-label="当前列表"
+      :metric-value="activeTab === 'submissions' ? totalSubmissions : totalPublished"
+    >
+      <template #actions>
         <SearchInput
           v-model="searchKeyword"
           placeholder="搜索标题/学科/学生"
@@ -219,8 +224,8 @@ onMounted(() => {
           <el-radio-button label="submissions">待批改提交</el-radio-button>
           <el-radio-button label="published">已发布作业</el-radio-button>
         </el-radio-group>
-      </el-space>
-    </section>
+      </template>
+    </PageHeader>
 
     <section>
       <AssignmentTable
@@ -354,13 +359,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
-}
-
-.header-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-l);
 }
 
 .muted {

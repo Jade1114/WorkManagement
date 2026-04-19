@@ -1,5 +1,5 @@
 <template>
-  <div class="pagination-container card">
+  <div class="pagination-container">
     <span>共 {{ total }} 条</span>
     <el-pagination
       v-model:current-page="localCurrentPage"

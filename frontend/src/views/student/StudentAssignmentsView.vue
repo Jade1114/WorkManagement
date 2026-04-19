@@ -6,6 +6,7 @@ import SearchInput from '@/components/SearchInput.vue'
 import http from '@/net/index.js'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
+import PageHeader from '@/components/PageHeader.vue'
 
 const assignments = ref([])
 const loading = ref(false)
@@ -60,18 +61,21 @@ watch(searchKeyword, () => {
 
 <template>
   <div class="page">
-    <section class="card header-card">
-      <div>
-        <h2>已提交作业列表</h2>
-      </div>
-      <div class="header-actions">
+    <PageHeader
+      eyebrow="Archive"
+      title="已提交作业"
+      description="所有提交记录都在这里，分数和反馈会慢慢形成你的学习轨迹。"
+      variant="records"
+      metric-label="提交记录"
+      :metric-value="totalAssignments"
+    >
+      <template #actions>
         <SearchInput v-model="searchKeyword" placeholder="搜索标题/学科" style="width: 240px" />
         <el-button :icon="Refresh" :loading="loading" @click="loadMySubmissions">刷新</el-button>
-      </div>
-    </section>
+      </template>
+    </PageHeader>
 
-    <section class="card">
-      <AssignmentTable :assignments="pagedAssignments" :loading="loading" :row-key="row => row.submissionId">
+    <AssignmentTable :assignments="pagedAssignments" :loading="loading" :row-key="row => row.submissionId">
         <template #extra-columns>
           <el-table-column prop="submitContent" label="提交内容" min-width="220" />
           <el-table-column prop="comment" label="批改内容" min-width="200">
@@ -95,8 +99,7 @@ watch(searchKeyword, () => {
             v-model:page-size="pageSize"
           />
         </template>
-      </AssignmentTable>
-    </section>
+    </AssignmentTable>
   </div>
 </template>
 
@@ -105,19 +108,6 @@ watch(searchKeyword, () => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
-}
-
-.header-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-l);
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-m);
 }
 
 .muted {

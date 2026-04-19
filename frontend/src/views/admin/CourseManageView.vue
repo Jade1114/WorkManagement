@@ -1,10 +1,14 @@
 <template>
   <div class="page">
-    <section class="card header-card">
-      <div>
-        <h2>学科管理</h2>
-      </div>
-      <el-space>
+    <PageHeader
+      eyebrow="Curriculum"
+      title="学科管理"
+      description="把课程结构整理得足够清楚，作业发布才会轻。"
+      variant="courses"
+      metric-label="学科"
+      :metric-value="filteredSubjects.length"
+    >
+      <template #actions>
         <SearchInput
           v-model="searchKeyword"
           placeholder="搜索学科名称"
@@ -14,8 +18,8 @@
           >刷新</el-button
         >
         <el-button type="primary" @click="openCreate">新建学科</el-button>
-      </el-space>
-    </section>
+      </template>
+    </PageHeader>
 
     <TableShell :data="pagedSubjects" :loading="loading">
       <el-table-column prop="name" label="学科名称" min-width="160" />
@@ -79,6 +83,7 @@ import { Refresh } from "@element-plus/icons-vue";
 import Pagination from "@/components/Pagination.vue";
 import TableShell from "@/components/TableShell.vue";
 import SearchInput from "@/components/SearchInput.vue";
+import PageHeader from "@/components/PageHeader.vue";
 
 const subjects = ref([]);
 const loading = ref(false);
@@ -175,13 +180,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
-}
-
-.header-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-l);
 }
 
 .muted {
