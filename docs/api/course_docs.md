@@ -1,33 +1,54 @@
-# 📘 Course（学科）API 文档（当前版）
+# 📘 Course 模块 API 文档（Cloud 当前版）
 
 ## 基础
-- 前缀：`/api/courses`
-- 响应：`{ code, message, data }`；业务/权限异常 `400`，未登录/过期 `401`。
-- 角色：`teacher` / `admin` 可管理；学生可读列表。
-- 软删除：课程有 `deleted` 标志，删除后不在列表/统计中出现。
+- Gateway 前缀：`/education/courses`
+- 响应：`{ code, message, data }`
+- 业务/权限异常：`400`
+- 未登录或 token 无效：`401`
+- 软删除：课程删除后不再出现在课程列表与统计中
 
 ## 接口
 
-### 1) 创建课程 `POST /api/courses/create`
+### 1) 创建课程 `POST /education/courses`
 - 权限：`teacher` / `admin`
-- 请求体：`{ "title": "数据结构" }`
-- 返回：`{ id, title }`
+- 请求体：
+```json
+{ "title": "数据结构" }
+```
+- 返回：
+```json
+{ "id": 1, "title": "数据结构" }
+```
 
-### 2) 获取全部课程 `GET /api/courses/get`
+### 2) 获取课程列表 `GET /education/courses`
 - 权限：登录
-- 返回未删除课程：`[{ id, title }]`
+- 返回：
+```json
+[
+  { "id": 1, "title": "数据结构" }
+]
+```
 
-### 3) 课程+作业数 `GET /api/courses/withCount`
+### 3) 获取课程及作业数 `GET /education/courses?includeAssignmentCount=true`
 - 权限：`teacher` / `admin`
-- 返回：`[{ id, title, assignmentCount }]`
+- 返回：
+```json
+[
+  { "id": 1, "title": "数据结构", "assignmentCount": 3 }
+]
+```
 
-### 4) 更新课程名 `PUT /api/courses/update`
+### 4) 更新课程 `PUT /education/courses/{id}`
 - 权限：`teacher` / `admin`
-- 请求体：`{ "id": 3, "title": "Web 应用开发" }`
-- 返回：`{ id, title }`
+- 请求体：
+```json
+{ "title": "Web 应用开发" }
+```
+- 返回：
+```json
+{ "id": 1, "title": "Web 应用开发" }
+```
 
-### 5) 软删除课程 `DELETE /api/courses/delete/{id}`
+### 5) 删除课程 `DELETE /education/courses/{id}`
 - 权限：`teacher` / `admin`
-- 返回：`"删除成功"`
-
-> 说明：软删除后，课程被过滤出列表/统计；已有作业仍保留，课程名缺失时返回“未关联课程”。
+- 成功返回：`"删除成功"`

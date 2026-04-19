@@ -3,7 +3,7 @@
 本页汇总仓库内开发文档，按类别分目录，便于快速定位。
 
 ## 目录结构
-- `api/` — 后端接口文档（auth、user、course、assignment、submission）与小程序登录草案。
+- `api/` — 后端接口文档（auth、user、course、assignment、submission）。
 - `frontend/` — 前端架构与说明。
 - `db/` — 数据库表结构。
 - `business/` — 角色与业务规则。
@@ -11,7 +11,7 @@
 - `plan/` — 历史规划与变更记录。
 
 ## 索引
-- API：`api/auth_docs.md`，`api/user_docs.md`，`api/course_docs.md`，`api/assignment_docs.md`，`api/submission_docs.md`，`api/wechat-miniprogram-login.md`（小程序接口草案）。
+- API：`api/auth_docs.md`，`api/user_docs.md`，`api/course_docs.md`，`api/assignment_docs.md`，`api/submission_docs.md`。
 - 前端：`frontend/frontend-overview.md`。
 - 数据库：`db/db_docs.md`（与 `docker/mysql/init.sql`、实体同步）。
 - 业务：`business/logic.md`。

@@ -41,8 +41,6 @@ services:
       DB_URL: jdbc:mysql://db:3306/WorkManagement?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
       DB_USERNAME: app
       DB_PASSWORD: app_pass
-      WECHAT_APPID: ${WECHAT_APPID:-}
-      WECHAT_SECRET: ${WECHAT_SECRET:-}
     expose:
       - "8080"
 

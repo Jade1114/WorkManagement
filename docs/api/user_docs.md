@@ -1,34 +1,64 @@
-# 📘 User 模块 API 文档（当前版）
+# 📘 User 模块 API 文档（Cloud 当前版）
 
 ## 基础
-- 前缀：`/api/users`
-- 响应：`{ code, message, data }`；业务/权限异常 `400`，未登录/过期 `401`。
-- 角色：`student`（注册生成）、`teacher`/`admin`（管理员创建）。
-- `active`：用户启用状态，admin 可禁用；禁用用户无法登录。
+- Gateway 前缀：`/user/users`
+- 响应：`{ code, message, data }`
+- 业务/权限异常：`400`
+- 未登录或 token 无效：`401`
 
 ## 接口
 
-### 1) 获取当前用户 `GET /api/users/me`
+### 1) 获取当前用户 `GET /user/users/me`
 - 权限：登录
-- 返回：`{ id, username, role }
-
-### 2) 修改密码 `PUT /api/users/changePassword`
-- 权限：登录
-- 请求体：`{ "oldPassword": "123456", "newPassword": "654321" }`
-- 成功：`"密码修改成功"`
-
-### 3) 获取学生列表 `GET /api/users/students`
-- 权限：`teacher` / `admin`
-- 返回：所有用户（前端会过滤学生），字段 `{ id, username, role }`
-
-### 4) 管理员获取所有用户 `GET /api/users/admin/list`
-- 权限：`admin`
-- 返回：`[{ id, username, role, active }]`
-
-### 5) 管理员更新用户 `PUT /api/users/admin/update`
-- 权限：`admin`
-- 请求体（字段可选）：
+- 返回：
 ```json
-{ "userId": 6, "role": "teacher", "active": true }
+{
+  "id": 1,
+  "username": "admin",
+  "role": "admin"
+}
 ```
-- 成功：`"更新成功"`
+
+### 2) 修改当前用户密码 `PUT /user/users/me/password`
+- 权限：登录
+- 请求体：
+```json
+{
+  "oldPassword": "123456",
+  "newPassword": "654321"
+}
+```
+- 成功返回：`"密码修改成功"`
+
+### 3) 获取学生列表 `GET /user/users?role=student`
+- 权限：`teacher` / `admin`
+- 返回：
+```json
+[
+  { "id": 3, "username": "student01", "role": "student" }
+]
+```
+
+### 4) 获取用户列表 `GET /user/users`
+- 权限：`admin`
+- 返回：
+```json
+[
+  { "id": 1, "username": "admin", "role": "admin", "active": true },
+  { "id": 2, "username": "teacher01", "role": "teacher", "active": true }
+]
+```
+
+### 5) 更新指定用户 `PATCH /user/users/{targetUserId}`
+- 权限：`admin`
+- 请求体字段可选，但至少传一个：
+```json
+{
+  "role": "teacher",
+  "active": true
+}
+```
+- 成功返回：`"更新成功"`
+- 说明：
+  - `role` 仅允许 `admin | teacher | student`
+  - `active` 表示启用状态

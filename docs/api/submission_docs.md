@@ -1,44 +1,117 @@
-# 📘 Submission（作业提交）API 文档（当前版）
+# 📘 Submission 模块 API 文档（Cloud 当前版）
 
 ## 基础
-- 前缀：`/api/submissions`
-- 响应：`{ code, message, data }`；业务/权限异常 `400`，未登录/过期 `401`。
-- 角色：学生提交/查询自己的提交；教师/管理员查看与批改。
-- 字段：提交记录包含 `graded`、`score`、`comment`，以及 `submitTime`（数据库记录）。
+- Gateway 前缀：`/education/submissions`
+- 响应：`{ code, message, data }`
+- 业务/权限异常：`400`
+- 未登录或 token 无效：`401`
 
 ## 接口
 
-### 1) 学生提交作业 `POST /api/submissions/submit`
+### 1) 学生提交作业 `POST /education/submissions`
 - 权限：`student`
-- 请求体：`{ "assignmentId": 10, "content": "答案内容" }`
-- 返回：`{ id, assignmentId, studentId, content, score, comment, graded }`
+- 请求体：
+```json
+{
+  "assignmentId": 10,
+  "content": "答案内容"
+}
+```
+- 返回：
+```json
+{
+  "id": 100,
+  "assignmentId": 10,
+  "studentId": 3,
+  "content": "答案内容",
+  "score": null,
+  "comment": null,
+  "graded": false
+}
+```
 
-### 2) 学生查看单个作业提交 `GET /api/submissions/my?assignmentId=10`
+### 2) 查看某作业提交列表 `GET /education/submissions?assignmentId=10`
+- 权限：`teacher` / `admin`
+- 说明：`teacher` 仅可查看自己作业的提交
+- 返回：
+```json
+[
+  {
+    "id": 100,
+    "studentId": 3,
+    "studentUsername": "student01",
+    "content": "答案内容",
+    "score": null,
+    "graded": false
+  }
+]
+```
+
+### 3) 查看全部提交总览 `GET /education/submissions`
+- 权限：`teacher` / `admin`
+- 说明：`teacher` 仅可查看自己作业的提交
+- 返回：
+```json
+[
+  {
+    "submissionId": 100,
+    "assignmentId": 10,
+    "assignmentTitle": "第 1 次作业",
+    "courseId": 1,
+    "courseTitle": "数据结构",
+    "studentId": 3,
+    "studentName": "student01",
+    "assignmentContent": "完成 Java 基础练习题",
+    "submitContent": "答案内容",
+    "submitTime": "2026-04-19T20:00:00",
+    "graded": false,
+    "score": null,
+    "comment": null
+  }
+]
+```
+
+### 4) 查看我的提交列表 `GET /education/submissions/my`
 - 权限：`student`
-- 返回：单条提交记录（含评分、批注）
+- 返回：
+```json
+[
+  {
+    "submissionId": 100,
+    "assignmentId": 10,
+    "assignmentTitle": "第 1 次作业",
+    "courseId": 1,
+    "courseTitle": "数据结构",
+    "submitContent": "答案内容",
+    "comment": null,
+    "graded": false,
+    "score": null
+  }
+]
+```
 
-### 3) 教师/管理员查看某作业提交列表 `GET /api/submissions/list?assignmentId=10`
-- 权限：`teacher` / `admin`
-- 说明：教师仅可查看自己发布作业的提交
-- 返回：`[{ id, studentId, studentUsername, content, score, graded }]`
-
-### 4) 教师/管理员批改 `POST /api/submissions/grade`
-- 权限：`teacher` / `admin`
-- 请求体：`{ "submissionId": 100, "score": 95, "comment": "完成得很好" }`
-- 成功：`"批改成功"`
-
-### 5) 教师/管理员查看所有提交 `GET /api/submissions/all`
-- 权限：`teacher` / `admin`
-- 说明：教师仅可查看自己发布作业的提交
-- 返回：`[{ submissionId, assignmentId, assignmentTitle, courseId, courseTitle, studentId, studentName, assignmentContent, submitContent, submitTime, graded, score, comment }]`
-
-### 6) 学生查看自己所有提交列表 `GET /api/submissions/my/list`
+### 5) 查看我对某作业的提交详情 `GET /education/submissions/my?assignmentId=10`
 - 权限：`student`
-- 返回：`[{ submissionId, assignmentId, assignmentTitle, courseId, courseTitle, submitContent, comment, graded, score }]`
+- 返回：
+```json
+{
+  "id": 100,
+  "assignmentId": 10,
+  "studentId": 3,
+  "content": "答案内容",
+  "score": 95,
+  "comment": "完成得很好",
+  "graded": true
+}
+```
 
-### 7) 仪表盘最近提交 `GET /api/teacher/recent/submissions`
+### 6) 批改提交 `PATCH /education/submissions/{submissionId}`
 - 权限：`teacher` / `admin`
-- 说明：教师仅可查看自己发布作业的提交
-- 返回：`[{ submissionId, studentName, assignmentTitle, courseTitle, graded, score, submitTime }]`
-
-> 权限不足时返回 `code=400, message="权限不足"`。
+- 请求体：
+```json
+{
+  "score": 95,
+  "comment": "完成得很好"
+}
+```
+- 成功返回：空 `data`

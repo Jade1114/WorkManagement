@@ -1,19 +1,20 @@
 # WorkManagement Cloud
 
-> 这是基于 `WorkManagement` 现有单体项目逐步演进出来的 Spring Cloud 学习版工程。
-> 当前目标不是一次性把所有单体功能迁完，而是围绕真实业务链，逐步学习：
+> 这是基于 `WorkManagement` 单体项目逐步演进出来的 Spring Cloud 学习版工程。
+> 当前目标不是一次性把所有单体功能迁完，而是围绕真实业务链，逐步把：
 > - 服务拆分
-> - Nacos 注册发现
-> - Gateway 路由与鉴权
-> - OpenFeign 服务调用
-> - Nacos Config 配置中心
-> - 微服务中的身份上下文传递
+> - 注册发现
+> - Gateway 统一入口
+> - OpenFeign 服务协作
+> - Nacos Config 配置治理
+> - 角色边界与业务编排
+> 真正落到一个可运行、可联调、可继续演进的微服务版教务系统里。
 
 ---
 
 ## 一、当前工程结构
 
-当前 `cloud/` 为一个 Maven 多模块工程：
+当前 `cloud/` 为 Maven 多模块工程：
 
 - `gateway-service`
 - `user-service`
@@ -22,185 +23,184 @@
 ### `gateway-service`
 负责：
 - 系统统一入口
-- 显式静态路由
-- JWT 最小鉴权入口
-- 将认证上下文透传给下游服务
+- 静态路由转发
+- JWT 最小鉴权
+- 统一 401 JSON 返回
+- 身份上下文透传
 
 ### `user-service`
 负责：
-- 用户身份最小校验能力
-- 最小登录能力
+- 注册与登录
+- 用户管理相关能力
+- 内部用户校验 / 摘要 / 数量统计
 - JWT 发放
-- 从 Nacos Config 读取 JWT 配置
+- 从 Nacos Config 读取 JWT 与数据库配置
 
 ### `education-service`
 负责：
-- 课程 / 作业所属的教务业务
-- 发布作业真实业务链
-- 本地查课程 + 远程调用户服务
+- 课程、作业、提交、教师看板等教务域业务
+- 本地业务编排
+- 通过 Feign 调用 `user-service` 做用户协作补全
+- 从 Nacos Config 读取数据库配置
 
 ---
 
-## 二、当前已完成的能力
+## 二、当前已完成模块
 
-### 1. 服务注册发现
+## 1. Gateway 与入口层
 已完成：
-- 三个服务注册到 Nacos
-- 可以通过服务名完成发现与调用
-
-### 2. Gateway 显式静态路由
-当前对外路径：
 - `/user/**` → `user-service`
 - `/education/**` → `education-service`
-
-并通过 `StripPrefix=1` 去掉网关层前缀，使下游服务接收到自己真正的业务路径。
-
-### 3. OpenFeign 最小调用链
-已完成：
-- `education-service` 调 `user-service`
-- 获取最小用户校验结果：
-  - `exists`
-  - `role`
-  - `active`
-
-### 4. 发布作业真实业务链
-已完成：
-- `education-service` 本地校验请求参数
-- 本地校验课程是否存在
-- 远程校验用户是否存在/启用/角色允许
-- 插入 `assignment` 数据
-
-### 5. Nacos Config 第一层
-已完成：
-- 使用共享配置 `jwt-config.yaml`
-- `user-service` 和 `gateway-service` 都可从 Nacos Config 读取：
-  - `jwt.secret`
-  - `jwt.expire-ms`
-
-### 6. 最小登录能力
-已完成：
-- `POST /user/auth/login`
-- 用户名密码校验
-- 使用 BCrypt 校验密码
-- 使用 JWT 返回 token
-
-### 7. Gateway 最小鉴权
-已完成：
-- 放行：`/user/auth/login`
-- 放行：`/user/internal/config/**`
-- 拦截：`/education/**`
-- 校验 `Authorization: Bearer ...`
-- 解析：
+- `StripPrefix=1`
+- 白名单放行：登录 / 注册 / 内部配置相关路径
+- 统一鉴权拦截
+- 解析 JWT 中的：
   - `userId`
   - `role`
-- 透传给下游：
+- 透传：
   - `X-User-Id`
   - `X-User-Role`
+- 统一 401 JSON 返回
 
-### 8. 身份上下文替代显式用户参数
+## 2. `user-service`
 已完成：
-- 发布作业请求体中移除 `publisherId`
-- `education-service` 改为从 Gateway 透传头中读取：
-  - `X-User-Id`
-  - `X-User-Role`
+- 注册
+- 登录
+- 登出占位
+- 当前用户信息
+- 修改密码
+- 学生列表
+- 管理员用户列表
+- 管理员更新用户
+- 内部用户校验：`/internal/users/check`
+- 内部用户摘要：`/internal/users/summaries`
+- 内部用户数量统计：`/internal/users/count`
 
-### 9. 统一返回与异常处理第一层
+## 3. `education-service / course`
 已完成：
-- `gateway-service`
-- `user-service`
-- `education-service`
+- 课程列表
+- 课程作业数量统计
+- 创建课程
+- 更新课程
+- 删除课程
 
-对外接口统一开始采用：
-- `code`
-- `message`
-- `data`
-
-业务服务中已接入：
-- `BusinessException`
-- `GlobalExceptionHandler`
-
-### 10. 日志第一层
+## 4. `education-service / assignment`
 已完成：
-- 三个服务统一 `logback-spring.xml`
-- 当前统一日志格式：
-  - 时间
-  - 级别
-  - logger
-  - 线程
-  - 日志正文
+- 发布作业
+- 管理员 / 教师查看作业列表
+- 按课程查看作业列表
+- 学生查看待提交作业列表
 
-并在关键链路补了第一批日志：
-- 登录链
-- Gateway 鉴权链
-- 发布作业链
+## 5. `education-service / submission`
+已完成：
+- 学生提交作业
+- 教师 / 管理员查看某作业提交列表
+- 教师 / 管理员查看全部提交总览
+- 教师批改作业
+- 学生查看自己的提交列表
+- 学生查看自己的提交详情
+
+## 6. `education-service / teacher dashboard`
+已完成：
+- 教师端统计概览
+- 最近作业
+- 最近提交
+- Top submitters
+- Data screen
 
 ---
 
-## 三、当前接口边界规范
+## 三、当前角色语义
+
+### `admin`
+定位为系统管理者 / 教务总负责人：
+- 可以看全局数据
+- 可以做系统管理与教务管理类动作
+- 不承担教师的具体教学执行动作
+- 当前不参与批改作业
+
+### `teacher`
+定位为教学执行者：
+- 发布自己的作业
+- 查看自己作业的提交
+- 批改自己作业下的提交
+- 查看教师端统计信息
+
+### `student`
+定位为学习执行者：
+- 查看待提交作业
+- 提交作业
+- 查看自己的提交列表与详情
+
+---
+
+## 四、当前接口边界规范
 
 ### 对外接口
-对前端 / 系统外部暴露的接口：
 - 统一走 Gateway
-- 统一采用 `ApiResponse`
-- 例如：
-  - `/user/auth/login`
-  - `/education/assignments/create`
+- 统一返回 `ApiResponse`
+- 主要入口前缀：
+  - `/user/**`
+  - `/education/**`
 
 ### 内部服务接口
 给 Feign 调用的接口：
-- 保持轻量业务对象返回
-- 当前不强行包一层 `ApiResponse`
-- 例如：
+- 不强行包一层 `ApiResponse`
+- 直接返回轻量业务对象
+- 当前包括：
   - `/internal/users/check`
+  - `/internal/users/summaries`
+  - `/internal/users/count`
 
 ### 认证与授权边界
-- `Gateway`：负责 token 校验、身份解析、上下文透传
-- `业务服务`：负责业务授权和业务规则判断
+- `Gateway`：负责认证入口、token 校验、身份透传
+- `业务服务`：负责业务授权与业务规则判断
 
 也就是说：
-- Gateway 做统一认证入口
-- `education-service` 继续负责“当前角色能否发布作业”这类业务判断
+- Gateway 解决“你是谁”
+- 业务服务解决“你能不能做这件事”
 
 ---
 
-## 四、当前配置分层
+## 五、当前配置分层
 
 ### 本地配置
-当前继续保留在各服务 `application.yml` 中的，主要是：
+各服务 `application.yml` 中保留：
 - `server.port`
 - `spring.application.name`
 - `NACOS_SERVER_ADDR`
-- 数据库基础连接配置
+- 基础服务配置
 
 ### Nacos 共享配置
-当前已抽出：
+当前已使用：
 - `jwt-config.yaml`
+- `db-config.yaml`
 
-其中包含：
-- `jwt.secret`
-- `jwt.expire-ms`
+其中承接：
+- JWT secret 与过期时间
+- 数据库 datasource 配置
 
 当前理解为：
-- 共享配置源可以被多个服务导入
-- 各服务内部依然有自己的 `JwtProperties` 用于绑定配置
+- 多服务共用的配置优先进入 Nacos
+- 各服务仍保留自己的最小本地启动配置
 
 ---
 
-## 五、当前日志规范（第一版）
+## 六、当前日志规范（第一版）
 
-当前日志格式：
+当前统一日志格式：
 
 ```text
 %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%logger{36}] [%thread] - %msg%n
 ```
 
-当前优先记录的关键日志：
-- `user-service / AuthService`
-  - 登录开始 / 登录失败 / 登录成功
-- `gateway-service / AuthGlobalFilter`
-  - 鉴权放行 / 缺失 token / 无效 token / 鉴权成功
-- `education-service / AssignmentCommandService`
-  - 创建作业开始 / 失败原因 / 创建成功
+当前重点日志覆盖：
+- 登录链
+- Gateway 鉴权链
+- assignment 创建 / 查询链
+- submission 提交 / 查询 / 批改链
+- course 管理与查询链
+- teacher dashboard 聚合查询链
 
 当前先不引入：
 - `traceId`
@@ -209,40 +209,44 @@
 
 ---
 
-## 六、当前最重要的系统链路
+## 七、当前最核心系统链路
 
-当前最核心的完整链路已经变成：
+当前最重要的完整链路已经变成：
 
 `Client -> Gateway -> education-service -> user-service -> MySQL`
 
 其中：
 - 登录由 `user-service` 提供
 - 鉴权由 `gateway-service` 承接
-- 业务编排由 `education-service` 承接
-- 用户身份校验由 `user-service` 提供最小能力
+- 教务业务编排由 `education-service` 承接
+- 用户身份校验、摘要、数量统计由 `user-service` 提供内部能力
 
 ---
 
-## 七、后续推进方向
+## 八、当前工程状态判断
 
-当前建议的后续顺序：
-
-1. 继续补日志第一层
-2. 编写并维护统一文档
-3. 按业务链逐步迁移单体项目中未迁移的接口和模块
-4. 做前后端接口对齐
-5. 每迁移一个阶段后做一次结构复盘与小优化
-
-当前不建议：
-- 一次性把单体所有功能全部迁完
-- 过早细拆更多服务
-- 过早引入复杂鉴权体系（refresh token、黑名单、复杂 RBAC）
+当前 `cloud/` 已经不再只是一个最小骨架，而是一套：
+- 已具备基础工程规范
+- 已具备角色边界
+- 已具备模块级业务链
+- 已完成模块级联调验证
+- 可以继续承接复杂业务规则和前后端对齐工作的 Spring Cloud 学习版系统
 
 ---
 
-## 八、一句话总结
+## 九、下一阶段重点
 
-当前 `cloud/` 已经不是一个空骨架，而是一个围绕真实业务链逐步演进的 Spring Cloud 学习版系统。
+接下来更值得做的，不再是继续大面积补同质化接口，而是：
 
-当前最核心的价值在于：
-- 已经把注册发现、Gateway、Feign、Config、JWT、统一返回、日志和真实业务链串成了一条可运行、可解释、可继续扩展的微服务主线。
+1. 整理已迁模块与待处理复杂模块清单
+2. 更新并维护当前 Cloud 文档
+3. 推进前后端接口最终对齐
+4. 处理复杂业务规则专项
+5. 逐步补少量关键链路测试
+
+---
+
+## 十、一句话总结
+
+当前 `cloud/` 的核心价值已经不是“搭起 Spring Cloud 三件套”，而是：
+- 已经把 Gateway、Nacos、Feign、JWT、统一返回、配置治理和真实教务业务链真正串成了一套可运行、可联调、可继续演进的微服务学习版系统。
