@@ -78,7 +78,7 @@ const totalPublished = computed(() => filteredPublished.value.length);
 const loadSubmissions = async () => {
   loading.value = true;
   try {
-    const data = await http.get("/submissions/all");
+    const data = await http.get("/education/submissions");
     submissions.value = data.map((item) => ({
       id: item.submissionId,
       title: item.assignmentTitle,
@@ -102,7 +102,7 @@ const loadSubmissions = async () => {
 const loadPublished = async () => {
   loading.value = true;
   try {
-    const data = await http.get("/assignments/all");
+    const data = await http.get("/education/assignments");
     published.value = data.map((a) => ({
       id: a.id,
       title: a.title,
@@ -140,7 +140,7 @@ const openCreate = () => {
   createVisible.value = true;
   if (!courses.value.length) {
     http
-      .get("/courses/get")
+      .get("/education/courses")
       .then((data) => {
         courses.value = data;
       })
@@ -150,7 +150,7 @@ const openCreate = () => {
 
 const submitCreate = async () => {
   try {
-    await http.post("/assignments/create", createForm.value);
+    await http.post("/education/assignments", createForm.value);
     ElMessage.success("创建成功");
     createVisible.value = false;
     await loadPublished();
@@ -174,8 +174,7 @@ const openGrade = (row) => {
 
 const submitGrade = async () => {
   try {
-    await http.post("/submissions/grade", {
-      submissionId: gradeForm.value.submissionId,
+    await http.patch(`/education/submissions/${gradeForm.value.submissionId}`, {
       score: gradeForm.value.score,
       comment: gradeForm.value.comment,
     });

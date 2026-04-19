@@ -26,7 +26,7 @@ async function handleLogin() {
     const valid = await formRef.value.validate()
     if (!valid) return
 
-    const data = await http.post('/auth/login', {
+    const data = await http.post('/user/auth/login', {
       username: form.username,
       password: form.password,
     })

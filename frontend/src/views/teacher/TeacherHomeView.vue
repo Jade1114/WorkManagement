@@ -37,7 +37,7 @@ const stats = ref([
 
 const loadStats = async () => {
   try {
-    const data = await http.get('/teacher/stats')
+    const data = await http.get('/education/teachers/me/stats')
     stats.value = [
       { label: '待评分', value: data.pendingSubmissions ?? 0, path: '/assignments/manage' },
       { label: '已发布作业', value: data.assignments ?? 0, path: '/assignments/manage' },

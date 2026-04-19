@@ -4,7 +4,6 @@ import { useUserStore } from "@/stores/userStore";
 import router from "@/router";
 
 const http = axios.create({
-  baseURL: "/api",
   timeout: 8000,
 });
 

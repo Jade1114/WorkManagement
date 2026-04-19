@@ -19,7 +19,7 @@ const pagedStudents = computed(() => {
 const loadStudents = async () => {
   loading.value = true
   try {
-    const data = await http.get('/users/students')
+    const data = await http.get('/user/users?role=student')
     students.value = data
       .filter((u) => u.role === 'student')
       .map((u) => ({

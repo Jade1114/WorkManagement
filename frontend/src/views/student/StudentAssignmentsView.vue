@@ -32,7 +32,7 @@ const totalAssignments = computed(() => filteredAssignments.value.length)
 const loadMySubmissions = async () => {
   loading.value = true
   try {
-    const data = await http.get('/submissions/my/list')
+    const data = await http.get('/education/submissions/my')
     assignments.value = data.map(item => ({
       submissionId: item.submissionId,
       title: item.assignmentTitle,

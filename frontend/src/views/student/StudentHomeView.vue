@@ -101,7 +101,7 @@ const totalAssignments = computed(() => filteredAssignments.value.length);
 const loadPendingAssignments = async () => {
   loading.value = true;
   try {
-    const data = await http.get("/assignments/pending");
+    const data = await http.get("/education/assignments?status=pending");
     const now = Date.now();
     assignments.value = data.map((a) => ({
       id: a.id,
@@ -129,7 +129,7 @@ const handleSubmit = async () => {
   if (!currentAssignment.value) return;
   submitLoading.value = true;
   try {
-    await http.post("/submissions/submit", {
+    await http.post("/education/submissions", {
       assignmentId: currentAssignment.value.id,
       content: submitContent.value,
     });

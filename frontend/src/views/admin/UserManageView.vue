@@ -90,7 +90,7 @@ const pagedUsers = computed(() => {
 const loadUsers = async () => {
   loading.value = true
   try {
-    const data = await http.get('/users/admin/list')
+    const data = await http.get('/user/users')
     users.value = (data || []).map(u => ({
       id: u.id,
       username: u.username,
@@ -106,8 +106,7 @@ const loadUsers = async () => {
 
 const updateRole = async (payload) => {
   try {
-    await http.put('/users/admin/update', {
-      userId: payload.id,
+    await http.patch(`/user/users/${payload.id}`, {
       role: payload.role
     })
     ElMessage.success(`已将 ${payload.username} 设置为 ${payload.role}`)
@@ -119,9 +118,8 @@ const updateRole = async (payload) => {
 
 const toggleActive = async (row) => {
   try {
-    await http.put('/users/admin/update', {
-      userId: row.id,
-      active: row.active ? 0 : 1
+    await http.patch(`/user/users/${row.id}`, {
+      active: !row.active
     })
     row.active = !row.active
     ElMessage.success(`${row.username} 状态已${row.active ? '启用' : '封禁'}`)

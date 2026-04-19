@@ -31,7 +31,7 @@ const rules = {
 async function handleRegister() {
   try {
     formRef.value?.validate()
-    const data = await http.post('/auth/register', {
+    const data = await http.post('/user/auth/register', {
       username: form.username,
       password: form.password,
     })

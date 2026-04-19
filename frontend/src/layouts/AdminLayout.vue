@@ -19,7 +19,6 @@
           </button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="openEdit">更改信息</el-dropdown-item>
               <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -59,17 +58,6 @@
     </div>
   </div>
 
-  <el-dialog v-model="editVisible" title="更改信息" width="360px">
-    <el-form label-position="top">
-      <el-form-item label="用户名">
-        <el-input v-model="editForm.username" placeholder="请输入新的用户名" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button @click="editVisible = false">取消</el-button>
-      <el-button type="primary" @click="submitEdit">保存</el-button>
-    </template>
-  </el-dialog>
 </template>
 
 <script setup>
@@ -86,8 +74,6 @@ const router = useRouter();
 const userStore = useUserStore();
 const themeStore = useThemeStore();
 const hoverLogout = ref(false);
-const editVisible = ref(false);
-const editForm = ref({ username: "" });
 
 const menus = [
   { label: "仪表盘", path: "/dashboard", roles: ["admin", "teacher"] },
@@ -140,7 +126,7 @@ const goHome = () => {
 
 const handleLogout = async () => {
   try {
-    await http.post("/auth/logout");
+    await http.post("/user/auth/logout");
   } catch (e) {
     // ignore logout error
   } finally {
@@ -149,22 +135,4 @@ const handleLogout = async () => {
   }
 };
 
-const openEdit = () => {
-  editForm.value = { username: userStore.username };
-  editVisible.value = true;
-};
-
-const submitEdit = async () => {
-  try {
-    await http.put("/users/admin/update", {
-      userId: userStore.user?.userId,
-      username: editForm.value.username,
-    });
-    userStore.user = { ...(userStore.user || {}), username: editForm.value.username };
-    ElMessage.success("信息已更新");
-    editVisible.value = false;
-  } catch (e) {
-    ElMessage.error("更新失败");
-  }
-};
 </script>

@@ -104,7 +104,7 @@ const pagedSubjects = computed(() => {
 const loadSubjects = async () => {
   loading.value = true;
   try {
-    const data = await http.get("/courses/withCount");
+    const data = await http.get("/education/courses?includeAssignmentCount=true");
     subjects.value = data.map((c) => ({
       id: c.id,
       name: c.title,
@@ -124,7 +124,7 @@ const openCreate = () => {
 
 const submitCreate = async () => {
   try {
-    await http.post("/courses/create", { title: createForm.value.title });
+    await http.post("/education/courses", { title: createForm.value.title });
     ElMessage.success("创建成功");
     createVisible.value = false;
     await loadSubjects();
@@ -140,8 +140,7 @@ const openEdit = (row) => {
 
 const submitEdit = async () => {
   try {
-    await http.put("/courses/update", {
-      id: editForm.value.id,
+    await http.put(`/education/courses/${editForm.value.id}`, {
       title: editForm.value.title,
     });
     ElMessage.success("更新成功");
@@ -154,7 +153,7 @@ const submitEdit = async () => {
 
 const removeCourse = async (row) => {
   try {
-    await http.delete(`/courses/delete/${row.id}`);
+    await http.delete(`/education/courses/${row.id}`);
     ElMessage.success("删除成功");
     await loadSubjects();
   } catch (e) {

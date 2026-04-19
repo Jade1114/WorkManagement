@@ -124,7 +124,7 @@ let timer = null;
 const loadStats = async () => {
   loading.value = true;
   try {
-    const data = await http.get("/teacher/stats");
+    const data = await http.get("/education/teachers/me/stats");
     statCards.value = [
       { label: "用户数", value: data.students ? data.students + 1 : 0 },
       { label: "学科数", value: data.courses ?? 0 },
@@ -146,7 +146,7 @@ const loadStats = async () => {
 
 const loadRecentAssignments = async () => {
   try {
-    const data = await http.get("/teacher/recent/assignments");
+    const data = await http.get("/education/teachers/me/recent/assignments");
     recentAssignments.value = (data || []).map((a) => ({
       title: a.title,
       course:
@@ -161,7 +161,7 @@ const loadRecentAssignments = async () => {
 
 const loadRecentSubmissions = async () => {
   try {
-    const data = await http.get("/teacher/recent/submissions");
+    const data = await http.get("/education/teachers/me/recent/submissions");
     recentSubmissions.value = (data || []).map((s) => ({
       student: s.studentName,
       assignment: s.assignmentTitle,
@@ -177,7 +177,7 @@ const loadRecentSubmissions = async () => {
 
 const loadTopSubmitters = async () => {
   try {
-    const data = await http.get("/teacher/topSubmitters");
+    const data = await http.get("/education/teachers/me/top-submitters");
     topSubmitters.value = (data || []).slice(0, 3).map((s) => ({
       student: s.studentName || s.username || `学生 #${s.studentId || ""}`,
       count: s.count ?? s.submissions ?? 0,
@@ -195,7 +195,7 @@ const loadTopSubmitters = async () => {
 
 const loadDataScreen = async () => {
   try {
-    const data = await http.get("/teacher/dataScreen");
+    const data = await http.get("/education/teachers/me/data-screen");
     dataScreen.value = data || {
       assignmentsByCourse: [],
       submissionStatus: { graded: 0, pending: 0 },
@@ -448,3 +448,4 @@ onBeforeUnmount(() => {
   border-radius: 16px;
 }
 </style>
+
