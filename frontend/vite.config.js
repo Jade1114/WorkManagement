@@ -21,14 +21,16 @@ export default defineConfig({
     },
   },
 
-  // ⭐⭐ 加上这个 ⭐⭐
   server: {
     proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
+      '/user': {
+        target: 'http://localhost:8083',
         changeOrigin: true,
-        // 注意：不要 rewrite
-      }
+      },
+      '/education': {
+        target: 'http://localhost:8083',
+        changeOrigin: true,
+      },
     }
   }
 })

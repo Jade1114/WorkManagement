@@ -1,10 +1,14 @@
 <template>
   <div class="page">
-    <section class="card header-card">
-      <div>
-        <h2>未提交作业列表</h2>
-      </div>
-      <div class="header-actions">
+    <PageHeader
+      eyebrow="Focus Queue"
+      title="未提交作业"
+      description="只保留下一步需要完成的任务，开始写之前先看清截止时间。"
+      variant="student"
+      metric-label="待完成"
+      :metric-value="totalAssignments"
+    >
+      <template #actions>
         <SearchInput v-model="searchKeyword" placeholder="搜索标题/学科" style="width: 240px" />
         <el-button
           :icon="Refresh"
@@ -12,8 +16,8 @@
           @click="loadPendingAssignments"
           >刷新</el-button
         >
-      </div>
-    </section>
+      </template>
+    </PageHeader>
 
     <AssignmentTable
       :assignments="pagedAssignments"
@@ -71,6 +75,7 @@ import Pagination from "@/components/Pagination.vue";
 import SearchInput from "@/components/SearchInput.vue";
 import { ElMessage } from "element-plus";
 import { Refresh } from "@element-plus/icons-vue";
+import PageHeader from "@/components/PageHeader.vue";
 
 const assignments = ref([]);
 const loading = ref(false);
@@ -101,7 +106,7 @@ const totalAssignments = computed(() => filteredAssignments.value.length);
 const loadPendingAssignments = async () => {
   loading.value = true;
   try {
-    const data = await http.get("/assignments/pending");
+    const data = await http.get("/education/assignments?status=pending");
     const now = Date.now();
     assignments.value = data.map((a) => ({
       id: a.id,
@@ -129,7 +134,7 @@ const handleSubmit = async () => {
   if (!currentAssignment.value) return;
   submitLoading.value = true;
   try {
-    await http.post("/submissions/submit", {
+    await http.post("/education/submissions", {
       assignmentId: currentAssignment.value.id,
       content: submitContent.value,
     });
@@ -157,19 +162,6 @@ watch(searchKeyword, () => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
-}
-
-.header-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-l);
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-m);
 }
 
 .muted {

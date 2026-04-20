@@ -1,0 +1,17 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: user-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        enabled: ${NACOS_DISCOVERY_ENABLED:true}
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+  config:
+    import:
+      - optional:nacos:jwt-config.yaml?group=DEFAULT_GROUP
+      - optional:nacos:db-config.yaml?group=DEFAULT_GROUP

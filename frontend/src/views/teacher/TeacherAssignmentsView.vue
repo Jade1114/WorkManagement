@@ -6,6 +6,7 @@ import http from "@/net/index.js";
 import { ElMessage } from "element-plus";
 import { Refresh } from "@element-plus/icons-vue";
 import SearchInput from "@/components/SearchInput.vue";
+import PageHeader from "@/components/PageHeader.vue";
 
 const activeTab = ref("submissions"); // submissions | published
 const submissions = ref([]);
@@ -78,7 +79,7 @@ const totalPublished = computed(() => filteredPublished.value.length);
 const loadSubmissions = async () => {
   loading.value = true;
   try {
-    const data = await http.get("/submissions/all");
+    const data = await http.get("/education/submissions");
     submissions.value = data.map((item) => ({
       id: item.submissionId,
       title: item.assignmentTitle,
@@ -102,7 +103,7 @@ const loadSubmissions = async () => {
 const loadPublished = async () => {
   loading.value = true;
   try {
-    const data = await http.get("/assignments/all");
+    const data = await http.get("/education/assignments");
     published.value = data.map((a) => ({
       id: a.id,
       title: a.title,
@@ -140,7 +141,7 @@ const openCreate = () => {
   createVisible.value = true;
   if (!courses.value.length) {
     http
-      .get("/courses/get")
+      .get("/education/courses")
       .then((data) => {
         courses.value = data;
       })
@@ -150,7 +151,7 @@ const openCreate = () => {
 
 const submitCreate = async () => {
   try {
-    await http.post("/assignments/create", createForm.value);
+    await http.post("/education/assignments", createForm.value);
     ElMessage.success("创建成功");
     createVisible.value = false;
     await loadPublished();
@@ -174,8 +175,7 @@ const openGrade = (row) => {
 
 const submitGrade = async () => {
   try {
-    await http.post("/submissions/grade", {
-      submissionId: gradeForm.value.submissionId,
+    await http.patch(`/education/submissions/${gradeForm.value.submissionId}`, {
       score: gradeForm.value.score,
       comment: gradeForm.value.comment,
     });
@@ -202,11 +202,15 @@ onMounted(() => {
 
 <template>
   <div class="page">
-    <section class="card header-card">
-      <div>
-        <h2>作业列表</h2>
-      </div>
-      <el-space>
+    <PageHeader
+      eyebrow="Assignment Studio"
+      title="作业管理"
+      description="发布、回收、评分都放在同一个工作流里，减少来回切换。"
+      variant="assignments"
+      metric-label="当前列表"
+      :metric-value="activeTab === 'submissions' ? totalSubmissions : totalPublished"
+    >
+      <template #actions>
         <SearchInput
           v-model="searchKeyword"
           placeholder="搜索标题/学科/学生"
@@ -220,8 +224,8 @@ onMounted(() => {
           <el-radio-button label="submissions">待批改提交</el-radio-button>
           <el-radio-button label="published">已发布作业</el-radio-button>
         </el-radio-group>
-      </el-space>
-    </section>
+      </template>
+    </PageHeader>
 
     <section>
       <AssignmentTable
@@ -355,13 +359,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
-}
-
-.header-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-l);
 }
 
 .muted {

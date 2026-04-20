@@ -1,122 +1,174 @@
 <template>
   <div class="layout">
-    <header class="top-bar card">
-      <div class="brand">
-        <div class="brand-name">Work Management</div>
-      </div>
-      <div class="top-actions">
-        <el-dropdown trigger="click">
-          <button
-            class="pill-button role-pill"
-            type="button"
-            @mouseenter="hoverLogout = true"
-            @mouseleave="hoverLogout = false"
-            @focus="hoverLogout = true"
-            @blur="hoverLogout = false"
-          >
-            <span>{{ hoverLogout ? "操作" : pillDisplay }}</span>
-            <el-icon :size="16"><ArrowDown /></el-icon>
-          </button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item @click="openEdit">更改信息</el-dropdown-item>
-              <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-      </div>
-    </header>
+    <aside class="sidebar">
+      <button class="brand" type="button" @click="goHome">
+        <span class="brand-name">AdminPro</span>
+        <span class="brand-kicker">工作台 · v2.4</span>
+      </button>
 
-    <div class="body">
-      <aside class="sidebar card">
-        <el-menu
-          router
-          :default-active="activePath"
-          class="menu"
-          background-color="transparent"
+      <nav class="menu" aria-label="主导航">
+        <section
+          v-for="group in filteredMenuGroups"
+          :key="group.label"
+          class="nav-section"
         >
-          <el-menu-item
-            v-for="item in filteredMenus"
+          <p class="nav-label">{{ group.label }}</p>
+          <router-link
+            v-for="item in group.items"
             :key="item.path"
-            :index="item.path"
+            class="nav-item"
+            :class="{ 'is-active': activePath === item.path }"
+            :to="item.path"
           >
+            <el-icon :size="17">
+              <component :is="item.icon" />
+            </el-icon>
             <span>{{ item.label }}</span>
-          </el-menu-item>
-        </el-menu>
-        <div class="sidebar-actions">
-          <button class="pill-button wide" type="button" @click="cycleTheme">
-            <el-icon :size="16">
+          </router-link>
+        </section>
+
+        <section class="nav-section">
+          <p class="nav-label">系统</p>
+          <button class="nav-item nav-item--button" type="button" @click="cycleTheme">
+            <el-icon :size="17">
               <component :is="themeIcon" />
             </el-icon>
             <span>{{ themeLabel }}</span>
           </button>
+          <button class="nav-item nav-item--button" type="button" @click="handleLogout">
+            <el-icon :size="17"><SwitchButton /></el-icon>
+            <span>退出登录</span>
+          </button>
+        </section>
+      </nav>
+
+      <el-dropdown trigger="click">
+        <button class="user-panel" type="button">
+          <span class="user-avatar">{{ usernameInitial }}</span>
+          <span class="user-copy">
+            <strong>{{ username || "未登录用户" }}</strong>
+            <span>{{ roleName }}</span>
+          </span>
+          <el-icon :size="15"><ArrowDown /></el-icon>
+        </button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item @click="cycleTheme">{{ themeLabel }}</el-dropdown-item>
+            <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </aside>
+
+    <section class="workspace">
+      <header class="top-bar">
+        <div class="top-title">
+          <p>{{ roleName }} / {{ activeGroupLabel }}</p>
+          <h1>{{ pageTitle }}</h1>
         </div>
-      </aside>
+        <div class="top-actions">
+          <SearchInput
+            v-model="globalKeyword"
+            class="top-search"
+            placeholder="搜索功能数据..."
+            @keyup.enter="handleGlobalSearch"
+          />
+          <el-button :icon="Download" @click="handleExport">导出报表</el-button>
+          <el-button type="primary" :icon="Plus" @click="handleCreate">新建</el-button>
+        </div>
+      </header>
 
       <main class="content">
         <router-view />
       </main>
-    </div>
+    </section>
   </div>
-
-  <el-dialog v-model="editVisible" title="更改信息" width="360px">
-    <el-form label-position="top">
-      <el-form-item label="用户名">
-        <el-input v-model="editForm.username" placeholder="请输入新的用户名" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button @click="editVisible = false">取消</el-button>
-      <el-button type="primary" @click="submitEdit">保存</el-button>
-    </template>
-  </el-dialog>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { ArrowDown, Moon, Sunny, SwitchButton } from "@element-plus/icons-vue";
+import {
+  ArrowDown,
+  Collection,
+  DataLine,
+  DocumentChecked,
+  Download,
+  Files,
+  Moon,
+  Plus,
+  Reading,
+  Sunny,
+  SwitchButton,
+  Tickets,
+  User,
+} from "@element-plus/icons-vue";
+import { ElMessage } from "element-plus";
 import { useUserStore } from "@/stores/userStore";
 import { useThemeStore } from "@/stores/themeStore";
+import SearchInput from "@/components/SearchInput.vue";
 import http from "@/net/index.js";
-import { ElMessage } from "element-plus";
 
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
 const themeStore = useThemeStore();
-const hoverLogout = ref(false);
-const editVisible = ref(false);
-const editForm = ref({ username: "" });
+const globalKeyword = ref("");
 
-const menus = [
-  { label: "仪表盘", path: "/dashboard", roles: ["admin", "teacher"] },
-  { label: "用户管理", path: "/admin/users", roles: ["admin"] },
-  { label: "学科管理", path: "/courses", roles: ["admin", "teacher"] },
+const menuGroups = [
   {
-    label: "作业管理",
-    path: "/assignments/manage",
-    roles: ["admin", "teacher"],
+    label: "概览",
+    items: [
+      { label: "数据看板", path: "/dashboard", roles: ["admin", "teacher"], icon: DataLine },
+      { label: "未提交作业", path: "/student/home", roles: ["student"], icon: Tickets },
+    ],
   },
-  { label: "学生列表", path: "/teacher/students", roles: ["teacher"] },
-  { label: "未提交作业", path: "/student/home", roles: ["student"] },
-  { label: "已提交作业", path: "/student/assignments", roles: ["student"] },
+  {
+    label: "管理",
+    items: [
+      { label: "用户管理", path: "/admin/users", roles: ["admin"], icon: User },
+      { label: "学科管理", path: "/courses", roles: ["admin", "teacher"], icon: Reading },
+      { label: "作业管理", path: "/assignments/manage", roles: ["admin", "teacher"], icon: Files },
+      { label: "学生列表", path: "/teacher/students", roles: ["teacher"], icon: Collection },
+      { label: "已提交作业", path: "/student/assignments", roles: ["student"], icon: DocumentChecked },
+    ],
+  },
 ];
 
-const activePath = computed(() => route.path);
-const filteredMenus = computed(() =>
-  menus.filter((m) => m.roles.includes(userStore.role))
+const filteredMenuGroups = computed(() =>
+  menuGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => item.roles.includes(userStore.role)),
+    }))
+    .filter((group) => group.items.length)
 );
+
+const activePath = computed(() => route.path);
+const flatMenus = computed(() => filteredMenuGroups.value.flatMap((group) => group.items));
+const activeMenu = computed(() => flatMenus.value.find((item) => item.path === activePath.value));
+const activeGroupLabel = computed(() => {
+  const group = filteredMenuGroups.value.find((item) =>
+    item.items.some((menu) => menu.path === activePath.value)
+  );
+  return group?.label || "系统";
+});
+const pageTitle = computed(() => route.meta.title || activeMenu.value?.label || "工作台");
 
 const username = computed(() => userStore.username);
 const usernameInitial = computed(() =>
   userStore.username ? userStore.username[0].toUpperCase() : "U"
 );
-const pillDisplay = computed(() => username.value || "退出登录");
+const roleName = computed(() => {
+  if (userStore.role === "admin") return "超级管理员";
+  if (userStore.role === "teacher") return "教师";
+  if (userStore.role === "student") return "学生";
+  return "访客";
+});
 
 const themeLabel = computed(() => {
-  if (themeStore.mode === "dark") return "夜间模式";
-  if (themeStore.mode === "light") return "日间模式";
+  if (themeStore.mode === "dark") return "深色模式";
+  if (themeStore.mode === "light") return "浅色模式";
   return "跟随系统";
 });
 
@@ -138,33 +190,35 @@ const goHome = () => {
   }
 };
 
+const handleGlobalSearch = () => {
+  if (!globalKeyword.value.trim()) return;
+  ElMessage.info(`正在搜索：${globalKeyword.value.trim()}`);
+};
+
+const handleExport = () => {
+  ElMessage.success("报表导出任务已创建");
+};
+
+const handleCreate = () => {
+  if (route.path === "/courses") {
+    ElMessage.info("请使用当前页面的新建学科入口");
+    return;
+  }
+  if (route.path === "/assignments/manage") {
+    ElMessage.info("请使用当前页面的新建作业入口");
+    return;
+  }
+  ElMessage.info("请在对应业务页创建新内容");
+};
+
 const handleLogout = async () => {
   try {
-    await http.post("/auth/logout");
+    await http.post("/user/auth/logout");
   } catch (e) {
     // ignore logout error
   } finally {
     userStore.logout();
     router.push("/login");
-  }
-};
-
-const openEdit = () => {
-  editForm.value = { username: userStore.username };
-  editVisible.value = true;
-};
-
-const submitEdit = async () => {
-  try {
-    await http.put("/users/admin/update", {
-      userId: userStore.user?.userId,
-      username: editForm.value.username,
-    });
-    userStore.user = { ...(userStore.user || {}), username: editForm.value.username };
-    ElMessage.success("信息已更新");
-    editVisible.value = false;
-  } catch (e) {
-    ElMessage.error("更新失败");
   }
 };
 </script>

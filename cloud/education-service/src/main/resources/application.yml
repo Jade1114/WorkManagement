@@ -1,0 +1,19 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: education-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        enabled: ${NACOS_DISCOVERY_ENABLED:true}
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+  config:
+    import:
+      - optional:nacos:db-config.yaml?group=DEFAULT_GROUP
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true

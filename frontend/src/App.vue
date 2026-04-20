@@ -69,12 +69,22 @@ onBeforeUnmount(() => {
 .app-shell {
   height: 100vh;
   background: var(--color-bg-page);
-  padding: var(--spacing-xl);
+  padding: clamp(12px, 2vw, 24px);
+  overflow: hidden;
 }
 
 .app-main {
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
 }
 </style>

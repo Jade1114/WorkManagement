@@ -10,6 +10,8 @@ logs/
 
 # Build outputs
 backend/target/
+cloud/target/
+cloud/**/target/
 backend/.mvn/wrapper/maven-wrapper.jar
 
 # Dependency caches

@@ -1,14 +1,18 @@
 <template>
   <div class="page">
-    <section class="card header-card">
-      <div>
-        <h2>用户管理</h2>
-      </div>
-      <div class="header-actions">
+    <PageHeader
+      eyebrow="People"
+      title="用户管理"
+      description="账号、身份和状态放在同一个平面里，方便快速整理权限。"
+      variant="people"
+      metric-label="当前用户"
+      :metric-value="filteredUsers.length"
+    >
+      <template #actions>
         <SearchInput v-model="searchKeyword" placeholder="搜索用户名" style="width: 220px" />
         <el-button :icon="Refresh" :loading="loading" @click="loadUsers">刷新</el-button>
-      </div>
-    </section>
+      </template>
+    </PageHeader>
 
     <TableShell :data="pagedUsers" :loading="loading">
       <el-table-column prop="username" label="用户名" min-width="140" />
@@ -66,6 +70,7 @@ import http from '@/net/index.js'
 import Pagination from '@/components/Pagination.vue'
 import TableShell from '@/components/TableShell.vue'
 import SearchInput from '@/components/SearchInput.vue'
+import PageHeader from '@/components/PageHeader.vue'
 
 const roles = ['admin', 'teacher', 'student']
 const users = ref([])
@@ -90,7 +95,7 @@ const pagedUsers = computed(() => {
 const loadUsers = async () => {
   loading.value = true
   try {
-    const data = await http.get('/users/admin/list')
+    const data = await http.get('/user/users')
     users.value = (data || []).map(u => ({
       id: u.id,
       username: u.username,
@@ -106,8 +111,7 @@ const loadUsers = async () => {
 
 const updateRole = async (payload) => {
   try {
-    await http.put('/users/admin/update', {
-      userId: payload.id,
+    await http.patch(`/user/users/${payload.id}`, {
       role: payload.role
     })
     ElMessage.success(`已将 ${payload.username} 设置为 ${payload.role}`)
@@ -119,9 +123,8 @@ const updateRole = async (payload) => {
 
 const toggleActive = async (row) => {
   try {
-    await http.put('/users/admin/update', {
-      userId: row.id,
-      active: row.active ? 0 : 1
+    await http.patch(`/user/users/${row.id}`, {
+      active: !row.active
     })
     row.active = !row.active
     ElMessage.success(`${row.username} 状态已${row.active ? '启用' : '封禁'}`)
@@ -156,19 +159,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xl);
-}
-
-.header-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-l);
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-m);
 }
 
 .muted {

@@ -1,0 +1,30 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        enabled: ${NACOS_DISCOVERY_ENABLED:true}
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+    gateway:
+      routes:
+        - id: education-service-route
+          uri: lb://education-service
+          predicates:
+            - Path=/education/**
+          filters:
+            - StripPrefix=1
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+  config:
+    import:
+      - optional:nacos:jwt-config.yaml?group=DEFAULT_GROUP
