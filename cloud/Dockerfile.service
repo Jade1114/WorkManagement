@@ -1,0 +1,19 @@
+FROM maven:3.9.9-eclipse-temurin-17 AS builder
+ARG MODULE
+WORKDIR /build
+
+COPY pom.xml ./
+COPY gateway-service/pom.xml gateway-service/pom.xml
+COPY user-service/pom.xml user-service/pom.xml
+COPY education-service/pom.xml education-service/pom.xml
+COPY gateway-service/src gateway-service/src
+COPY user-service/src user-service/src
+COPY education-service/src education-service/src
+
+RUN mvn -q -pl ${MODULE} -am package -DskipTests
+
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+ARG MODULE
+COPY --from=builder /build/${MODULE}/target/${MODULE}-0.0.1-SNAPSHOT.jar app.jar
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

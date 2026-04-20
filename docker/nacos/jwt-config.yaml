@@ -1,0 +1,9 @@
+# 在这里粘贴最终的 Nacos JWT 配置
+# 例如：
+# jwt:
+#   secret: your-jwt-secret
+#   expireMs: 86400000
+
+jwt:
+  secret: ce_shi_demo_spring_cloud_learn_config
+  expireMs: 3600000
